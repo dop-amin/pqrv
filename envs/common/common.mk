@@ -7,7 +7,7 @@ SRC_DIR=./src
 BUILD_DIR=./build/$(TARGET)
 
 
-CFLAGS += -fpic -Wall -Wextra -Werror -Wshadow -Wno-unused-parameter
+CFLAGS += -fpic -Wall -Wextra -Werror -Wshadow -Wno-unused-parameter -fomit-frame-pointer -static
 CFLAGS += $(CFLAGS_EXTRA)
 
 CFLAGS+= -Ofast \

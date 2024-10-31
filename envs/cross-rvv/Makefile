@@ -1,3 +1,3 @@
-CFLAGS += -rv64imacv_zba_zbb -mabi=lp64 -DVECTOR128 -DRV64=1
+CFLAGS += -march=rv64imadcv -mabi=lp64d -DVECTOR128 -DRV64=1
 
 include ../common/cross.mk

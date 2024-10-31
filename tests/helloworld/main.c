@@ -23,7 +23,6 @@
  */
 
 #include <hal.h>
-#include <misc.h>
 
 void rvv_test( void *src, uint16_t *dst );
 
