@@ -1,3 +1,3 @@
 [submodule "slothy"]
 	path = slothy
-	url = git@github.com:slothy-optimizer/slothy.git
+	url = git@github.com:thisisjube/slothy.git
