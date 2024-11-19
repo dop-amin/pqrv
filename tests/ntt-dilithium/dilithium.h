@@ -1,0 +1,6 @@
+#ifndef DILITHIUM_H
+#define DILITHIUM_H
+#define DILITHIUM_N 256
+#define NTT_SIZE DILITHIUM_N
+#define DILITHIUM_Q 8380417
+#endif
