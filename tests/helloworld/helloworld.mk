@@ -5,6 +5,7 @@ TESTS += helloworld
 
 # Platforms this test should run on (matching the directory name in envs/)
 HELLOWORLD_PLATFORMS += cross-rvv
+HELLOWORLD_PLATFORMS += cross-rv64im
 
 # C sources required for this test
 HELLOWORLD_SOURCES += main.c
