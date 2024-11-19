@@ -52,7 +52,7 @@ uint8_t get_random_byte()
 
 void debug_test_start( const char *testname )
 {
-    fprintf( FILENO, "%s ... ", testname );
+    fprintf( FILENO, "%s ... \n", testname );
     fflush( FILENO );
 }
 
@@ -66,11 +66,6 @@ void debug_printf(const char * format, ... )
 
 void debug_test_ok()   { printf( "Ok\n"    ); }
 void debug_test_fail() { printf( "FAIL!\n" ); }
-
-
-#if !defined(EXTERNAL_CYCLES) && !defined(PERF_CYCLES) && !defined(PMU_CYCLES) && !defined(NO_CYCLES)
-#define NO_CYCLES
-#endif
 
 #if !defined(NO_CYCLES)
 uint64_t cpucycles_overhead(void)
