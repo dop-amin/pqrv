@@ -20,6 +20,7 @@
           name = "RISC-V 64 Toolchain";
 
           nativeBuildInputs = [
+            qemu
           ];
 
           buildInputs = [
