@@ -77,6 +77,8 @@ int test_ ## var ()                                                         \
 MAKE_TEST_NTT(ntt_8l_rv64im, ntt_8l_rv64im_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
 MAKE_TEST_NTT(ntt_8l_dual_rv64im, ntt_8l_dual_rv64im_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
 
+MAKE_TEST_NTT(ntt_8l_rv64im_opti, ntt_8l_rv64im_opt_wrap, ntt_8l_dual_rv64im, DILITHIUM_Q)
+
 #define MAKE_BENCH(var, func)                                \
     int bench_ntt_##var()                                           \
     {                                                               \
@@ -105,6 +107,8 @@ MAKE_TEST_NTT(ntt_8l_dual_rv64im, ntt_8l_dual_rv64im_wrap, ntt_8l_rv64im_wrap, D
 MAKE_BENCH(8l_rv64im, ntt_8l_rv64im_wrap);
 MAKE_BENCH(8l_dual_rv64im, ntt_8l_dual_rv64im_wrap);
 
+MAKE_BENCH(8l_rv64im_opt, ntt_8l_rv64im_opt_wrap)
+
 
 int main (void)
 {
@@ -114,8 +118,12 @@ int main (void)
     if( test_ntt_8l_rv64im() != 0 ){return( 1 );}
     if( test_ntt_8l_dual_rv64im() != 0 ){return( 1 );}
 
+    if( test_ntt_8l_rv64im_opti() != 0 ){return( 1 );}
+
     bench_ntt_8l_rv64im();
     bench_ntt_8l_dual_rv64im();
+
+    bench_ntt_8l_rv64im_opt();
 
     return( 0 );
 }
