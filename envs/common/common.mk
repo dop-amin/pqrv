@@ -72,3 +72,8 @@ run: $(TARGET)
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -f *.elf
+
+# Running
+.PHONY: copy
+copy: $(TARGET)
+	scp ./$(TARGET) $(SSH_DEST):$(SSH_PATH)

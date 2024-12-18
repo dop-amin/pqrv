@@ -19,7 +19,7 @@ builds          := $(addprefix build-, $(platformtests))
 runs            := $(addprefix run-, $(platformtests))
 runsplatform    := $(addprefix runall-, $(platforms))
 cleans          := $(addprefix clean-, $(platformtests))
-
+copys           := $(addprefix copy-, $(platformtests))
 
 .PHONY: all
 all: ${builds}
@@ -48,3 +48,10 @@ ${cleans}: clean-%:
 
 .PHONY: clean
 clean: ${cleans}
+
+.PHONY: ${copys}
+${copys}: copy-%:
+	make -C envs/$(platform) copy CFLAGS_EXTRA='$(call testcflags,$(test))' SOURCES='$(call testsources,$(test),../../)' ASMS='$(call testasms,$(test),../../)' TARGET=$(call elfname,$(test)) TESTDIR=$(call testdir,$(test),../../)
+
+.PHONY: copy
+copy: ${copys}
