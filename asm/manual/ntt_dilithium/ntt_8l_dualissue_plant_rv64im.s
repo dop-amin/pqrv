@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/ntt_dilithium/ntt_8l_dualissue_plant_rv64im.s
