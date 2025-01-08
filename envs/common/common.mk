@@ -76,5 +76,5 @@ clean:
 # Running
 .PHONY: run-remote
 run-remote: $(TARGET)
-	scp -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST):$(SSH_PATH)
-	ssh -i $(SSH_ID) -F /home/juber/.ssh/config localadmin@k230-0 './$(TARGET)'
+	scp -i $(SSH_ID) -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST):$(SSH_PATH)
+	ssh -i $(SSH_ID) -F $(SSH_CONF) $(SSH_DEST) './$(TARGET)'
