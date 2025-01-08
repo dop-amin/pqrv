@@ -19,7 +19,7 @@ builds          := $(addprefix build-, $(platformtests))
 runs            := $(addprefix run-, $(platformtests))
 runsplatform    := $(addprefix runall-, $(platforms))
 cleans          := $(addprefix clean-, $(platformtests))
-copys           := $(addprefix copy-, $(platformtests))
+run-remotes     := $(addprefix run-remote-, $(platformtests))
 
 .PHONY: all
 all: ${builds}
@@ -46,12 +46,12 @@ ${runsplatform}:
 ${cleans}: clean-%:
 	make -C envs/$(platform) clean
 
-.PHONY: clean
-clean: ${cleans}
+.PHONY: run-remote
+run-remote: ${run-remotes}
 
-.PHONY: ${copys}
-${copys}: copy-%:
-	make -C envs/$(platform) copy CFLAGS_EXTRA='$(call testcflags,$(test))' SOURCES='$(call testsources,$(test),../../)' ASMS='$(call testasms,$(test),../../)' TARGET=$(call elfname,$(test)) TESTDIR=$(call testdir,$(test),../../)
+.PHONY: ${run-remotes}
+${run-remotes}: run-remote-%:
+	make -C envs/$(platform) run-remote CFLAGS_EXTRA='$(call testcflags,$(test))' SOURCES='$(call testsources,$(test),../../)' ASMS='$(call testasms,$(test),../../)' TARGET=$(call elfname,$(test)) TESTDIR=$(call testdir,$(test),../../)
 
-.PHONY: copy
-copy: ${copys}
+.PHONY: run-remote
+run-remote: ${run-remotes}

@@ -74,6 +74,7 @@ clean:
 	rm -f *.elf
 
 # Running
-.PHONY: copy
-copy: $(TARGET)
-	scp ./$(TARGET) $(SSH_DEST):$(SSH_PATH)
+.PHONY: run-remote
+run-remote: $(TARGET)
+	scp -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST):$(SSH_PATH)
+	ssh -i $(SSH_ID) -F /home/juber/.ssh/config localadmin@k230-0 './$(TARGET)'
