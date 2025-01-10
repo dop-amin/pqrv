@@ -2,6 +2,7 @@
 include tests/helloworld/helloworld.mk
 include tests/ntt-dilithium/ntt-dilithium.mk
 include tests/profiling/profiling.mk
+include tests/uarch-testing/uarch-testing.mk
 
 testname = $(shell echo $(1) | tr '[a-z]' '[A-Z]' | tr '-' '_' | tr '/' '_')
 testdir = $(addprefix $(2),tests/$(firstword $(subst /, ,$1))/)
