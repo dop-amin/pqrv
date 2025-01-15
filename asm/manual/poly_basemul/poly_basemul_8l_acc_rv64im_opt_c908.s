@@ -34,6 +34,9 @@
   ld ra,  14*8(sp)
 .endm
 
+// 1 + 14 + 1 + 1 + 32 * 50 + 14 + 1 = 1632 instructions
+// IPC = 1632/ 1149 = 1.42
+
 // void poly_basemul_8l_acc_rv64im(int64_t r[256], const int32_t a[256], const int32_t b[256])
 .globl poly_basemul_8l_acc_rv64im_opt_c908
 .align 2
@@ -42,6 +45,7 @@ poly_basemul_8l_acc_rv64im_opt_c908:
     save_regs
     // loop control
     li gp, 32*8*8
+    // 2048
     add gp, gp, a0
 poly_basemul_8l_acc_rv64im_looper:
                                   // Instructions:    50

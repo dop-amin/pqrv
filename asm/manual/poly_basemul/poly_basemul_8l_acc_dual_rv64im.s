@@ -34,6 +34,9 @@
   ld ra,  14*8(sp)
 .endm
 
+// 1 + 14 + 1 + 32 * 50 + 14 + 1 + 1 = 1632
+// IPC = 1632/ 1408 = 1.15
+
 // void poly_basemul_8l_acc_dual_rv64im(int64_t r[256], const int32_t a[256], const int32_t b[256])
 .globl poly_basemul_8l_acc_dual_rv64im
 .align 2
