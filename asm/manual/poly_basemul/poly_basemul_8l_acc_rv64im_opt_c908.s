@@ -34,8 +34,8 @@
   ld ra,  14*8(sp)
 .endm
 
-// 1 + 14 + 1 + 1 + 32 * 50 + 14 + 1 = 1632 instructions
-// IPC = 1632/ 1149 = 1.42
+// 1 + 14 + 1 + 1 + 32 * 52 + 14 + 1 + 1 = 1697 instructions
+// IPC = 1697/ 1149 = 1.48
 
 // void poly_basemul_8l_acc_rv64im(int64_t r[256], const int32_t a[256], const int32_t b[256])
 .globl poly_basemul_8l_acc_rv64im_opt_c908
