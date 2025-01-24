@@ -1,4 +1,5 @@
 # Tests
+include tests/easy-bench/easy-bench.mk
 include tests/helloworld/helloworld.mk
 include tests/ntt-dilithium/ntt-dilithium.mk
 include tests/profiling/profiling.mk
