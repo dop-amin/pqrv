@@ -28,6 +28,7 @@
 #include <misc.h>
 #include <poly_tools.h>
 #include "test.h"
+#include "perf.h"
 
 #define WARMUP_ITERATIONS  1000
 #define ITER_PER_TEST      1000
@@ -45,28 +46,25 @@ uint64_t cycles[TEST_COUNT];
     int bench_##var()                                                   \
     {                                                                   \
         debug_printf("bench test %-50s", #func "\0");                   \
-                                                                        \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)();\
         }                                                               \
-                                                                        \
+        init_perf_events();                                                                \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
         { \
-            t0 = get_cyclecounter();                                \
-            for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++)   \
-                (func)();                                        \
-            t1 = get_cyclecounter();                                \
-            cycles[cnt] = (t1 - t0) / ITER_PER_TEST;                \
+            start_counting_events(); \
+            for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {   \
+                (func)();                                       \
+            } \
+            stop_and_read_events(); \
+              \
         }                                                           \
                                                                     \
-        /* Report median */                                         \
-        uint64_t median_val = median(cycles, TEST_COUNT);           \
-            debug_printf("%5lld cycles %6u repeats\n", median_val, TEST_COUNT * ITER_PER_TEST); \
-                                                                    \
+        calc_average(ITER_PER_TEST, TEST_COUNT); \
         return (0);                                                 \
     }
 
-MAKE_BENCH(test, test)
+MAKE_BENCH(test, test_opt_c908)
 
 
 

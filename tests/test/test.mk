@@ -9,6 +9,7 @@ TEST_PLATFORMS += cross-rv64im
 
 # C sources required for this test
 TEST_SOURCES += main.c
+TEST_SOURCES += perf.c
 
 # Assembly sources required for this test
 TEST_ASM_DIR = ../../asm/manual/

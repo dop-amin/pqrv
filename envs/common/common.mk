@@ -77,4 +77,4 @@ clean:
 .PHONY: run-remote
 run-remote: $(TARGET)
 	scp -i $(SSH_ID) -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST):$(SSH_PATH)
-	ssh -i $(SSH_ID) -F $(SSH_CONF) $(SSH_DEST) './$(TARGET)'
+	ssh -i $(SSH_ID) -F $(SSH_CONF) $(SSH_DEST) '/home/./$(TARGET)'
