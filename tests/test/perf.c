@@ -9,10 +9,9 @@ int perf_event_open(struct perf_event_attr * hw, pid_t pid, int cpu, int grp, un
     return syscall(__NR_perf_event_open, hw, pid, cpu, grp, flags);
 }
 
-// function implementation
 void init_perf_events() {
 
-  for (int i = 0; i < NUM_EVENTS-1; i++) {
+  for (int i = 0; i < NUM_EVENTS-2; i++) {
     attr[i].type = PERF_TYPE_RAW;
     attr[i].config = events_list[i];
     attr[i].disabled = 0;
@@ -21,6 +20,16 @@ void init_perf_events() {
       perror("Opening performance counter");
     }
   }
+  // perf built in counter: Total instructions
+  attr[14].type = PERF_TYPE_HARDWARE;
+  attr[14].config =  PERF_COUNT_HW_INSTRUCTIONS;
+  attr[14].disabled = 0;
+  fd[14] = perf_event_open(&attr[14], getpid(), -1, -1, 0);
+  if (fd[14] < 0) {
+    perror("Opening performance counter");
+  }
+
+  // perf built in counter: total CPU cycles
   attr[15].type = PERF_TYPE_HARDWARE;
   attr[15].config = PERF_COUNT_HW_CPU_CYCLES;
   attr[15].disabled = 0;
@@ -68,10 +77,14 @@ struct event_counter* stop_and_read_events() {
 }
 
 void calc_average(int ITER_PER_TEST, int TEST_COUNT) {
-  for(int i=0;i<16;i++) { \
+  for (int i = 0; i < NUM_EVENTS; i++) {
+    events_counter_list[i].count = events_counter_list[i].count - (ITER_PER_TEST * TEST_COUNT)*events_counter_list[i].offset;
     events_counter_list[i].count = events_counter_list[i].count / (ITER_PER_TEST * TEST_COUNT);
   }
-  for (int i = 0; i < NUM_EVENTS-1; i++) {
+}
+
+void print_counter() {
+  for (int i = 0; i < NUM_EVENTS; i++) {
     printf("%s, %i \n", events_counter_list[i].name, events_counter_list[i].count);
   }
 }

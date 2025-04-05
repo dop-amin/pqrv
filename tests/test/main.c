@@ -61,19 +61,19 @@ uint64_t cycles[TEST_COUNT];
         }                                                           \
                                                                     \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
+        print_counter(); \
         return (0);                                                 \
     }
 
 MAKE_BENCH(test, test_opt_c908)
-
-
+MAKE_BENCH(overhead, empty_dummy)
 
 int main (void)
 {
     /* Test preamble */
     debug_test_start( "Test!" );
-
-    bench_test();
+    bench_overhead();
+    //bench_test();
 
     return( 0 );
 }

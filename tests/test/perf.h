@@ -30,4 +30,6 @@ extern struct event_counter* stop_and_read_events();
 
 extern void calc_average(int ITER_PER_TEST, int TEST_COUNT);
 
+extern void print_counter();
+
 #endif //PERF_H
