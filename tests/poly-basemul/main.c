@@ -29,6 +29,7 @@
 #include <poly_tools.h>
 #include "dilithium.h"
 #include "pqrv_paper.h"
+#include "perf.h"
 
 #define WARMUP_ITERATIONS  1000
 #define ITER_PER_TEST      1000
@@ -74,37 +75,36 @@ int test_ ## var ()                                                         \
     return( 0 );                                                            \
 }
 
-MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im, poly_basemul_8l_acc_rv64im_wrap, poly_basemul_8l_acc_rv64im_wrap, DILITHIUM_Q)
+//MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im, poly_basemul_8l_acc_rv64im_wrap, poly_basemul_8l_acc_rv64im_wrap, DILITHIUM_Q)
 MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_dual_rv64im, poly_basemul_8l_acc_dual_rv64im_wrap, poly_basemul_8l_acc_rv64im_wrap, DILITHIUM_Q)
 MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im_opt, poly_basemul_8l_acc_rv64im_opt_wrap, poly_basemul_8l_acc_rv64im_wrap, DILITHIUM_Q)
 
-
-#define MAKE_BENCH(var, func)                                \
-    int bench_##var()                                           \
-    {                                                               \
+#define MAKE_BENCH(var, func)                                           \
+    int bench_##var()                                                   \
+    {                                                                   \
         debug_printf("bench poly_basemul %-50s", #func "\0");      \
         int32_t src[DILITHIUM_N] __attribute__((aligned(16)));         \
-                                                                    \
-        for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++)      \
-            (func)(src);                                            \
-                                                                    \
+        \
+        for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
+            (func)(src);\
+        }                                                               \
+        init_perf_events();                                                                \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
-        {                                                           \
-            t0 = get_cyclecounter();                                \
-            for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++)   \
-                (func)(src);                                        \
-            t1 = get_cyclecounter();                                \
-            cycles[cnt] = (t1 - t0) / ITER_PER_TEST;                \
+        { \
+            start_counting_events(); \
+            for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {   \
+                (func)(src);                                       \
+            } \
+            stop_and_read_events(); \
+              \
         }                                                           \
                                                                     \
-        /* Report median */                                         \
-        uint64_t median_val = median(cycles, TEST_COUNT);           \
-            debug_printf("%5lld cycles %6u repeats\n", median_val, TEST_COUNT * ITER_PER_TEST); \
-                                                                    \
+        calc_average(ITER_PER_TEST, TEST_COUNT); \
+        print_counter(); \
         return (0);                                                 \
     }
 
-MAKE_BENCH(poly_basemul_8l_acc_rv64im, poly_basemul_8l_acc_rv64im_wrap)
+//MAKE_BENCH(poly_basemul_8l_acc_rv64im, poly_basemul_8l_acc_rv64im_wrap)
 MAKE_BENCH(poly_basemul_8l_acc_dual_rv64im, poly_basemul_8l_acc_dual_rv64im_wrap)
 MAKE_BENCH(poly_basemul_8l_acc_rv64im_opt, poly_basemul_8l_acc_rv64im_opt_wrap)
 
@@ -114,11 +114,11 @@ int main (void)
     /* Test preamble */
     debug_test_start( "Poly basemul!" );
 
-    if( test_poly_basemul_8l_acc_rv64im() != 0 ) return 1 ;
+    //if( test_poly_basemul_8l_acc_rv64im() != 0 ) return 1 ;
     if( test_poly_basemul_8l_acc_dual_rv64im() != 0) return 1;
     if( test_poly_basemul_8l_acc_rv64im_opt() != 0 ) return 1 ;
 
-    bench_poly_basemul_8l_acc_rv64im();
+    //bench_poly_basemul_8l_acc_rv64im();
     bench_poly_basemul_8l_acc_dual_rv64im();
     bench_poly_basemul_8l_acc_rv64im_opt();
 

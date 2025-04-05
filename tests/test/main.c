@@ -72,8 +72,8 @@ int main (void)
 {
     /* Test preamble */
     debug_test_start( "Test!" );
-    bench_overhead();
-    //bench_test();
+    //bench_overhead();
+    bench_test();
 
     return( 0 );
 }
