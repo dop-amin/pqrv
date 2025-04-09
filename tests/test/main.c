@@ -50,23 +50,22 @@ uint64_t cycles[TEST_COUNT];
             (func)();\
         }                                                               \
         init_perf_events();                                                                \
+        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
         { \
-            start_counting_events(); \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {   \
                 (func)();                                       \
             } \
-            stop_and_read_events(); \
               \
         }                                                           \
-                                                                    \
+        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         print_counter(); \
         return (0);                                                 \
     }
 
 MAKE_BENCH(test, test_opt_c908)
-MAKE_BENCH(overhead, empty_dummy)
+//MAKE_BENCH(overhead, empty_dummy)
 
 int main (void)
 {

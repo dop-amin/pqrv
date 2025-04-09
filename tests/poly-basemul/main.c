@@ -88,24 +88,23 @@ MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im_opt, poly_basemul_8l_acc_rv64i
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(src);\
         }                                                               \
-        init_perf_events();                                                                \
+        init_perf_events(); \
+        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
         { \
-            start_counting_events(); \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {   \
                 (func)(src);                                       \
             } \
-            stop_and_read_events(); \
               \
         }                                                           \
-                                                                    \
+        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         print_counter(); \
         return (0);                                                 \
     }
 
 //MAKE_BENCH(poly_basemul_8l_acc_rv64im, poly_basemul_8l_acc_rv64im_wrap)
-MAKE_BENCH(poly_basemul_8l_acc_dual_rv64im, poly_basemul_8l_acc_dual_rv64im_wrap)
+//MAKE_BENCH(poly_basemul_8l_acc_dual_rv64im, poly_basemul_8l_acc_dual_rv64im_wrap)
 MAKE_BENCH(poly_basemul_8l_acc_rv64im_opt, poly_basemul_8l_acc_rv64im_opt_wrap)
 
 
@@ -115,11 +114,11 @@ int main (void)
     debug_test_start( "Poly basemul!" );
 
     //if( test_poly_basemul_8l_acc_rv64im() != 0 ) return 1 ;
-    if( test_poly_basemul_8l_acc_dual_rv64im() != 0) return 1;
+    //if( test_poly_basemul_8l_acc_dual_rv64im() != 0) return 1;
     if( test_poly_basemul_8l_acc_rv64im_opt() != 0 ) return 1 ;
 
     //bench_poly_basemul_8l_acc_rv64im();
-    bench_poly_basemul_8l_acc_dual_rv64im();
+    //bench_poly_basemul_8l_acc_dual_rv64im();
     bench_poly_basemul_8l_acc_rv64im_opt();
 
     return( 0 );

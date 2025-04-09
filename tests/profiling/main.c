@@ -18,13 +18,13 @@ int main( void )
     debug_printf( "=========== uArch profiling ===============\n" );
 
     debug_printf( "- Enable cycle counter ..." );
-    enable_cyclecounter();
+    //enable_cyclecounter();
     debug_printf( "ok\n" );
 
     profile_full();
 
     debug_printf( "- Disable cycle counter ..." );
-    disable_cyclecounter();
+    //disable_cyclecounter();
     debug_printf( "ok\n" );
 
     debug_printf( "\nDone!\n" );

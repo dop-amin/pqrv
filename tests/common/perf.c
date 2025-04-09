@@ -83,6 +83,9 @@ void calc_average(int ITER_PER_TEST, int TEST_COUNT) {
   }
 }
 
+unsigned int get_total_cycles() {
+    return (unsigned int) events_counter_list[15].count;
+}
 void print_counter() {
   for (int i = 0; i < NUM_EVENTS; i++) {
     printf("%s, %i \n", events_counter_list[i].name, events_counter_list[i].count);

@@ -2,6 +2,7 @@
 #define PROFILING_H
 
 #include <hal.h>
+#include "perf.h"
 
 typedef void (*ubench_t)(void*,void*,void*,void*,void*);
 
