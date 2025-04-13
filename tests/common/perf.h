@@ -16,6 +16,7 @@
 #include <linux/unistd.h>
 #include <linux/perf_event.h>
 #include <sys/ioctl.h>
+#include <hal.h>
 
 
 
@@ -28,9 +29,11 @@ extern void start_counting_events();
 
 extern struct event_counter* stop_and_read_events();
 
+extern void cleanup_perf_events();
+
 extern void calc_average(int ITER_PER_TEST, int TEST_COUNT);
 
-extern unsigned int get_total_cycles();
+extern int get_total_cycles();
 
 extern void print_counter();
 

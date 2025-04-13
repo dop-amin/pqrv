@@ -21,13 +21,16 @@ unsigned int measure(ubench_t func)
     {
         for( unsigned cntp=0; cntp < ITER_PER_TEST; cntp++ )
         {
+
             func( data0 + 1024, data1 + 1024,
                   data2 + 1024, data3 + 1024,
                   data4 + 1024 );
+
         }
     }
     stop_and_read_events();
     calc_average(ITER_PER_TEST, UBENCH_PATTERN_REPEATS);
+    cleanup_perf_events();
     return get_total_cycles();
 }
 
@@ -44,7 +47,8 @@ void profile_full()
     debug_printf( "===== Stepwise profiling =======\n");
     for( unsigned int i=0; i < num_ubenchs_prefix; i++ )
     {
-        unsigned int median = measure(ubenchs_prefix[i]);
+        int median = measure(ubenchs_prefix[i]);
+        debug_printf("%i", median);
         median = median % maxchars;
         memset( tmp, '.', maxchars );
         tmp[median] = '*';

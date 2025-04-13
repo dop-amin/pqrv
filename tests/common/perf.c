@@ -58,34 +58,31 @@ struct event_counter* stop_and_read_events() {
   }
   asm volatile ("nop;"); // pseudo-barrier
 
+  for (int i = 0; i < NUM_EVENTS; i++) {
+    events_counter_list[i].count += val2[i] - val1[i];
+  }
+  return events_counter_list;
+}
+
+void cleanup_perf_events() {
   // Close the counter
   for (int i = 0; i < NUM_EVENTS; i++) {
     close(fd[i]);
   }
-
-  for (int i = 0; i < NUM_EVENTS; i++) {
-    events_counter_list[i].count += val2[i] - val1[i];
-  }
-
-
-  //for (int i = 0; i < NUM_EVENTS-1; i++) {
-    //printf("%s, %i \n", events_counter_list[i].name, events_counter_list[i].count);
-  //}
-  //printf("%s, %lu \n", "Total Cycles", val2[15]-val1[15]);
-  printf("\n");
-  return events_counter_list;
 }
 
 void calc_average(int ITER_PER_TEST, int TEST_COUNT) {
   for (int i = 0; i < NUM_EVENTS; i++) {
-    events_counter_list[i].count = events_counter_list[i].count - (ITER_PER_TEST * TEST_COUNT)*events_counter_list[i].offset;
+    //events_counter_list[i].count = events_counter_list[i].count - (ITER_PER_TEST * TEST_COUNT)*events_counter_list[i].offset;
     events_counter_list[i].count = events_counter_list[i].count / (ITER_PER_TEST * TEST_COUNT);
+    //debug_printf("%i\n", events_counter_list[i].count);
   }
 }
 
-unsigned int get_total_cycles() {
-    return (unsigned int) events_counter_list[15].count;
+int get_total_cycles() {
+    return events_counter_list[15].count;
 }
+
 void print_counter() {
   for (int i = 0; i < NUM_EVENTS; i++) {
     printf("%s, %i \n", events_counter_list[i].name, events_counter_list[i].count);

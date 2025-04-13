@@ -60,6 +60,7 @@ uint64_t cycles[TEST_COUNT];
         }                                                           \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
+        cleanup_perf_events(); \
         print_counter(); \
         return (0);                                                 \
     }
