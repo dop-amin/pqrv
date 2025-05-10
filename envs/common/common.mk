@@ -11,6 +11,8 @@ CFLAGS += -fpic -Wall -Wextra -Werror -Wshadow -Wno-unused-parameter -fomit-fram
 CFLAGS += $(CFLAGS_EXTRA)
 
 CFLAGS+= -Ofast \
+	-g \
+	-ox \
 	-I$(COMMON_INC) \
 	-I$(ENV_INC) \
 	-I$(SRC_DIR) \

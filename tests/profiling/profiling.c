@@ -16,19 +16,19 @@ unsigned int measure(ubench_t func)
                data2 + 1024, data3 + 1024,
                data4 + 1024 );
     init_perf_events();
-    start_counting_events();
+
     for( unsigned cnt=0; cnt < TEST_COUNT; cnt++ )
     {
         for( unsigned cntp=0; cntp < ITER_PER_TEST; cntp++ )
         {
-
+            start_counting_events();
             func( data0 + 1024, data1 + 1024,
                   data2 + 1024, data3 + 1024,
                   data4 + 1024 );
-
+            stop_and_read_events();
         }
     }
-    stop_and_read_events();
+
     calc_average(ITER_PER_TEST, UBENCH_PATTERN_REPEATS);
     cleanup_perf_events();
     return get_total_cycles();

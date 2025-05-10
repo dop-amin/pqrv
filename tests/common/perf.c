@@ -73,7 +73,7 @@ void cleanup_perf_events() {
 
 void calc_average(int ITER_PER_TEST, int TEST_COUNT) {
   for (int i = 0; i < NUM_EVENTS; i++) {
-    //events_counter_list[i].count = events_counter_list[i].count - (ITER_PER_TEST * TEST_COUNT)*events_counter_list[i].offset;
+    events_counter_list[i].count = events_counter_list[i].count - (ITER_PER_TEST * TEST_COUNT)*events_counter_list[i].offset;
     events_counter_list[i].count = events_counter_list[i].count / (ITER_PER_TEST * TEST_COUNT);
     //debug_printf("%i\n", events_counter_list[i].count);
   }

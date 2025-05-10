@@ -99,6 +99,7 @@ MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im_opt, poly_basemul_8l_acc_rv64i
         }                                                           \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
+        cleanup_perf_events(); \
         print_counter(); \
         return (0);                                                 \
     }

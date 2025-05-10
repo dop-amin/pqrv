@@ -97,6 +97,7 @@ MAKE_TEST_NTT(ntt_8l_rv64im_opt, ntt_8l_rv64im_opt_wrap, ntt_8l_dual_rv64im_wrap
         }                                                           \
         stop_and_read_events();                                \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
+        cleanup_perf_events(); \
         print_counter(); \
         return (0);                                                 \
     }
