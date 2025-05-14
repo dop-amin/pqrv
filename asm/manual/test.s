@@ -45,11 +45,7 @@ test_opt_c908:
     nop
     nop
     .rept 50
-        mulh x17, x17, x17
-        mulh x18, x18, x18
-        mulh x19, x19, x19
-        mulh x20, x20, x20
-        mulh x21, x21, x21
+        vle8.v v0, (x0)
     .endr
     nop
     nop
