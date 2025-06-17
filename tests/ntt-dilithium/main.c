@@ -29,6 +29,7 @@
 #include <poly_tools.h>
 #include "dilithium.h"
 #include "pqrv_paper.h"
+#include "perf.h"
 
 #define WARMUP_ITERATIONS  1000
 #define ITER_PER_TEST      1000
@@ -77,6 +78,8 @@ int test_ ## var ()                                                         \
 MAKE_TEST_NTT(ntt_8l_rv64im, ntt_8l_rv64im_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
 MAKE_TEST_NTT(ntt_8l_dual_rv64im, ntt_8l_dual_rv64im_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
 
+MAKE_TEST_NTT(ntt_8l_rv64im_opt, ntt_8l_rv64im_opt_wrap, ntt_8l_dual_rv64im_wrap, DILITHIUM_Q)
+
 #define MAKE_BENCH(var, func)                                \
     int bench_ntt_##var()                                           \
     {                                                               \
@@ -85,25 +88,24 @@ MAKE_TEST_NTT(ntt_8l_dual_rv64im, ntt_8l_dual_rv64im_wrap, ntt_8l_rv64im_wrap, D
                                                                     \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++)      \
             (func)(src);                                            \
-                                                                    \
+        init_perf_events();                                         \
+        start_counting_events();                                \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
         {                                                           \
-            t0 = get_cyclecounter();                                \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++)   \
                 (func)(src);                                        \
-            t1 = get_cyclecounter();                                \
-            cycles[cnt] = (t1 - t0) / ITER_PER_TEST;                \
         }                                                           \
-                                                                    \
-        /* Report median */                                         \
-        uint64_t median_val = median(cycles, TEST_COUNT);           \
-            debug_printf("%5lld cycles %6u repeats\n", median_val, TEST_COUNT * ITER_PER_TEST); \
-                                                                    \
+        stop_and_read_events();                                \
+        calc_average(ITER_PER_TEST, TEST_COUNT); \
+        cleanup_perf_events(); \
+        print_counter(); \
         return (0);                                                 \
     }
 
 MAKE_BENCH(8l_rv64im, ntt_8l_rv64im_wrap);
 MAKE_BENCH(8l_dual_rv64im, ntt_8l_dual_rv64im_wrap);
+
+MAKE_BENCH(8l_rv64im_opt, ntt_8l_rv64im_opt_wrap)
 
 
 int main (void)
@@ -114,8 +116,12 @@ int main (void)
     if( test_ntt_8l_rv64im() != 0 ){return( 1 );}
     if( test_ntt_8l_dual_rv64im() != 0 ){return( 1 );}
 
+    if( test_ntt_8l_rv64im_opt() != 0 ){return( 1 );}
+
     bench_ntt_8l_rv64im();
     bench_ntt_8l_dual_rv64im();
+
+    bench_ntt_8l_rv64im_opt();
 
     return( 0 );
 }

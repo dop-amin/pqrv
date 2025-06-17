@@ -1,3 +1,4 @@
 [submodule "slothy"]
 	path = slothy
 	url = git@github.com:thisisjube/slothy.git
+	branch = riscv

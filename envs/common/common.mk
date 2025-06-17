@@ -11,6 +11,8 @@ CFLAGS += -fpic -Wall -Wextra -Werror -Wshadow -Wno-unused-parameter -fomit-fram
 CFLAGS += $(CFLAGS_EXTRA)
 
 CFLAGS+= -Ofast \
+	-g \
+	-ox \
 	-I$(COMMON_INC) \
 	-I$(ENV_INC) \
 	-I$(SRC_DIR) \
@@ -74,6 +76,7 @@ clean:
 	rm -f *.elf
 
 # Running
-.PHONY: copy
-copy: $(TARGET)
-	scp ./$(TARGET) $(SSH_DEST):$(SSH_PATH)
+.PHONY: run-remote
+run-remote: $(TARGET)
+	scp -i $(SSH_ID) -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST):$(SSH_PATH)
+	ssh -i $(SSH_ID) -F $(SSH_CONF) $(SSH_DEST) '/home/./$(TARGET)'
