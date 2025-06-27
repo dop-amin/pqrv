@@ -75,10 +75,6 @@ int test_ ## var ()                                                         \
     return( 0 );                                                            \
 }
 
-//MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im, poly_basemul_8l_acc_rv64im_wrap, poly_basemul_8l_acc_rv64im_wrap, DILITHIUM_Q)
-MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_dual_rv64im, poly_basemul_8l_acc_dual_rv64im_wrap, poly_basemul_8l_acc_rv64im_wrap, DILITHIUM_Q)
-MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im_opt, poly_basemul_8l_acc_rv64im_opt_wrap, poly_basemul_8l_acc_rv64im_wrap, DILITHIUM_Q)
-
 #define MAKE_BENCH(var, func)                                           \
     int bench_##var()                                                   \
     {                                                                   \
@@ -104,23 +100,93 @@ MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im_opt, poly_basemul_8l_acc_rv64i
         return (0);                                                 \
     }
 
-//MAKE_BENCH(poly_basemul_8l_acc_rv64im, poly_basemul_8l_acc_rv64im_wrap)
-//MAKE_BENCH(poly_basemul_8l_acc_dual_rv64im, poly_basemul_8l_acc_dual_rv64im_wrap)
-MAKE_BENCH(poly_basemul_8l_acc_rv64im_opt, poly_basemul_8l_acc_rv64im_opt_wrap)
+// === TESTS ===
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im,                  poly_basemul_8l_acc_rv64im_wrap,              poly_basemul_8l_acc_rv64im_wrap,   DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_end_rv64im,              poly_basemul_8l_acc_end_rv64im_wrap,          poly_basemul_8l_acc_end_rv64im_wrap, DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_init_rv64im,                 poly_basemul_8l_init_rv64im_wrap,             poly_basemul_8l_init_rv64im_wrap,  DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_rv64im,                      poly_basemul_8l_rv64im_wrap,                  poly_basemul_8l_rv64im_wrap,       DILITHIUM_Q)
+
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im_dual,             poly_basemul_8l_acc_rv64im_dual_wrap,         poly_basemul_8l_acc_rv64im_wrap,   DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_end_rv64im_dual,         poly_basemul_8l_acc_end_rv64im_dual_wrap,     poly_basemul_8l_acc_end_rv64im_wrap, DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_init_rv64im_dual,            poly_basemul_8l_init_rv64im_dual_wrap,        poly_basemul_8l_init_rv64im_wrap,  DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_rv64im_dual,                 poly_basemul_8l_rv64im_dual_wrap,             poly_basemul_8l_rv64im_wrap,       DILITHIUM_Q)
+
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im_opt_c908,         poly_basemul_8l_acc_rv64im_opt_c908_wrap,     poly_basemul_8l_acc_rv64im_wrap,   DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_end_rv64im_opt_c908,     poly_basemul_8l_acc_end_rv64im_opt_c908_wrap, poly_basemul_8l_acc_end_rv64im_wrap, DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_init_rv64im_opt_c908,        poly_basemul_8l_init_rv64im_opt_c908_wrap,    poly_basemul_8l_init_rv64im_wrap,  DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_rv64im_opt_c908,             poly_basemul_8l_rv64im_opt_c908_wrap,         poly_basemul_8l_rv64im_wrap,       DILITHIUM_Q)
+
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_rv64im_opt_c908_dual,    poly_basemul_8l_acc_rv64im_opt_c908_dual_wrap,    poly_basemul_8l_acc_rv64im_wrap,   DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_acc_end_rv64im_opt_c908_dual,poly_basemul_8l_acc_end_rv64im_opt_c908_dual_wrap,poly_basemul_8l_acc_end_rv64im_wrap, DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_init_rv64im_opt_c908_dual,   poly_basemul_8l_init_rv64im_opt_c908_dual_wrap,   poly_basemul_8l_init_rv64im_wrap,  DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL(poly_basemul_8l_rv64im_opt_c908_dual,        poly_basemul_8l_rv64im_opt_c908_dual_wrap,        poly_basemul_8l_rv64im_wrap,       DILITHIUM_Q)
+
+// === BENCHMARKS ===
+MAKE_BENCH(poly_basemul_8l_acc_rv64im,              poly_basemul_8l_acc_rv64im_wrap)
+MAKE_BENCH(poly_basemul_8l_acc_end_rv64im,          poly_basemul_8l_acc_end_rv64im_wrap)
+MAKE_BENCH(poly_basemul_8l_init_rv64im,             poly_basemul_8l_init_rv64im_wrap)
+MAKE_BENCH(poly_basemul_8l_rv64im,                  poly_basemul_8l_rv64im_wrap)
+
+MAKE_BENCH(poly_basemul_8l_acc_rv64im_dual,         poly_basemul_8l_acc_rv64im_dual_wrap)
+MAKE_BENCH(poly_basemul_8l_acc_end_rv64im_dual,     poly_basemul_8l_acc_end_rv64im_dual_wrap)
+MAKE_BENCH(poly_basemul_8l_init_rv64im_dual,        poly_basemul_8l_init_rv64im_dual_wrap)
+MAKE_BENCH(poly_basemul_8l_rv64im_dual,             poly_basemul_8l_rv64im_dual_wrap)
+
+MAKE_BENCH(poly_basemul_8l_acc_rv64im_opt_c908,     poly_basemul_8l_acc_rv64im_opt_c908_wrap)
+MAKE_BENCH(poly_basemul_8l_acc_end_rv64im_opt_c908, poly_basemul_8l_acc_end_rv64im_opt_c908_wrap)
+MAKE_BENCH(poly_basemul_8l_init_rv64im_opt_c908,    poly_basemul_8l_init_rv64im_opt_c908_wrap)
+MAKE_BENCH(poly_basemul_8l_rv64im_opt_c908,         poly_basemul_8l_rv64im_opt_c908_wrap)
+
+MAKE_BENCH(poly_basemul_8l_acc_rv64im_opt_c908_dual,         poly_basemul_8l_acc_rv64im_opt_c908_dual_wrap)
+MAKE_BENCH(poly_basemul_8l_acc_end_rv64im_opt_c908_dual,     poly_basemul_8l_acc_end_rv64im_opt_c908_dual_wrap)
+MAKE_BENCH(poly_basemul_8l_init_rv64im_opt_c908_dual,        poly_basemul_8l_init_rv64im_opt_c908_dual_wrap)
+MAKE_BENCH(poly_basemul_8l_rv64im_opt_c908_dual,             poly_basemul_8l_rv64im_opt_c908_dual_wrap)
 
 
+// === MAIN FUNCTION ===
 int main (void)
 {
-    /* Test preamble */
     debug_test_start( "Poly basemul!" );
 
-    //if( test_poly_basemul_8l_acc_rv64im() != 0 ) return 1 ;
-    //if( test_poly_basemul_8l_acc_dual_rv64im() != 0) return 1;
-    if( test_poly_basemul_8l_acc_rv64im_opt() != 0 ) return 1 ;
+    if (test_poly_basemul_8l_acc_rv64im()           != 0) return 1;
+    if (test_poly_basemul_8l_acc_end_rv64im()       != 0) return 1;
+    if (test_poly_basemul_8l_init_rv64im()          != 0) return 1;
+    if (test_poly_basemul_8l_rv64im()               != 0) return 1;
 
-    //bench_poly_basemul_8l_acc_rv64im();
-    //bench_poly_basemul_8l_acc_dual_rv64im();
-    bench_poly_basemul_8l_acc_rv64im_opt();
+    if (test_poly_basemul_8l_acc_rv64im_dual()      != 0) return 1;
+    if (test_poly_basemul_8l_acc_end_rv64im_dual()  != 0) return 1;
+    if (test_poly_basemul_8l_init_rv64im_dual()     != 0) return 1;
+    if (test_poly_basemul_8l_rv64im_dual()          != 0) return 1;
 
-    return( 0 );
+    if (test_poly_basemul_8l_acc_rv64im_opt_c908()      != 0) return 1;
+    if (test_poly_basemul_8l_acc_end_rv64im_opt_c908()  != 0) return 1;
+    if (test_poly_basemul_8l_init_rv64im_opt_c908()     != 0) return 1;
+    if (test_poly_basemul_8l_rv64im_opt_c908()          != 0) return 1;
+
+    if (test_poly_basemul_8l_acc_rv64im_opt_c908_dual()     != 0) return 1;
+    if (test_poly_basemul_8l_acc_end_rv64im_opt_c908_dual() != 0) return 1;
+    if (test_poly_basemul_8l_init_rv64im_opt_c908_dual()    != 0) return 1;
+    if (test_poly_basemul_8l_rv64im_opt_c908_dual()         != 0) return 1;
+
+    bench_poly_basemul_8l_acc_rv64im();
+    bench_poly_basemul_8l_acc_end_rv64im();
+    bench_poly_basemul_8l_init_rv64im();
+    bench_poly_basemul_8l_rv64im();
+
+    bench_poly_basemul_8l_acc_rv64im_dual();
+    bench_poly_basemul_8l_acc_end_rv64im_dual();
+    bench_poly_basemul_8l_init_rv64im_dual();
+    bench_poly_basemul_8l_rv64im_dual();
+
+    bench_poly_basemul_8l_acc_rv64im_opt_c908();
+    bench_poly_basemul_8l_acc_end_rv64im_opt_c908();
+    bench_poly_basemul_8l_init_rv64im_opt_c908();
+    bench_poly_basemul_8l_rv64im_opt_c908();
+
+    bench_poly_basemul_8l_acc_rv64im_opt_c908_dual();
+    bench_poly_basemul_8l_acc_end_rv64im_opt_c908_dual();
+    bench_poly_basemul_8l_init_rv64im_opt_c908_dual();
+    bench_poly_basemul_8l_rv64im_opt_c908_dual();
+
+    return 0;
 }
