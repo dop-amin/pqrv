@@ -74,6 +74,30 @@ extern void poly_basemul_acc_cache_init_rv64im_dual_opt_c908(int32_t r[256], con
 extern void poly_basemul_acc_cache_init_end_rv64im_opt_c908(int16_t r[256], const int16_t a[256], const int16_t b[256], int16_t cache[256], const int64_t zeta[128], const int32_t acc[256]);
 extern void poly_basemul_acc_cache_init_end_rv64im_dual_opt_c908(int16_t r[256], const int16_t a[256], const int16_t b[256], int16_t cache[256], const int32_t zeta[128], const int32_t acc[256]);
 
+// ===== RVV FUNCTIONS =====
+
+// RVV functions - 4 parameters (int16_t r, int16_t a, int16_t b, int16_t table)
+extern void poly_basemul_rvv_vlen128(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256]);
+extern void poly_basemul_acc_rvv_vlen128(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256]);
+
+// RVV functions - 5 parameters (int16_t r, int16_t a, int16_t b, int16_t table, int16_t b_cache)
+extern void poly_basemul_cached_rvv_vlen128(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256], int16_t b_cache[256]);
+extern void poly_basemul_acc_cached_rvv_vlen128(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256], int16_t b_cache[256]);
+extern void poly_basemul_cache_init_rvv_vlen128(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256], int16_t b_cache[256]);
+extern void poly_basemul_acc_cache_init_rvv_vlen128(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256], int16_t b_cache[256]);
+
+// ===== RVV OPTIMIZED FUNCTIONS =====
+
+// RVV optimized functions - 4 parameters (int16_t r, int16_t a, int16_t b, int16_t table)
+extern void poly_basemul_rvv_vlen128_opt_c908(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256]);
+extern void poly_basemul_acc_rvv_vlen128_opt_c908(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256]);
+
+// RVV optimized functions - 5 parameters (int16_t r, int16_t a, int16_t b, int16_t table, int16_t b_cache)
+extern void poly_basemul_cached_rvv_vlen128_opt_c908(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256], int16_t b_cache[256]);
+extern void poly_basemul_acc_cached_rvv_vlen128_opt_c908(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256], int16_t b_cache[256]);
+extern void poly_basemul_cache_init_rvv_vlen128_opt_c908(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256], int16_t b_cache[256]);
+extern void poly_basemul_acc_cache_init_rvv_vlen128_opt_c908(int16_t r[256], const int16_t a[256], const int16_t b[256], const int16_t table[256], int16_t b_cache[256]);
+
 // ===== Wrapper functions =====
 
 // 4-parameter wrappers (int32_t r, int16_t a, int16_t b, int64_t zeta)
@@ -203,6 +227,62 @@ void poly_basemul_acc_cache_init_end_rv64im_opt_c908_wrap(int16_t *r, const int1
 
 void poly_basemul_acc_cache_init_end_rv64im_dual_opt_c908_wrap(int16_t *r, const int16_t *a, const int16_t *b, int16_t *cache, const int32_t *zeta, const int32_t *acc) {
     poly_basemul_acc_cache_init_end_rv64im_dual_opt_c908(r, a, b, cache, zeta, acc);
+}
+
+// ===== RVV WRAPPER FUNCTIONS =====
+
+// RVV wrappers - 4 parameters (int16_t r, int16_t a, int16_t b, int16_t table)
+void poly_basemul_rvv_vlen128_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table) {
+    poly_basemul_rvv_vlen128(r, a, b, table);
+}
+
+void poly_basemul_acc_rvv_vlen128_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table) {
+    poly_basemul_acc_rvv_vlen128(r, a, b, table);
+}
+
+// RVV wrappers - 5 parameters (int16_t r, int16_t a, int16_t b, int16_t table, int16_t b_cache)
+void poly_basemul_cached_rvv_vlen128_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table, int16_t *b_cache) {
+    poly_basemul_cached_rvv_vlen128(r, a, b, table, b_cache);
+}
+
+void poly_basemul_acc_cached_rvv_vlen128_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table, int16_t *b_cache) {
+    poly_basemul_acc_cached_rvv_vlen128(r, a, b, table, b_cache);
+}
+
+void poly_basemul_cache_init_rvv_vlen128_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table, int16_t *b_cache) {
+    poly_basemul_cache_init_rvv_vlen128(r, a, b, table, b_cache);
+}
+
+void poly_basemul_acc_cache_init_rvv_vlen128_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table, int16_t *b_cache) {
+    poly_basemul_acc_cache_init_rvv_vlen128(r, a, b, table, b_cache);
+}
+
+// ===== RVV OPTIMIZED WRAPPER FUNCTIONS =====
+
+// RVV optimized wrappers - 4 parameters (int16_t r, int16_t a, int16_t b, int16_t table)
+void poly_basemul_rvv_vlen128_opt_c908_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table) {
+    poly_basemul_rvv_vlen128_opt_c908(r, a, b, table);
+}
+
+void poly_basemul_acc_rvv_vlen128_opt_c908_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table) {
+    poly_basemul_acc_rvv_vlen128_opt_c908(r, a, b, table);
+}
+
+// RVV optimized wrappers - 5 parameters (int16_t r, int16_t a, int16_t b, int16_t table, int16_t b_cache)
+void poly_basemul_cached_rvv_vlen128_opt_c908_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table, int16_t *b_cache) {
+    poly_basemul_cached_rvv_vlen128_opt_c908(r, a, b, table, b_cache);
+}
+
+void poly_basemul_acc_cached_rvv_vlen128_opt_c908_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table, int16_t *b_cache) {
+    poly_basemul_acc_cached_rvv_vlen128_opt_c908(r, a, b, table, b_cache);
+}
+
+void poly_basemul_cache_init_rvv_vlen128_opt_c908_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table, int16_t *b_cache) {
+    poly_basemul_cache_init_rvv_vlen128_opt_c908(r, a, b, table, b_cache);
+}
+
+void poly_basemul_acc_cache_init_rvv_vlen128_opt_c908_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table, int16_t *b_cache) {
+    poly_basemul_acc_cache_init_rvv_vlen128_opt_c908(r, a, b, table, b_cache);
 }
 
 #endif // PQRV_PAPER_H
