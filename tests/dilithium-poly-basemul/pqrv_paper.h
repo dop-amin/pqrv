@@ -27,6 +27,18 @@ extern void poly_basemul_8l_acc_end_rv64im_dual_opt_c908(int32_t r[256], const i
 extern void poly_basemul_8l_init_rv64im_dual_opt_c908(int64_t r[256], const int32_t a[256], const int32_t b[256]);
 extern void poly_basemul_8l_rv64im_dual_opt_c908(int32_t r[256], const int32_t a[256], const int32_t b[256]);
 
+// ===== RVV FUNCTIONS =====
+
+// RVV functions - 3 parameters (int32_t r, int32_t a, int32_t b)
+extern void poly_basemul_rvv_vlen128(int32_t r[256], const int32_t a[256], const int32_t b[256]);
+extern void poly_basemul_acc_rvv_vlen128(int32_t r[256], const int32_t a[256], const int32_t b[256]);
+
+// ===== RVV OPTIMIZED FUNCTIONS =====
+
+// RVV optimized functions - 3 parameters (int32_t r, int32_t a, int32_t b)
+extern void poly_basemul_rvv_vlen128_opt_c908(int32_t r[256], const int32_t a[256], const int32_t b[256]);
+extern void poly_basemul_acc_rvv_vlen128_opt_c908(int32_t r[256], const int32_t a[256], const int32_t b[256]);
+
 // ===== Wrapper functions =====
 
 // single issue wrappers - 3 parameters (int64_t r, int32_t a, int32_t b)
@@ -99,6 +111,28 @@ void poly_basemul_8l_rv64im_opt_c908_dual_wrap(int32_t *r, const int32_t *a, con
 // optimized dual issue wrappers - 4 parameters (int32_t r, int32_t a, int32_t b, int64_t r_double)
 void poly_basemul_8l_acc_end_rv64im_opt_c908_dual_wrap(int32_t *r, const int32_t *a, const int32_t *b, int64_t *r_double) {
     poly_basemul_8l_acc_end_rv64im_dual_opt_c908(r, a, b, r_double);
+}
+
+// ===== RVV WRAPPER FUNCTIONS =====
+
+// RVV wrappers - 3 parameters (int32_t r, int32_t a, int32_t b)
+void poly_basemul_rvv_vlen128_wrap(int32_t *r, const int32_t *a, const int32_t *b) {
+    poly_basemul_rvv_vlen128(r, a, b);
+}
+
+void poly_basemul_acc_rvv_vlen128_wrap(int32_t *r, const int32_t *a, const int32_t *b) {
+    poly_basemul_acc_rvv_vlen128(r, a, b);
+}
+
+// ===== RVV OPTIMIZED WRAPPER FUNCTIONS =====
+
+// RVV optimized wrappers - 3 parameters (int32_t r, int32_t a, int32_t b)
+void poly_basemul_rvv_vlen128_opt_c908_wrap(int32_t *r, const int32_t *a, const int32_t *b) {
+    poly_basemul_rvv_vlen128_opt_c908(r, a, b);
+}
+
+void poly_basemul_acc_rvv_vlen128_opt_c908_wrap(int32_t *r, const int32_t *a, const int32_t *b) {
+    poly_basemul_acc_rvv_vlen128_opt_c908(r, a, b);
 }
 
 #endif // PQRV_PAPER_H

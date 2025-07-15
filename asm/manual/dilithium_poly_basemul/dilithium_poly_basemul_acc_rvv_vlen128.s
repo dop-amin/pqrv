@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/dilithium_basemul/dilithium_poly_basemul_acc_rvv_vlen128.s

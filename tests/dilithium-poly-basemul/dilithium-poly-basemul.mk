@@ -33,3 +33,11 @@ DILITHIUM_POLY_BASEMUL_ASMS += $(DILITHIUM_POLY_BASEMUL_ASM_DIR)/dilithium_poly_
 DILITHIUM_POLY_BASEMUL_ASMS += $(DILITHIUM_POLY_BASEMUL_ASM_DIR)/dilithium_poly_reduce_rv64im_opt_c908.s
 DILITHIUM_POLY_BASEMUL_ASMS += $(DILITHIUM_POLY_BASEMUL_ASM_DIR)/dilithium_poly_reduce_rv64im.s
 
+# RVV assembly sources
+DILITHIUM_POLY_BASEMUL_ASMS += $(DILITHIUM_POLY_BASEMUL_ASM_DIR)/dilithium_poly_basemul_rvv_vlen128.s
+DILITHIUM_POLY_BASEMUL_ASMS += $(DILITHIUM_POLY_BASEMUL_ASM_DIR)/dilithium_poly_basemul_acc_rvv_vlen128.s
+
+# RVV optimized assembly sources
+DILITHIUM_POLY_BASEMUL_ASMS += $(DILITHIUM_POLY_BASEMUL_ASM_DIR)/dilithium_poly_basemul_rvv_vlen128_opt_c908.s
+DILITHIUM_POLY_BASEMUL_ASMS += $(DILITHIUM_POLY_BASEMUL_ASM_DIR)/dilithium_poly_basemul_acc_rvv_vlen128_opt_c908.s
+

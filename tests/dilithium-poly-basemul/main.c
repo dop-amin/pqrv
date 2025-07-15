@@ -272,6 +272,14 @@ MAKE_TEST_POLY_BASEMUL_3P_INT64(poly_basemul_8l_acc_rv64im_opt_c908_dual,    pol
 MAKE_TEST_POLY_BASEMUL_3P_INT64(poly_basemul_8l_init_rv64im_opt_c908_dual,   poly_basemul_8l_init_rv64im_opt_c908_dual_wrap,   poly_basemul_8l_init_rv64im_wrap,  DILITHIUM_Q)
 MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_8l_rv64im_opt_c908_dual,        poly_basemul_8l_rv64im_opt_c908_dual_wrap,        poly_basemul_8l_rv64im_wrap,       DILITHIUM_Q)
 
+// RVV functions (sanity check - compare against themselves)
+MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_rvv_vlen128,                     poly_basemul_rvv_vlen128_wrap,                    poly_basemul_rvv_vlen128_wrap,       DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_acc_rvv_vlen128,                 poly_basemul_acc_rvv_vlen128_wrap,                poly_basemul_acc_rvv_vlen128_wrap,       DILITHIUM_Q)
+
+// RVV optimized functions (compare against basic RVV versions)
+MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_rvv_vlen128_opt_c908,            poly_basemul_rvv_vlen128_opt_c908_wrap,           poly_basemul_rvv_vlen128_wrap,     DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_acc_rvv_vlen128_opt_c908,        poly_basemul_acc_rvv_vlen128_opt_c908_wrap,       poly_basemul_acc_rvv_vlen128_wrap, DILITHIUM_Q)
+
 // === BENCHMARKS ===
 MAKE_BENCH_3P_INT64(poly_basemul_8l_acc_rv64im,              poly_basemul_8l_acc_rv64im_wrap)
 MAKE_BENCH_4P_INT32(poly_basemul_8l_acc_end_rv64im,          poly_basemul_8l_acc_end_rv64im_wrap)
@@ -319,6 +327,14 @@ int main (void)
     // if (test_poly_basemul_8l_acc_end_rv64im_opt_c908_dual() != 0) return 1;
     if (test_poly_basemul_8l_init_rv64im_opt_c908_dual()    != 0) return 1;
     if (test_poly_basemul_8l_rv64im_opt_c908_dual()         != 0) return 1;
+
+    // RVV function tests
+    if (test_poly_basemul_rvv_vlen128()                     != 0) return 1;
+    if (test_poly_basemul_acc_rvv_vlen128()                 != 0) return 1;
+
+    // RVV optimized function tests
+    if (test_poly_basemul_rvv_vlen128_opt_c908()            != 0) return 1;
+    if (test_poly_basemul_acc_rvv_vlen128_opt_c908()        != 0) return 1;
 
     bench_poly_basemul_8l_acc_rv64im();
     bench_poly_basemul_8l_acc_end_rv64im();
