@@ -1,0 +1,1 @@
+../../../slothy/examples/opt/riscv/ntt_dilithium/ntt_rvv_opt_c908.s
