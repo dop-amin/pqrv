@@ -20,5 +20,5 @@ NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/intt_dilithium_8l_plant_rv64im_du
 NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/intt_dilithium_8l_plant_rv64im_dual_opt_c908.s
 NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/intt_dilithium_8l_plant_rv64im_opt_c908.s
 NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/ntt_dilithium_rvv_vlen128_unfolded.s
-NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/ntt_rvv_opt_c908.s
+NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/ntt_dilithium_rvv_vlen128_unfolded_opt_c908.s
 

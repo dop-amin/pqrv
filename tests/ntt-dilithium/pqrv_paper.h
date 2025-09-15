@@ -18,7 +18,7 @@ extern void intt_dilithium_8l_plant_rv64im_opt_c908(int32_t *r, const int64_t *z
 extern void intt_dilithium_8l_plant_rv64im_dual_opt_c908(int32_t *r, const int64_t *zetas);
 
 extern void ntt_rvv_vlen128(int32_t *r, const int64_t *zetas);
-extern void ntt_8l_rvv_opt_c908(int32_t *r, const int64_t *zetas);
+extern void ntt_rvv_vlen128_opt_c908(int32_t *r, const int64_t *zetas);
 
 // Wrappers
 void ntt_8l_rv64im_wrap(int32_t *r)
@@ -63,6 +63,6 @@ void ntt_rvv_vlen128_wrap(int32_t *r)
 
 void ntt_8l_rvv_opt_c908_wrap(int32_t *r)
 {
-    ntt_8l_rvv_opt_c908(r, zetas);
+    ntt_rvv_vlen128_opt_c908(r, zetas);
 }
 #endif
