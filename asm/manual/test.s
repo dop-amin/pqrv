@@ -37,33 +37,25 @@
 .globl test_opt_c908
 .align 2
 test_opt_c908:
-    // raw boilerplate code: 38 cycles
     addi sp, sp, -8*15
     save_regs
     nop
     nop
     nop
     nop
-    .rept 50
-        vle8.v v0, (x0)
+    vsetivli t2, 4, e32, m1, tu, mu
+    .rept 100
+      mul x3, x4, x5
+      vadd.vv v2, v3, v4
+      mul x6, x7, x8
+      vadd.vv v5, v6, v7
+      mul x9, x10, x11
+      vadd.vv v8, v9, v10
     .endr
     nop
     nop
     nop
     nop
-    restore_regs
-    addi sp, sp, 8*15
-    ret
-
-        //mulw x18, x18, x18
-        //add x27, x27, x27
-        //add x22, x22, x22
-        //add x26, x26, x26
-        //add x23, x23, x23
-        //add x25, x25, x25
-        //mulw x17, x17, x17
-        //add x27, x27, x27
-        //add x22, x22, x22
-        //add x26, x26, x26
-        //add x23, x23, x23
-        //add x25, x25, x25
+restore_regs
+addi sp, sp, 8*15
+ret

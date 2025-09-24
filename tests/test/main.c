@@ -49,7 +49,7 @@ uint64_t cycles[TEST_COUNT];
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)();\
         }                                                               \
-        init_perf_events();                                                                \
+        init_perf_events(); \
         start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
         { \
@@ -60,8 +60,8 @@ uint64_t cycles[TEST_COUNT];
         }                                                           \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
-        cleanup_perf_events(); \
         print_counter(); \
+        cleanup_perf_events(); \
         return (0);                                                 \
     }
 
