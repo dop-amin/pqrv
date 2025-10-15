@@ -34,34 +34,32 @@
   ld ra,  14*8(sp)
 .endm
 
-.globl test_opt_c908
+.globl barret_mul
 .align 2
-test_opt_c908:
+// uint64_t barrett_mul(uint64_t a, uint64_t b, uint64_t n,
+//                      unsigned k, uint64_t C)
+// Arguments:
+//   a0 = a
+//   a1 = b
+//   a2 = n
+//   a3 = k
+//   a4 = C
+// Returns:
+//   a0 = result
+barret_mul:
     addi sp, sp, -8*15
     save_regs
-    nop
-    nop
-    nop
-    nop
-    vsetivli t2, 4, e32, m1, tu, mu
-    .rept 100
-      //add x3, x4, x5
-      vadd.vv v2, v3, v4
-      //add x6, x7, x8
-      vadd.vv v5, v6, v7
-      //add x9, x10, x11
-      vadd.vv v8, v9, v10
-      //add x12, x13, x14
-      vadd.vv v11, v12, v13
-      vadd.vv v14, v15, v16
-      vadd.vv v17, v18, v19
-      vadd.vv v20, v21, v22
-      vadd.vv v23, v24, v25
-    .endr
-    nop
-    nop
-    nop
-    nop
-restore_regs
-addi sp, sp, 8*15
-ret
+    // z = a*b
+    mul t0, a0, a1
+
+    // t = (a * C) >> k
+    mul t1, a0, a4
+    srl t1, t1, a3
+
+    // r = z - n * t
+    mul t2, a2, t1        // n * t
+    sub a0, t0, t2        // r = z - n*t
+
+    restore_regs
+    addi sp, sp, 8*15
+    ret
