@@ -37,12 +37,12 @@
 .globl barret_mul
 .align 2
 // uint64_t barrett_mul(uint64_t a, uint64_t b, uint64_t n,
-//                      unsigned k, uint64_t C)
+//                      uint64_t k, uint64_t C)
 // Arguments:
 //   a0 = a
 //   a1 = b
 //   a2 = n
-//   a3 = k
+//   a3 = k  // not required if k = 64
 //   a4 = C
 // Returns:
 //   a0 = result
@@ -53,8 +53,7 @@ barret_mul:
     mul t0, a0, a1
 
     // t = (a * C) >> k
-    mul t1, a0, a4
-    srl t1, t1, a3
+    mulhu t1, a0, a4
 
     // r = z - n * t
     mul t2, a2, t1        // n * t

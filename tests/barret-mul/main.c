@@ -28,6 +28,7 @@
 #include <misc.h>
 #include <poly_tools.h>
 #include "barret-mul.h"
+#include "barret-mul-ref.h"
 #include "perf.h"
 
 #define WARMUP_ITERATIONS  1000
@@ -37,19 +38,16 @@
 uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
-uint64_t calc_const(uint32_t b, uint64_t R, uint32_t n) {
-    return (b*R)/n;
-}
+#define MAKE_TEST(var, func)
 
 #define MAKE_BENCH(var, func)                                           \
     int bench_##var()                                                   \
     {                                                                   \
-        uint32_t a = 179; \
-        uint32_t b = 123; \
-        uint32_t n = 13; \
-        uint32_t k = 32;\
-        uint64_t R = 1ULL << k;\
-        uint64_t C = calc_const(b, R, n); \
+        uint64_t a = 179; \
+        uint64_t b = 666; \
+        uint64_t n = 3329; \
+        uint64_t k = 64;\
+        uint64_t C = calc_const(b, k, n); \
         debug_printf("bench test %-50s", #func "\0");                   \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(a, b, n, k, C);\
