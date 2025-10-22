@@ -34,7 +34,7 @@
   ld ra,  14*8(sp)
 .endm
 
-.globl barret_mul_vect
+.globl barret_mul_vect_naive
 .align 2
 // uint64_t void barret_mul_vect(void* a, void* b, uint64_t n,
 //          void* c, void* result)
@@ -46,9 +46,9 @@
 //   a4 = result*
 // Returns:
 //   void (result in a4)
-barret_mul_vect:
+barret_mul_vect_naive:
     li a5, 4
-    vsetvli t0, a5, e64, m1  // 4*64 bit elements per vector
+    vsetvli t0, a5, e64, m1  // 4*64 bit elements per vector @ VLEN=256
 
     vle64.v v0, (a0)  // load vector a
     vle64.v v1, (a1)  // load vector b
@@ -63,5 +63,5 @@ barret_mul_vect:
     // r = z - n * t
     vmul.vx v6, v4, a2        // t*n
     vsub.vv v7, v2, v6        // r = z - n*t
-    vse64.v v7, (a4)  // store result
+    vse64.v v2, (a4)  // store result
     ret

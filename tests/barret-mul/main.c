@@ -69,7 +69,7 @@ void test_vector() {
         }
         calc_const_vect(b, K, n, c, len);
         barret_mul_vect_ref(a, b, n, c, len, ref_result);
-        barret_mul_vect((void*)a, (void*)b, n, (void*)c, (void*)asm_result);
+        barret_mul_vect_opt((void*)a, (void*)b, n, (void*)c, (void*)asm_result);
         for(unsigned int k = 0; k < len; k++) {
             if(ref_result[k] != asm_result[k]) {
                 printf("Error in ASM vector barret multiplication!");

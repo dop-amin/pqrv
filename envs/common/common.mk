@@ -78,7 +78,7 @@ clean:
 # Running
 .PHONY: run-remote
 run-remote: $(TARGET)
-	scp -i $(SSH_ID) -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST):$(SSH_PATH)
-	ssh -i $(SSH_ID) -F $(SSH_CONF) $(SSH_DEST) '$(SSH_PATH)/$(TARGET)'
+	# scp -i $(SSH_ID) -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST):$(SSH_PATH)
+	# ssh -i $(SSH_ID) -F $(SSH_CONF) $(SSH_DEST) '$(SSH_PATH)/$(TARGET)'
 	scp -i $(SSH_ID) -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST2):$(SSH_PATH2)
 	ssh -i $(SSH_ID) -F $(SSH_CONF) $(SSH_DEST2) '$(SSH_PATH2)/$(TARGET)'

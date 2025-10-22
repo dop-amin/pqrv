@@ -14,6 +14,6 @@ BARRET_MUL_SOURCES += barret-mul-ref.c
 # Assembly sources required for this test
 BARRET_MUL_ASM_DIR = ../../asm/manual/
 BARRET_MUL_ASMS += $(BARRET_MUL_ASM_DIR)/barret_mul/barret_mul_scalar.s
-BARRET_MUL_ASMS += $(BARRET_MUL_ASM_DIR)/barret_mul/barret_mul_vect.s
-
+BARRET_MUL_ASMS += $(BARRET_MUL_ASM_DIR)/barret_mul/barret_mul_vect_naive.s
+BARRET_MUL_ASMS += $(BARRET_MUL_ASM_DIR)/barret_mul/barret_mul_vect_opt.s
 
