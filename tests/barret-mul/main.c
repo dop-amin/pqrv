@@ -27,6 +27,8 @@
 #include <common.h>
 #include <misc.h>
 #include <poly_tools.h>
+#include <stdlib.h>
+#include <time.h>
 #include "barret-mul.h"
 #include "barret-mul-ref.h"
 #include "perf.h"
@@ -34,11 +36,49 @@
 #define WARMUP_ITERATIONS  1000
 #define ITER_PER_TEST      1000
 #define TEST_COUNT         100
-
+#define N_TEST             10000
 uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
-#define MAKE_TEST(var, func)
+void test_scalar() {
+    srand(time(NULL));
+    for(int i = 0; i < N_TEST; i++) {
+        uint64_t n = rand();
+        uint64_t a = rand();
+        uint64_t b = rand() % n;
+        uint64_t C = calc_const(b, K, n);
+        uint64_t ref_result = barret_mul_scalar_ref(a, b, n, K, C);
+        uint64_t asm_result = barret_mul_scalar(a, b, n, K, C);
+        if(ref_result != asm_result) {
+            printf("Error in ASM scalar barret multiplication!");
+            return;
+        }
+    }
+    printf("Scalar barret multiplication is correct.");
+}
+
+void test_vector() {
+    srand(time(NULL));
+    uint32_t len = 4;
+    for(int i = 0; i < N_TEST; i++) {
+        uint64_t a[len], b[len], c[len], asm_result[len], ref_result[len];
+        uint64_t n = rand();
+        for(unsigned int j = 0; j < len; j++) {
+            a[j] = rand();
+            b[j] = rand() %n;
+        }
+        calc_const_vect(b, K, n, c, len);
+        barret_mul_vect_ref(a, b, n, c, len, ref_result);
+        barret_mul_vect((void*)a, (void*)b, n, (void*)c, (void*)asm_result);
+        for(unsigned int k = 0; k < len; k++) {
+            if(ref_result[k] != asm_result[k]) {
+                printf("Error in ASM vector barret multiplication!");
+            return;
+            }
+        }
+    }
+    printf("Vector barret multiplication is correct.");
+}
 
 #define MAKE_BENCH(var, func)                                           \
     int bench_##var()                                                   \
@@ -69,15 +109,16 @@ uint64_t cycles[TEST_COUNT];
         return (0);                                                 \
     }
 
-MAKE_BENCH(test, barret_mul)
+//MAKE_BENCH(test, barret_mul)
 //MAKE_BENCH(overhead, empty_dummy)
 
 int main (void)
 {
     /* Test preamble */
-    debug_test_start( "Testing Barret Multiplication!" );
+    debug_test_start( "Testing Barret Multiplication!\n" );
     //bench_overhead();
-    bench_test();
-
+    //bench_test();
+    //test_scalar();
+    test_vector();
     return( 0 );
 }

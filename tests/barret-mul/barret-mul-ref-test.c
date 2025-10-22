@@ -4,12 +4,12 @@
 
 #define NTEST 10000
 
-int test_ref() {
+int test_barret_mul_scalar_ref() {
     uint64_t n = rand();
     uint64_t a = rand();
     uint64_t b = rand() % n;
     int64_t C = calc_const(b, K, n);
-    int64_t result = barret_mul(a, b, n, K, C);
+    int64_t result = barret_mul_scalar(a, b, n, K, C);
     //printf("%lu * %lu mod %lu = %lu\n", a, b, n, barret_mul(a, b, n, K, C));
     if(result != (a*b % n)) {
         return 1;
@@ -20,7 +20,7 @@ int test_ref() {
 int main () {
     srand(time(NULL));
     for(int i=0; i < NTEST; i++) {
-        if(test_ref() != 0) {
+        if(test_barret_mul_scalar_ref() != 0) {
             printf("ERROR");
         }
     }

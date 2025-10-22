@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-extern uint64_t barret_mul(uint64_t a, uint64_t b, uint64_t n, uint64_t k, uint64_t C);
+extern uint64_t barret_mul_scalar(uint64_t a, uint64_t b, uint64_t n, uint64_t k, uint64_t c);
+extern void barret_mul_vect(void* a, void* b, uint64_t n, void* c, void* result);
 __attribute__((optimize("O0"))) void empty_dummy() {}
 #endif

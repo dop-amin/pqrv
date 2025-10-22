@@ -34,31 +34,34 @@
   ld ra,  14*8(sp)
 .endm
 
-.globl barret_mul_scalar
+.globl barret_mul_vect
 .align 2
-// uint64_t barrett_mul_scalar(uint64_t a, uint64_t b, uint64_t n,
-//                      uint64_t k, uint64_t C)
+// uint64_t void barret_mul_vect(void* a, void* b, uint64_t n,
+//          void* c, void* result)
 // Arguments:
-//   a0 = a
-//   a1 = b
+//   a0 = a*
+//   a1 = b*
 //   a2 = n
-//   a3 = k  // not required if k = 64
-//   a4 = C
+//   a3 = c*
+//   a4 = result*
 // Returns:
-//   a0 = result
-barret_mul_scalar:
-    addi sp, sp, -8*15
-    save_regs
+//   void (result in a4)
+barret_mul_vect:
+    li a5, 4
+    vsetvli t0, a5, e64, m1  // 4*64 bit elements per vector
+
+    vle64.v v0, (a0)  // load vector a
+    vle64.v v1, (a1)  // load vector b
+    vle64.v v3, (a3)  // load vector c
+
     // z = a*b
-    mul t0, a0, a1
+    vmul.vv v2, v0, v1
 
     // t = (a * C) >> k
-    mulhu t1, a0, a4
+    vmulhu.vv v4, v0, v3
 
     // r = z - n * t
-    mul t2, a2, t1        // n * t
-    sub a0, t0, t2        // r = z - n*t
-
-    restore_regs
-    addi sp, sp, 8*15
+    vmul.vx v6, v4, a2        // t*n
+    vsub.vv v7, v2, v6        // r = z - n*t
+    vse64.v v7, (a4)  // store result
     ret
