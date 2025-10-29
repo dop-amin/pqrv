@@ -16,4 +16,6 @@ BARRET_MUL_ASM_DIR = ../../asm/manual/
 BARRET_MUL_ASMS += $(BARRET_MUL_ASM_DIR)/barret_mul/barret_mul_scalar.s
 BARRET_MUL_ASMS += $(BARRET_MUL_ASM_DIR)/barret_mul/barret_mul_vect_naive.s
 BARRET_MUL_ASMS += $(BARRET_MUL_ASM_DIR)/barret_mul/barret_mul_vect_opt.s
+BARRET_MUL_ASMS += $(BARRET_MUL_ASM_DIR)/barret_mul/barret_mul_vect_bench.s
+BARRET_MUL_ASMS += $(BARRET_MUL_ASM_DIR)/barret_mul/mont_mul_vect_bench.s
 

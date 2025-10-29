@@ -61,7 +61,10 @@ barret_mul_vect_naive:
     vmulhu.vv v4, v0, v3
 
     // r = z - n * t
-    vmul.vx v6, v4, a2        // t*n
-    vsub.vv v7, v2, v6        // r = z - n*t
+    // t*n
+    vmul.vx v6, v4, a2
+    // r = z - n*t
+    vsub.vv v7, v2, v6
+
     vse64.v v2, (a4)  // store result
     ret

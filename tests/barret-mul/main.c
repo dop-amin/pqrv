@@ -83,42 +83,36 @@ void test_vector() {
 #define MAKE_BENCH(var, func)                                           \
     int bench_##var()                                                   \
     {                                                                   \
-        uint64_t a = 179; \
-        uint64_t b = 666; \
-        uint64_t n = 3329; \
-        uint64_t k = 64;\
-        uint64_t C = calc_const(b, k, n); \
-        debug_printf("bench test %-50s", #func "\0");                   \
+        debug_printf("bench  %-50s", #func "\0");                   \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
-            (func)(a, b, n, k, C);\
+            (func)();\
         }                                                               \
         init_perf_events(); \
         start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
         { \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {   \
-                uint64_t result = (func)(a, b, n, k, C);                     \
-                debug_printf("Result is %lu \n", result); \
+               (func)();                     \
             } \
               \
         }                                                           \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
-        /*print_counter();*/ \
+        print_counter(); \
         cleanup_perf_events(); \
         return (0);                                                 \
     }
 
-//MAKE_BENCH(test, barret_mul)
-//MAKE_BENCH(overhead, empty_dummy)
+MAKE_BENCH(barret_mul, barret_mul_vect_bench);
+MAKE_BENCH(mont_mul, mont_mul_vect_bench)
 
 int main (void)
 {
     /* Test preamble */
-    debug_test_start( "Testing Barret Multiplication!\n" );
-    //bench_overhead();
-    //bench_test();
+    //debug_test_start( "Testing Barret Multiplication!\n" );
+    bench_barret_mul();
+    bench_mont_mul();
     //test_scalar();
-    test_vector();
+    //test_vector();
     return( 0 );
 }
