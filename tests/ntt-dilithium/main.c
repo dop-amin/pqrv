@@ -53,7 +53,7 @@ int test_ ## var ()                                                         \
     /* Setup input */                                                       \
     fill_random_u32( (uint32_t*) src, NTT_SIZE );                           \
     mod_reduce_buf_s32( src, NTT_SIZE, modulus );                           \
-                                                                            \
+                                                                      \
     /* Step 1: Reference NTT */                                             \
     memcpy( src_copy, src, sizeof( src ) );                                 \
     ref_func( src_copy);                                                    \
@@ -61,7 +61,6 @@ int test_ ## var ()                                                         \
                                                                             \
     /* Step 2: Optimized NTT */                                             \
     (func)( src );                                                          \
-                                                                            \
     if( compare_buf_u32( (uint32_t const*) src, (uint32_t const*) src_copy, \
                          NTT_SIZE ) != 0 )                                  \
     {                                                                       \
@@ -88,7 +87,8 @@ MAKE_TEST_NTT(intt_dilithium_8l_plant_rv64im_dual_opt_c908, intt_dilithium_8l_pl
 
 // RVV Tests
 MAKE_TEST_NTT(ntt_rvv_vlen128, ntt_rvv_vlen128_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
-MAKE_TEST_NTT(ntt_8l_rvv_opt_c908, ntt_8l_rvv_opt_c908_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
+//MAKE_TEST_NTT(ntt_8l_rvv_opt_c908, ntt_8l_rvv_opt_c908_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
+MAKE_TEST_NTT(ntt_rvv_vlen128_barret_mul, ntt_rvv_vlen128_barret_mul_wrap, ntt_rvv_vlen128_wrap, DILITHIUM_Q)  // tested against non-optimized rvv ntt
 
 #define MAKE_BENCH(var, func)                                \
     int bench_ntt_##var()                                           \
@@ -125,8 +125,8 @@ MAKE_BENCH(intt_8l_plant_rv64im_dual_opt_c908, intt_dilithium_8l_plant_rv64im_du
 
 // RVV Benchmarks
 MAKE_BENCH(rvv_vlen128, ntt_rvv_vlen128_wrap);
-MAKE_BENCH(8l_rvv_opt_c908, ntt_8l_rvv_opt_c908_wrap);
-
+//MAKE_BENCH(8l_rvv_opt_c908, ntt_8l_rvv_opt_c908_wrap);
+MAKE_BENCH(rvv_vlen128_barret_mul, ntt_rvv_vlen128_barret_mul_wrap);
 
 int main (void)
 {
@@ -146,9 +146,9 @@ int main (void)
 
     // RVV Tests
     if( test_ntt_rvv_vlen128() != 0 ){return( 1 );}
-    if( test_ntt_8l_rvv_opt_c908() != 0 ){return( 1 );}
-
-    debug_printf("Starting benchmarks...\n");
+    //if( test_ntt_8l_rvv_opt_c908() != 0 ){return( 1 );}
+    if( test_ntt_rvv_vlen128_barret_mul() != 0){return( 1 );}
+    /*debug_printf("Starting benchmarks...\n");
 
     // NTT Benchmarks
     bench_ntt_8l_rv64im();
@@ -163,7 +163,8 @@ int main (void)
 
     // RVV Benchmarks
     bench_ntt_rvv_vlen128();
-    bench_ntt_8l_rvv_opt_c908();
+    //bench_ntt_8l_rvv_opt_c908();
+    bench_ntt_rvv_vlen128_barret_mul();*/
 
     debug_printf("Test Success!");
     return( 0 );

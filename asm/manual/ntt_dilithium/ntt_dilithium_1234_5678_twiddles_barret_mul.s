@@ -1,0 +1,1 @@
+/home/juber/Documents/pqrv/slothy/examples/naive/riscv/ntt_dilithium/ntt_dilithium_1234_5678_twiddles_barret_mul.s
