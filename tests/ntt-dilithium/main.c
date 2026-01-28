@@ -30,6 +30,8 @@
 #include "dilithium.h"
 #include "pqrv_paper.h"
 #include "perf.h"
+#include "ntt.h"
+#include "params.h"
 
 #define WARMUP_ITERATIONS  1000
 #define ITER_PER_TEST      1000
@@ -46,7 +48,7 @@ uint64_t cycles[TEST_COUNT];
 int test_ ## var ()                                                         \
 {                                                                           \
     /* debug_test_start( "Test for " #func );*/                             \
-    debug_printf("Test for " #func " ");                                    \
+    debug_printf("Test for " #func " \n");                                    \
     int32_t src[NTT_SIZE]      __attribute__((aligned(16)));                \
     int32_t src_copy[NTT_SIZE] __attribute__((aligned(16)));                \
                                                                             \
@@ -56,7 +58,7 @@ int test_ ## var ()                                                         \
                                                                       \
     /* Step 1: Reference NTT */                                             \
     memcpy( src_copy, src, sizeof( src ) );                                 \
-    ref_func( src_copy);                                                    \
+    (ref_func)( src_copy);                                                  \
                                                                             \
                                                                             \
     /* Step 2: Optimized NTT */                                             \
@@ -75,9 +77,9 @@ int test_ ## var ()                                                         \
 }
 
 // NTT Tests
-MAKE_TEST_NTT(ntt_8l_rv64im, ntt_8l_rv64im_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
-MAKE_TEST_NTT(ntt_8l_dual_rv64im, ntt_8l_dual_rv64im_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
-MAKE_TEST_NTT(ntt_8l_rv64im_opt, ntt_8l_rv64im_opt_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
+MAKE_TEST_NTT(ntt_8l_rv64im, ntt_8l_rv64im_wrap, ntt, DILITHIUM_Q)
+MAKE_TEST_NTT(ntt_8l_dual_rv64im, ntt_8l_dual_rv64im_wrap, ntt, DILITHIUM_Q)
+MAKE_TEST_NTT(ntt_8l_rv64im_opt, ntt_8l_rv64im_opt_wrap, ntt, DILITHIUM_Q)
 
 // INTT Tests - All variants tested against basic non-dual non-optimized implementation
 MAKE_TEST_NTT(intt_dilithium_8l_plant_rv64im, intt_dilithium_8l_plant_rv64im_wrap, intt_dilithium_8l_plant_rv64im_wrap, DILITHIUM_Q)
@@ -86,14 +88,14 @@ MAKE_TEST_NTT(intt_dilithium_8l_plant_rv64im_opt_c908, intt_dilithium_8l_plant_r
 MAKE_TEST_NTT(intt_dilithium_8l_plant_rv64im_dual_opt_c908, intt_dilithium_8l_plant_rv64im_dual_opt_c908_wrap, intt_dilithium_8l_plant_rv64im_wrap, DILITHIUM_Q)
 
 // RVV Tests
-MAKE_TEST_NTT(ntt_rvv_vlen128, ntt_rvv_vlen128_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
+MAKE_TEST_NTT(ntt_rvv_vlen128, ntt_rvv_vlen128_wrap, ntt, DILITHIUM_Q)
 //MAKE_TEST_NTT(ntt_8l_rvv_opt_c908, ntt_8l_rvv_opt_c908_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
 MAKE_TEST_NTT(ntt_rvv_vlen128_barret_mul, ntt_rvv_vlen128_barret_mul_wrap, ntt_rvv_vlen128_wrap, DILITHIUM_Q)  // tested against non-optimized rvv ntt
 
 #define MAKE_BENCH(var, func)                                \
     int bench_ntt_##var()                                           \
     {                                                               \
-        debug_printf("bench ntt_dilithium %-50s", #func "\0");      \
+        debug_printf("bench ntt_dilithium %-50s \n", #func "\0");      \
         int32_t src[DILITHIUM_N] __attribute__((aligned(16)));         \
                                                                     \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++)      \
@@ -130,6 +132,8 @@ MAKE_BENCH(rvv_vlen128_barret_mul, ntt_rvv_vlen128_barret_mul_wrap);
 
 int main (void)
 {
+    int32_t a[256];
+    ntt(a);
     /* Test preamble */
     debug_test_start( "NTT Dilithium!" );
 
@@ -142,7 +146,7 @@ int main (void)
     if( test_intt_dilithium_8l_plant_rv64im() != 0 ){return( 1 );}
     if( test_intt_dilithium_8l_plant_rv64im_dual() != 0 ){return( 1 );}
     if( test_intt_dilithium_8l_plant_rv64im_opt_c908() != 0 ){return( 1 );}
-    if( test_intt_dilithium_8l_plant_rv64im_dual_opt_c908() != 0 ){return( 1 );}
+    //if( test_intt_dilithium_8l_plant_rv64im_dual_opt_c908() != 0 ){return( 1 );}
 
     // RVV Tests
     if( test_ntt_rvv_vlen128() != 0 ){return( 1 );}

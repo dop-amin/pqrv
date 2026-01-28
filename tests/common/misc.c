@@ -54,15 +54,22 @@
  GEN_COPY(32)
  #undef GEN_COPY
 
- #define GEN_COMPARE_BUF( bits )                                       \
- int compare_buf_u ## bits ( uint(bits) const *src_a,                  \
-                            uint(bits) const *src_b,                   \
-                            unsigned len )                             \
- {                                                                     \
-     uint(bits) res = 0;                                               \
-     for( ; len; src_a++, src_b++, len-- )                             \
-         res |= ( (*src_a) ^ (*src_b) );                               \
-     return( res );                                                    \
+#define GEN_COMPARE_BUF( bits )                                       \
+ int compare_buf_u ## bits ( uint(bits) const *src_a,                 \
+                            uint(bits) const *src_b,                 \
+                            unsigned len )                           \
+ {                                                                   \
+     uint(bits) res = 0;                                             \
+     unsigned i = 0;                                                 \
+     for( ; len; src_a++, src_b++, len--, i++ )                      \
+     {                                                               \
+         uint(bits) d = (*src_a) ^ (*src_b);                         \
+         if( d && !res )                                             \
+             debug_printf("Mismatch at %u: %d vs %d\n",          \
+                          i, *src_a, *src_b);                        \
+         res |= d;                                                   \
+     }                                                               \
+     return( res );                                                  \
  }
  GEN_COMPARE_BUF(8)
  GEN_COMPARE_BUF(16)
