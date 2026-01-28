@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/kyber_basemul/kyber_poly_basemul_cache_init_rvv_vlen128.s

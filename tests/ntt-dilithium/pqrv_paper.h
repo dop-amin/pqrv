@@ -8,8 +8,17 @@ int64_t zetas[DILITHIUM_N * 2];
 extern void ntt_8l_rv64im(int32_t *r, const int64_t *zetas);
 extern void ntt_8l_dual_rv64im(int32_t *r, const int64_t *zetas);
 
+extern void intt_dilithium_8l_plant_rv64im(int32_t *r, const int64_t *zetas);
+extern void intt_dilithium_8l_plant_rv64im_dual(int32_t *r, const int64_t *zetas);
+
 // opt
 extern void ntt_8l_rv64im_opt_c908(int32_t *r, const int64_t *zetas);
+
+extern void intt_dilithium_8l_plant_rv64im_opt_c908(int32_t *r, const int64_t *zetas);
+extern void intt_dilithium_8l_plant_rv64im_dual_opt_c908(int32_t *r, const int64_t *zetas);
+
+extern void ntt_rvv_vlen128(int32_t *r, const int64_t *zetas);
+extern void ntt_rvv_vlen128_opt_c908(int32_t *r, const int64_t *zetas);
 
 // Wrappers
 void ntt_8l_rv64im_wrap(int32_t *r)
@@ -22,8 +31,38 @@ void ntt_8l_dual_rv64im_wrap(int32_t *r)
     ntt_8l_dual_rv64im(r, zetas);
 }
 
+void intt_dilithium_8l_plant_rv64im_wrap(int32_t *r)
+{
+    intt_dilithium_8l_plant_rv64im(r, zetas);
+}
+
+void intt_dilithium_8l_plant_rv64im_dual_wrap(int32_t *r)
+{
+    intt_dilithium_8l_plant_rv64im_dual(r, zetas);
+}
+
 // opt
 void ntt_8l_rv64im_opt_wrap(int32_t *r) {
     ntt_8l_rv64im_opt_c908(r, zetas);
+}
+
+void intt_dilithium_8l_plant_rv64im_opt_c908_wrap(int32_t *r)
+{
+    intt_dilithium_8l_plant_rv64im_opt_c908(r, zetas);
+}
+
+void intt_dilithium_8l_plant_rv64im_dual_opt_c908_wrap(int32_t *r)
+{
+    intt_dilithium_8l_plant_rv64im_dual_opt_c908(r, zetas);
+}
+
+void ntt_rvv_vlen128_wrap(int32_t *r)
+{
+    ntt_rvv_vlen128(r, zetas);
+}
+
+void ntt_8l_rvv_opt_c908_wrap(int32_t *r)
+{
+    ntt_rvv_vlen128_opt_c908(r, zetas);
 }
 #endif

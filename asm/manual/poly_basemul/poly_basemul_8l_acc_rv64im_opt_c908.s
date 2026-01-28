@@ -1,1 +1,0 @@
-../../../slothy/examples/opt/riscv/poly_basemul/poly_basemul_8l_acc_rv64im_opt_c908.s

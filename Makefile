@@ -2,8 +2,10 @@
 include tests/helloworld/helloworld.mk
 include tests/ntt-dilithium/ntt-dilithium.mk
 include tests/profiling/profiling.mk
-include tests/poly-basemul/poly-basemul.mk
+include tests/dilithium-poly-basemul/dilithium-poly-basemul.mk
+include tests/kyber-poly-basemul/kyber-poly-basemul.mk
 include tests/test/test.mk
+include tests/barret-mul/barret-mul.mk
 
 testname = $(shell echo $(1) | tr '[a-z]' '[A-Z]' | tr '-' '_' | tr '/' '_')
 testdir = $(addprefix $(2),tests/$(firstword $(subst /, ,$1))/)
