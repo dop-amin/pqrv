@@ -1,6 +1,7 @@
 # Tests
 include tests/helloworld/helloworld.mk
 include tests/ntt-dilithium/ntt-dilithium.mk
+include tests/ntt-kyber/ntt-kyber.mk
 include tests/profiling/profiling.mk
 include tests/dilithium-poly-basemul/dilithium-poly-basemul.mk
 include tests/kyber-poly-basemul/kyber-poly-basemul.mk
