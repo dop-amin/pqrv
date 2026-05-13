@@ -1,8 +1,8 @@
 # emulation (qemu or empty for native)
 EMU = qemu-riscv64
 CC = riscv64-unknown-linux-gnu-gcc
-REMOTE_USER = remote_user_here
-_USER = local_user_here
+REMOTE_USER = justus.bergerman
+_USER = juber
 SSH_DEST = root@k230-0
 SSH_PATH = /home
 SSH_DEST2 = $(REMOTE_USER)@bpi-f3-0
