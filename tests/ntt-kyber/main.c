@@ -108,39 +108,11 @@ MAKE_TEST_NTT(ntt_kyber_rvv_vlen128_opt_c908,  ntt_kyber_rvv_vlen128_opt_c908_wr
 MAKE_BENCH(rvv_vlen128,          ntt_kyber_rvv_vlen128_wrap);
 MAKE_BENCH(rvv_vlen128_opt_c908, ntt_kyber_rvv_vlen128_opt_c908_wrap);
 
-
-/* Initialize the shuffle-mask region of the zetas table used by the Kyber
- * RVV NTT. Without correct masks, the vrgather-based shuffles produce
- * degenerate output that depends on the instruction ordering, so the
- * baseline and the slothy-optimized variant would not necessarily agree.
- *
- * Offsets and contents are taken directly from the assembly header
- * (KYBER_NTT_RVV_VLEN128_CONSTS_H). The _ZETAS_EXP region is left at
- * zero, which keeps the NTT deterministic and identical between the two
- * implementations while still exercising the full instruction sequence. */
-static void init_kyber_ntt_table(void)
-{
-    static const int16_t mask_45674567[8] = {4,5,6,7,4,5,6,7};
-    static const int16_t mask_01230123[8] = {0,1,2,3,0,1,2,3};
-    static const int16_t mask_01014545[8] = {0,1,0,1,4,5,4,5};
-    static const int16_t mask_23236767[8] = {2,3,2,3,6,7,6,7};
-    static const int16_t mask_10325476[8] = {1,0,3,2,5,4,7,6};
-
-    /* The named offsets (e.g., _MASK_01230123 = 8) are byte/2 offsets:
-     * the assembly accesses them as a1 + offset*2, so the int16_t index
-     * is identical to the offset value. */
-    memcpy( &zetas[ 0], mask_45674567, sizeof(mask_45674567) );
-    memcpy( &zetas[ 8], mask_01230123, sizeof(mask_01230123) );
-    memcpy( &zetas[16], mask_01014545, sizeof(mask_01014545) );
-    memcpy( &zetas[24], mask_23236767, sizeof(mask_23236767) );
-    memcpy( &zetas[32], mask_10325476, sizeof(mask_10325476) );
-}
-
 int main (void)
 {
     /* Test preamble */
     debug_test_start( "NTT Kyber!" );
-    init_kyber_ntt_table();
+    //init_kyber_ntt_table();
 
     // RVV Tests
     if( test_ntt_kyber_rvv_vlen128() != 0 ){return( 1 );}
