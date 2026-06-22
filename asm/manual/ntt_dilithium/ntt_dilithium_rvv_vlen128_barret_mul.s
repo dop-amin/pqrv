@@ -1,1 +1,1 @@
-/home/juber/Documents/pqrv/slothy/examples/naive/riscv/ntt_dilithium/ntt_dilithium_rvv_vlen128_barret_mul.s
+../../../../slothy/examples/naive/riscv/ntt_dilithium/ntt_dilithium_rvv_vlen128_barret_mul.s
