@@ -5,6 +5,7 @@ include tests/ntt-kyber/ntt-kyber.mk
 include tests/profiling/profiling.mk
 include tests/dilithium-poly-basemul/dilithium-poly-basemul.mk
 include tests/kyber-poly-basemul/kyber-poly-basemul.mk
+include tests/kyber-poly-reduce/kyber-poly-reduce.mk
 include tests/test/test.mk
 include tests/barret-mul/barret-mul.mk
 

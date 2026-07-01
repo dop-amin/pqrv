@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/kyber_basemul/kyber_poly_toplant_rv64im_dual.s

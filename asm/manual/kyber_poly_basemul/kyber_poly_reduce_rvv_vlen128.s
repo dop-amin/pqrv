@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/kyber_basemul/kyber_poly_reduce_rvv_vlen128.s

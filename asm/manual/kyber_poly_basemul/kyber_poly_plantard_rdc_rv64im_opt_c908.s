@@ -1,0 +1,1 @@
+../../../slothy/examples/opt/riscv/kyber_basemul/kyber_poly_plantard_rdc_rv64im_opt_c908.s
