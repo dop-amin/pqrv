@@ -1,0 +1,1 @@
+../../../slothy/examples/opt/riscv/kyber_sampling/kyber_cbd2_rvv_vlen128_opt_c908.s

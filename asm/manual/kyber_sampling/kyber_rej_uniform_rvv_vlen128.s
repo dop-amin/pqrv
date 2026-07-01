@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/kyber_sampling/kyber_rej_uniform_rvv_vlen128.s
