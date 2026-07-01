@@ -128,25 +128,21 @@ MAKE_TEST_INPLACE_S16(poly_reduce_rvv_vlen128_opt_c908,  poly_reduce_rvv_vlen128
 MAKE_TEST_INPLACE_S16(poly_tomont_rvv_vlen128_opt_c908,  poly_tomont_rvv_vlen128_opt_c908_wrap,  poly_tomont_rvv_vlen128_wrap,  KYBER_Q)
 #endif /* VECTOR128 */
 
-/*
- * The `_dual_opt_c908` variants are excluded from the correctness suite: the
- * SLOTHY-generated dual-issue optimized outputs are currently defective (see
- * the accompanying report -- mangled register-save prologue, and output that
- * diverges from the dual naive kernel). They are still wired up (asm symlinks,
- * .mk, wrappers) so they can be re-enabled once regenerated correctly.
- */
-
-// kyber_poly_plantard_rdc_rv64im_dual_opt_c908.s`
-// `kyber_poly_toplant_rv64im_dual_opt_c908.s`
+/* RV64IM dual-issue variants: compare the optimized dual kernel against its
+ * OWN (dual) naive kernel (re-optimized 2026-07-01). */
+MAKE_TEST_INPLACE_S16(poly_plantard_rdc_rv64im_dual_opt_c908, poly_plantard_rdc_rv64im_dual_opt_c908_wrap, poly_plantard_rdc_rv64im_dual_wrap, KYBER_Q)
+MAKE_TEST_INPLACE_S16(poly_toplant_rv64im_dual_opt_c908,      poly_toplant_rv64im_dual_opt_c908_wrap,      poly_toplant_rv64im_dual_wrap,      KYBER_Q)
 
 /* === BENCHMARKS === */
-MAKE_BENCH_INPLACE_S16(poly_plantard_rdc_rv64im,          poly_plantard_rdc_rv64im_wrap)
-MAKE_BENCH_INPLACE_S16(poly_plantard_rdc_rv64im_dual,     poly_plantard_rdc_rv64im_dual_wrap)
-MAKE_BENCH_INPLACE_S16(poly_plantard_rdc_rv64im_opt_c908, poly_plantard_rdc_rv64im_opt_c908_wrap)
+MAKE_BENCH_INPLACE_S16(poly_plantard_rdc_rv64im,               poly_plantard_rdc_rv64im_wrap)
+MAKE_BENCH_INPLACE_S16(poly_plantard_rdc_rv64im_dual,          poly_plantard_rdc_rv64im_dual_wrap)
+MAKE_BENCH_INPLACE_S16(poly_plantard_rdc_rv64im_opt_c908,      poly_plantard_rdc_rv64im_opt_c908_wrap)
+MAKE_BENCH_INPLACE_S16(poly_plantard_rdc_rv64im_dual_opt_c908, poly_plantard_rdc_rv64im_dual_opt_c908_wrap)
 
-MAKE_BENCH_INPLACE_S16(poly_toplant_rv64im,               poly_toplant_rv64im_wrap)
-MAKE_BENCH_INPLACE_S16(poly_toplant_rv64im_dual,          poly_toplant_rv64im_dual_wrap)
-MAKE_BENCH_INPLACE_S16(poly_toplant_rv64im_opt_c908,      poly_toplant_rv64im_opt_c908_wrap)
+MAKE_BENCH_INPLACE_S16(poly_toplant_rv64im,                    poly_toplant_rv64im_wrap)
+MAKE_BENCH_INPLACE_S16(poly_toplant_rv64im_dual,               poly_toplant_rv64im_dual_wrap)
+MAKE_BENCH_INPLACE_S16(poly_toplant_rv64im_opt_c908,           poly_toplant_rv64im_opt_c908_wrap)
+MAKE_BENCH_INPLACE_S16(poly_toplant_rv64im_dual_opt_c908,      poly_toplant_rv64im_dual_opt_c908_wrap)
 
 #ifdef VECTOR128
 MAKE_BENCH_INPLACE_S16(poly_reduce_rvv_vlen128,          poly_reduce_rvv_vlen128_wrap)
@@ -165,6 +161,15 @@ int main (void)
     /* --- correctness (naive-vs-opt equivalence) --- */
     rc |= test_poly_plantard_rdc_rv64im_opt_c908();
     rc |= test_poly_toplant_rv64im_opt_c908();
+    /* Re-optimized _dual_opt_c908 variants (2026-07-01) still fail: they now
+     * assemble/link (after fixing the symbol-name mismatch and a `bnet4`
+     * opcode) but segfault at run time -- the software-pipelined store loop
+     * overruns the 256-coefficient output. Kept wired + defined; enable once
+     * the SLOTHY schedule is corrected. */
+#if 0
+    rc |= test_poly_plantard_rdc_rv64im_dual_opt_c908();
+    rc |= test_poly_toplant_rv64im_dual_opt_c908();
+#endif
 #ifdef VECTOR128
     rc |= test_poly_reduce_rvv_vlen128_opt_c908();
     rc |= test_poly_tomont_rvv_vlen128_opt_c908();
@@ -178,6 +183,10 @@ int main (void)
     bench_poly_toplant_rv64im();
     bench_poly_toplant_rv64im_dual();
     bench_poly_toplant_rv64im_opt_c908();
+#if 0 /* re-optimized dual_opt still segfaults (see note above) */
+    bench_poly_plantard_rdc_rv64im_dual_opt_c908();
+    bench_poly_toplant_rv64im_dual_opt_c908();
+#endif
 
 #ifdef VECTOR128
     bench_poly_reduce_rvv_vlen128();
