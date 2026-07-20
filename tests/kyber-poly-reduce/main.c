@@ -161,15 +161,10 @@ int main (void)
     /* --- correctness (naive-vs-opt equivalence) --- */
     rc |= test_poly_plantard_rdc_rv64im_opt_c908();
     rc |= test_poly_toplant_rv64im_opt_c908();
-    /* Re-optimized _dual_opt_c908 variants (2026-07-01) still fail: they now
-     * assemble/link (after fixing the symbol-name mismatch and a `bnet4`
-     * opcode) but segfault at run time -- the software-pipelined store loop
-     * overruns the 256-coefficient output. Kept wired + defined; enable once
-     * the SLOTHY schedule is corrected. */
-#if 0
+
     rc |= test_poly_plantard_rdc_rv64im_dual_opt_c908();
     rc |= test_poly_toplant_rv64im_dual_opt_c908();
-#endif
+
 #ifdef VECTOR128
     rc |= test_poly_reduce_rvv_vlen128_opt_c908();
     rc |= test_poly_tomont_rvv_vlen128_opt_c908();
@@ -183,10 +178,9 @@ int main (void)
     bench_poly_toplant_rv64im();
     bench_poly_toplant_rv64im_dual();
     bench_poly_toplant_rv64im_opt_c908();
-#if 0 /* re-optimized dual_opt still segfaults (see note above) */
     bench_poly_plantard_rdc_rv64im_dual_opt_c908();
     bench_poly_toplant_rv64im_dual_opt_c908();
-#endif
+
 
 #ifdef VECTOR128
     bench_poly_reduce_rvv_vlen128();

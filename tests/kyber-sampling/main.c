@@ -115,7 +115,6 @@ int test_rej_uniform_rvv_vlen128_naive(void)
 }
 
 /* ---- Naive-vs-opt equivalence (board / -DWITH_OPT_KERNELS only) ---- */
-#ifdef WITH_OPT_KERNELS
 
 #define MAKE_TEST_CBD_EQUIV(var,func,ref_func,bufbytes)                     \
 int test_ ## var ()                                                         \
@@ -150,11 +149,24 @@ int test_rej_uniform_rvv_vlen128_opt_c908(void)
     rej_uniform_rvv_vlen128_opt_c908_wrap( r, buf, &ctr, &pos );
     if( ctr != ctr_ref || pos != pos_ref ||
         compare_buf_u16( (uint16_t const*) r, (uint16_t const*) r_ref, KYBER_N ) != 0 )
-    { debug_test_fail(); return 1; }
+    {
+        debug_printf("REJ MISMATCH: ctr %u vs ref %u ; pos %u vs ref %u\n",
+                     ctr, ctr_ref, pos, pos_ref);
+        unsigned lim = ctr_ref < ctr ? ctr_ref : ctr;
+        if (lim > KYBER_N) lim = KYBER_N;
+        for (unsigned i = 0; i < lim; i++) {
+            if (r[i] != r_ref[i]) {
+                debug_printf("  first coeff diff at %u: opt %d vs ref %d\n",
+                             i, (int) r[i], (int) r_ref[i]);
+                break;
+            }
+        }
+        debug_test_fail(); return 1;
+    }
     debug_test_ok();
     return 0;
 }
-#endif /* WITH_OPT_KERNELS */
+
 
 /* === BENCHMARKS === */
 #define MAKE_BENCH_CBD(var, func, bufbytes)                                 \
@@ -191,11 +203,11 @@ int test_rej_uniform_rvv_vlen128_opt_c908(void)
 MAKE_BENCH_CBD(cbd2_rvv_vlen128, cbd2_rvv_vlen128_wrap, CBD2_BUFLEN)
 MAKE_BENCH_CBD(cbd3_rvv_vlen128, cbd3_rvv_vlen128_wrap, CBD3_BUFLEN)
 MAKE_BENCH_REJ(rej_uniform_rvv_vlen128, rej_uniform_rvv_vlen128_wrap)
-#ifdef WITH_OPT_KERNELS
+
 MAKE_BENCH_CBD(cbd2_rvv_vlen128_opt_c908, cbd2_rvv_vlen128_opt_c908_wrap, CBD2_BUFLEN)
 MAKE_BENCH_CBD(cbd3_rvv_vlen128_opt_c908, cbd3_rvv_vlen128_opt_c908_wrap, CBD3_BUFLEN)
 MAKE_BENCH_REJ(rej_uniform_rvv_vlen128_opt_c908, rej_uniform_rvv_vlen128_opt_c908_wrap)
-#endif
+
 
 /* === MAIN FUNCTION === */
 int main (void)
@@ -208,22 +220,22 @@ int main (void)
     rc |= test_cbd3_rvv_vlen128_naive();
     rc |= test_rej_uniform_rvv_vlen128_naive();
 
-#ifdef WITH_OPT_KERNELS
+//#ifdef WITH_OPT_KERNELS
     /* Naive-vs-opt equivalence (C908 board only; opt traps on qemu) */
     rc |= test_cbd2_rvv_vlen128_opt_c908();
     rc |= test_cbd3_rvv_vlen128_opt_c908();
     rc |= test_rej_uniform_rvv_vlen128_opt_c908();
-#endif
+//#endif
 
     /* Benchmarks */
     bench_cbd2_rvv_vlen128();
     bench_cbd3_rvv_vlen128();
     bench_rej_uniform_rvv_vlen128();
-#ifdef WITH_OPT_KERNELS
+//#ifdef WITH_OPT_KERNELS
     bench_cbd2_rvv_vlen128_opt_c908();
     bench_cbd3_rvv_vlen128_opt_c908();
     bench_rej_uniform_rvv_vlen128_opt_c908();
-#endif
+//#endif
 
     if (rc == 0)
         debug_printf("Test Success!");
