@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Arm Limited
+ * Copyright (c) 2026 Justus Bergermann
  * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -46,7 +46,7 @@ uint64_t cycles[TEST_COUNT];
 #define MAKE_TEST_CBD_EQUIV(var,func,ref_func,bufbytes)                     \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test (equiv) for " #func " ");                           \
+    debug_printf("Test (equiv) for " #func " ");                            \
     uint8_t buf[bufbytes]  __attribute__((aligned(16)));                    \
     int16_t r[KYBER_N]     __attribute__((aligned(16)));                    \
     int16_t r_ref[KYBER_N] __attribute__((aligned(16)));                    \
@@ -61,8 +61,6 @@ int test_ ## var ()                                                         \
     return( 0 );                                                            \
 }
 
-MAKE_TEST_CBD_EQUIV(cbd2_rvv_vlen128_opt_c908, cbd2_rvv_vlen128_opt_c908_wrap, cbd2_rvv_vlen128_wrap, CBD2_BUFLEN)
-MAKE_TEST_CBD_EQUIV(cbd3_rvv_vlen128_opt_c908, cbd3_rvv_vlen128_opt_c908_wrap, cbd3_rvv_vlen128_wrap, CBD3_BUFLEN)
 
 int test_rej_uniform_rvv_vlen128_opt_c908(void)
 {
@@ -95,8 +93,6 @@ int test_rej_uniform_rvv_vlen128_opt_c908(void)
     return 0;
 }
 
-
-/* === BENCHMARKS === */
 #define MAKE_BENCH_CBD(var, func, bufbytes)                                 \
     int bench_##var()                                                       \
     {                                                                       \
@@ -128,6 +124,9 @@ int test_rej_uniform_rvv_vlen128_opt_c908(void)
         cleanup_perf_events(); print_counter(); return (0);                 \
     }
 
+MAKE_TEST_CBD_EQUIV(cbd2_rvv_vlen128_opt_c908, cbd2_rvv_vlen128_opt_c908_wrap, cbd2_rvv_vlen128_wrap, CBD2_BUFLEN)
+MAKE_TEST_CBD_EQUIV(cbd3_rvv_vlen128_opt_c908, cbd3_rvv_vlen128_opt_c908_wrap, cbd3_rvv_vlen128_wrap, CBD3_BUFLEN)
+
 MAKE_BENCH_CBD(cbd2_rvv_vlen128, cbd2_rvv_vlen128_wrap, CBD2_BUFLEN)
 MAKE_BENCH_CBD(cbd3_rvv_vlen128, cbd3_rvv_vlen128_wrap, CBD3_BUFLEN)
 MAKE_BENCH_REJ(rej_uniform_rvv_vlen128, rej_uniform_rvv_vlen128_wrap)
@@ -136,8 +135,6 @@ MAKE_BENCH_CBD(cbd2_rvv_vlen128_opt_c908, cbd2_rvv_vlen128_opt_c908_wrap, CBD2_B
 MAKE_BENCH_CBD(cbd3_rvv_vlen128_opt_c908, cbd3_rvv_vlen128_opt_c908_wrap, CBD3_BUFLEN)
 MAKE_BENCH_REJ(rej_uniform_rvv_vlen128_opt_c908, rej_uniform_rvv_vlen128_opt_c908_wrap)
 
-
-/* === MAIN FUNCTION === */
 int main (void)
 {
     int rc = 0;
@@ -147,6 +144,7 @@ int main (void)
     rc |= test_cbd3_rvv_vlen128_opt_c908();
     rc |= test_rej_uniform_rvv_vlen128_opt_c908();
 
+    debug_printf("Starting benchmarks ...");
     bench_cbd2_rvv_vlen128();
     bench_cbd2_rvv_vlen128_opt_c908();
     bench_cbd3_rvv_vlen128();
@@ -154,11 +152,9 @@ int main (void)
     bench_rej_uniform_rvv_vlen128();
     bench_rej_uniform_rvv_vlen128_opt_c908();
 
-
     if (rc == 0)
         debug_printf("Test Success!");
     else
         debug_printf("SOME TESTS FAILED (see FAIL markers above)");
-
     return rc;
 }

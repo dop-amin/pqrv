@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Arm Limited
+ * Copyright (c) 2026 Justus Bergermann
  * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -38,15 +38,6 @@
 uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
-/*
- * Test cases
- *
- * The Kyber NTT operates on int16_t arrays. We use the baseline RVV
- * implementation (ntt_kyber_rvv_vlen128_wrap) as the reference and check
- * that the optimized variant produces an identical result on the same
- * input and the same zetas/mask table.
- */
-
 #define MAKE_TEST_NTT(var,func,ref_func,modulus)                            \
 int test_ ## var ()                                                         \
 {                                                                           \
@@ -54,15 +45,12 @@ int test_ ## var ()                                                         \
     int16_t src[NTT_SIZE]      __attribute__((aligned(16)));                \
     int16_t src_copy[NTT_SIZE] __attribute__((aligned(16)));                \
                                                                             \
-    /* Setup input */                                                       \
     fill_random_u16( (uint16_t*) src, NTT_SIZE );                           \
     mod_reduce_buf_s16( src, NTT_SIZE, modulus );                           \
                                                                             \
-    /* Step 1: Reference NTT */                                             \
     memcpy( src_copy, src, sizeof( src ) );                                 \
     ref_func( src_copy );                                                   \
                                                                             \
-    /* Step 2: Optimized NTT */                                             \
     (func)( src );                                                          \
                                                                             \
     if( compare_buf_u16( (uint16_t const*) src, (uint16_t const*) src_copy, \
@@ -78,9 +66,6 @@ int test_ ## var ()                                                         \
     return( 0 );                                                            \
 }
 
-// RVV Tests - the unoptimized (baseline) version acts as the reference
-MAKE_TEST_NTT(ntt_kyber_rvv_vlen128,           ntt_kyber_rvv_vlen128_wrap,           ntt_kyber_rvv_vlen128_wrap, KYBER_Q)
-MAKE_TEST_NTT(ntt_kyber_rvv_vlen128_opt_c908,  ntt_kyber_rvv_vlen128_opt_c908_wrap,  ntt_kyber_rvv_vlen128_wrap, KYBER_Q)
 
 #define MAKE_BENCH(var, func)                                       \
     int bench_ntt_##var()                                           \
@@ -103,6 +88,10 @@ MAKE_TEST_NTT(ntt_kyber_rvv_vlen128_opt_c908,  ntt_kyber_rvv_vlen128_opt_c908_wr
         print_counter();                                            \
         return (0);                                                 \
     }
+
+// RVV Tests - the unoptimized (baseline) version acts as the reference
+MAKE_TEST_NTT(ntt_kyber_rvv_vlen128,           ntt_kyber_rvv_vlen128_wrap,           ntt_kyber_rvv_vlen128_wrap, KYBER_Q)
+MAKE_TEST_NTT(ntt_kyber_rvv_vlen128_opt_c908,  ntt_kyber_rvv_vlen128_opt_c908_wrap,  ntt_kyber_rvv_vlen128_wrap, KYBER_Q)
 
 // RVV Benchmarks
 MAKE_BENCH(rvv_vlen128,          ntt_kyber_rvv_vlen128_wrap);

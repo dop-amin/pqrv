@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Arm Limited
+ * Copyright (c) 2026 Justus Bergermann
  * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,15 +39,6 @@ uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
 /*
- * Test / benchmark macros for in-place polynomial helpers:
- *     void f(int16_t a[256]);
- *
- * Correctness is verified by naive-vs-optimized equivalence: the same random
- * input is fed to `func` and to the reference `ref_func` (the NAIVE variant of
- * the SAME issue-mode), and the resulting polynomials are compared
- * coefficient-wise. SLOTHY only reschedules instructions, so an optimized
- * routine must reproduce its naive counterpart bit-for-bit.
- *
  * NOTE: the single-issue and dual-issue naive kernels use *different* Plantard
  * representatives, so they must not be compared against each other -- each
  * optimized variant is compared only against its own naive kernel.
@@ -61,16 +52,12 @@ int test_ ## var ()                                                         \
     int16_t r[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t r_ref[KYBER_N]     __attribute__((aligned(16)));                \
                                                                             \
-    /* Setup input (random, non-zero, reduced mod q) */                     \
     fill_random_u16( (uint16_t*) in, KYBER_N );                             \
     mod_reduce_buf_s16( in, KYBER_N, modulus );                             \
     memcpy( r,     in, sizeof(r) );                                         \
     memcpy( r_ref, in, sizeof(r_ref) );                                     \
                                                                             \
-    /* Step 1: Reference (naive) */                                         \
     ref_func( r_ref );                                                      \
-                                                                            \
-    /* Step 2: Test function */                                             \
     (func)( r );                                                            \
                                                                             \
     if( compare_buf_u16( (uint16_t const*) r, (uint16_t const*) r_ref,      \
@@ -126,10 +113,10 @@ MAKE_TEST_INPLACE_S16(poly_reduce_rvv_vlen128_opt_c908,  poly_reduce_rvv_vlen128
 
 /* RVV to-Montgomery conversion */
 MAKE_TEST_INPLACE_S16(poly_tomont_rvv_vlen128_opt_c908,  poly_tomont_rvv_vlen128_opt_c908_wrap,  poly_tomont_rvv_vlen128_wrap,  KYBER_Q)
-#endif /* VECTOR128 */
+#endif
 
 /* RV64IM dual-issue variants: compare the optimized dual kernel against its
- * OWN (dual) naive kernel (re-optimized 2026-07-01). */
+ * OWN (dual) naive kernel. */
 MAKE_TEST_INPLACE_S16(poly_plantard_rdc_rv64im_dual_opt_c908, poly_plantard_rdc_rv64im_dual_opt_c908_wrap, poly_plantard_rdc_rv64im_dual_wrap, KYBER_Q)
 MAKE_TEST_INPLACE_S16(poly_toplant_rv64im_dual_opt_c908,      poly_toplant_rv64im_dual_opt_c908_wrap,      poly_toplant_rv64im_dual_wrap,      KYBER_Q)
 
@@ -150,15 +137,12 @@ MAKE_BENCH_INPLACE_S16(poly_reduce_rvv_vlen128_opt_c908, poly_reduce_rvv_vlen128
 
 MAKE_BENCH_INPLACE_S16(poly_tomont_rvv_vlen128,          poly_tomont_rvv_vlen128_wrap)
 MAKE_BENCH_INPLACE_S16(poly_tomont_rvv_vlen128_opt_c908, poly_tomont_rvv_vlen128_opt_c908_wrap)
-#endif /* VECTOR128 */
+#endif
 
-/* === MAIN FUNCTION === */
 int main (void)
 {
     int rc = 0;
     debug_test_start( "Kyber poly reduce / domain conversion!" );
-
-    /* --- correctness (naive-vs-opt equivalence) --- */
     rc |= test_poly_plantard_rdc_rv64im_opt_c908();
     rc |= test_poly_toplant_rv64im_opt_c908();
 
@@ -168,9 +152,9 @@ int main (void)
 #ifdef VECTOR128
     rc |= test_poly_reduce_rvv_vlen128_opt_c908();
     rc |= test_poly_tomont_rvv_vlen128_opt_c908();
-#endif /* VECTOR128 */
+#endif
 
-    /* --- benchmarks (naive vs dual naive vs optimized) --- */
+    debug_printf("Starting benchmarks ...");
     bench_poly_plantard_rdc_rv64im();
     bench_poly_plantard_rdc_rv64im_dual();
     bench_poly_plantard_rdc_rv64im_opt_c908();
@@ -188,12 +172,11 @@ int main (void)
 
     bench_poly_tomont_rvv_vlen128();
     bench_poly_tomont_rvv_vlen128_opt_c908();
-#endif /* VECTOR128 */
+#endif
 
     if (rc == 0)
         debug_printf("Test Success!");
     else
         debug_printf("SOME TESTS FAILED (see FAIL markers above)");
-
     return rc;
 }

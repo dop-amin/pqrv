@@ -38,28 +38,19 @@
 uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
-/*
- * Test cases
- */
-
 #define MAKE_TEST_NTT(var,func,ref_func,modulus)                            \
 int test_ ## var ()                                                         \
 {                                                                           \
-    /* debug_test_start( "Test for " #func );*/                             \
     debug_printf("Test for " #func " ");                                    \
     int32_t src[NTT_SIZE]      __attribute__((aligned(16)));                \
     int32_t src_copy[NTT_SIZE] __attribute__((aligned(16)));                \
                                                                             \
-    /* Setup input */                                                       \
     fill_random_u32( (uint32_t*) src, NTT_SIZE );                           \
     mod_reduce_buf_s32( src, NTT_SIZE, modulus );                           \
                                                                             \
-    /* Step 1: Reference NTT */                                             \
     memcpy( src_copy, src, sizeof( src ) );                                 \
     ref_func( src_copy);                                                    \
                                                                             \
-                                                                            \
-    /* Step 2: Optimized NTT */                                             \
     (func)( src );                                                          \
                                                                             \
     if( compare_buf_u32( (uint32_t const*) src, (uint32_t const*) src_copy, \
@@ -90,25 +81,25 @@ MAKE_TEST_NTT(intt_dilithium_8l_plant_rv64im_dual_opt_c908, intt_dilithium_8l_pl
 MAKE_TEST_NTT(ntt_rvv_vlen128, ntt_rvv_vlen128_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
 MAKE_TEST_NTT(ntt_8l_rvv_opt_c908, ntt_8l_rvv_opt_c908_wrap, ntt_8l_rv64im_wrap, DILITHIUM_Q)
 
-#define MAKE_BENCH(var, func)                                \
+#define MAKE_BENCH(var, func)                                       \
     int bench_ntt_##var()                                           \
     {                                                               \
         debug_printf("bench ntt_dilithium %-50s", #func "\0");      \
-        int32_t src[DILITHIUM_N] __attribute__((aligned(16)));         \
+        int32_t src[DILITHIUM_N] __attribute__((aligned(16)));      \
                                                                     \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++)      \
             (func)(src);                                            \
         init_perf_events();                                         \
-        start_counting_events();                                \
+        start_counting_events();                                    \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
         {                                                           \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++)   \
                 (func)(src);                                        \
         }                                                           \
-        stop_and_read_events();                                \
-        calc_average(ITER_PER_TEST, TEST_COUNT); \
-        cleanup_perf_events(); \
-        print_counter(); \
+        stop_and_read_events();                                     \
+        calc_average(ITER_PER_TEST, TEST_COUNT);                    \
+        cleanup_perf_events();                                      \
+        print_counter();                                            \
         return (0);                                                 \
     }
 
@@ -130,7 +121,6 @@ MAKE_BENCH(8l_rvv_opt_c908, ntt_8l_rvv_opt_c908_wrap);
 
 int main (void)
 {
-    /* Test preamble */
     debug_test_start( "NTT Dilithium!" );
 
     // NTT Tests
