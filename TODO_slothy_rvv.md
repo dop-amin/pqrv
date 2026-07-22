@@ -41,7 +41,7 @@ Branches: pqrv tests on `add-test-ntt-kyber-rvv-vlen128`; SLOTHY submodule on `r
   iteration's dataflow, not counter liveness across the loop boundary) — so this class of bug is a
   silent footgun. Consider having SLOTHY auto-reserve the identified loop-counter register.
 
-- [ ] **[symbol emission — verify] Renamed opt-output `.globl`.**
+- [x] **[symbol emission — verify] Renamed opt-output `.globl`.**
   Generated `_opt_c908.s` had `.globl <naive_symbol>` instead of `<symbol>_opt_c908`, and the
   dual files had a `_opt_c908_dual` vs `_dual_opt_c908` label/`.globl` mismatch — hand-patched
   the `.s`. Confirm SLOTHY's renamed-output emission produces the `_opt_c908` global consistently
@@ -51,9 +51,9 @@ Branches: pqrv tests on `add-test-ntt-kyber-rvv-vlen128`; SLOTHY submodule on `r
 - [x] **Fix additional comma in emmitted branch instruction loop**
 ## 📋 Test / repo follow-ups
 
-- [ ] Regenerate the affected opt files with the patched SLOTHY so committed `.s` reflect the
+- [x] Regenerate the affected opt files with the patched SLOTHY so committed `.s` reflect the
   real fixes rather than hand-patches.
-- [ ] `kyber-poly-reduce`: re-enable the two `_dual_opt_c908` tests (currently `#if 0`) after the
+- [x] `kyber-poly-reduce`: re-enable the two `_dual_opt_c908` tests (currently `#if 0`) after the
   sw-pipelining fix.
 - [ ] `kyber-sampling`: re-enable `rej_uniform` equivalence (remove the `-DWITH_OPT_KERNELS` gate)
   after the mask fix. Optionally re-enable cbd2 SW pipelining after the sw-pipelining fix.

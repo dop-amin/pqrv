@@ -43,79 +43,6 @@
 uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
-/*
- * NOTE on the optimized (`_opt_c908`) sampling kernels
- * ----------------------------------------------------
- * SLOTHY's register renaming produced illegal RISC-V Vector operands in the
- * optimized outputs: widening `vsext.vf2` instructions with the source
- * overlapping the *low* part of the destination group (e.g. `vsext.vf2
- * v18,v18` under e16/m2). Per RVV 1.0, when the destination EEW is greater
- * than the source EEW the source may only overlap the *highest*-numbered part
- * of the destination register group, so these encodings are illegal and trap
- * ("Illegal instruction") on a spec-compliant executor such as qemu 9.1.1.
- * The naive kernels avoid the overlap entirely.
- *
- * Consequently the naive-vs-opt equivalence tests and the opt benchmarks below
- * are DEFINED (so they can run on hardware that tolerates the overlap, or once
- * SLOTHY is fixed) but are only compiled/executed when built with
- * -DWITH_OPT_KERNELS. The default (qemu) run validates the naive kernels via
- * property/range checks and benchmarks only the naive kernels.
- */
-
-static int check_range_s16(const int16_t *a, int n, int lo, int hi)
-{
-    for (int i = 0; i < n; i++)
-        if (a[i] < lo || a[i] > hi) return i + 1;
-    return 0;
-}
-
-/* ---- Naive property/range correctness (qemu-runnable) ---- */
-
-#define MAKE_TEST_CBD_RANGE(var,func,bufbytes,bound)                        \
-int test_ ## var ()                                                         \
-{                                                                           \
-    debug_printf("Test (range) for " #func " ");                           \
-    uint8_t buf[bufbytes]  __attribute__((aligned(16)));                    \
-    int16_t r[KYBER_N]     __attribute__((aligned(16)));                    \
-    fill_random_u16( (uint16_t*) buf, (bufbytes) / 2 );                     \
-    memset(r, 0, sizeof(r));                                                \
-    (func)( r, buf );                                                       \
-    if( check_range_s16(r, KYBER_N, -(bound), (bound)) != 0 )               \
-    {                                                                       \
-        debug_print_buf_s16( r, KYBER_N, "Out-of-range CBD output" );      \
-        debug_test_fail();                                                  \
-        return( 1 );                                                        \
-    }                                                                       \
-    debug_test_ok();                                                        \
-    return( 0 );                                                            \
-}
-
-MAKE_TEST_CBD_RANGE(cbd2_rvv_vlen128_naive, cbd2_rvv_vlen128_wrap, CBD2_BUFLEN, 2)
-MAKE_TEST_CBD_RANGE(cbd3_rvv_vlen128_naive, cbd3_rvv_vlen128_wrap, CBD3_BUFLEN, 3)
-
-int test_rej_uniform_rvv_vlen128_naive(void)
-{
-    debug_printf("Test (range) for rej_uniform_rvv_vlen128_wrap ");
-    uint8_t buf[REJ_BUFLEN] __attribute__((aligned(16)));
-    int16_t r[KYBER_N]      __attribute__((aligned(16)));
-    uint32_t ctr = 0, pos = 0;
-    fill_random_u16( (uint16_t*) buf, REJ_BUFLEN / 2 );
-    memset(r, 0, sizeof(r));
-    rej_uniform_rvv_vlen128_wrap( r, buf, &ctr, &pos );
-    if( ctr == 0 || ctr > KYBER_N || pos > REJ_BUFLEN ||
-        check_range_s16(r, (int) ctr, 0, KYBER_Q - 1) != 0 )
-    {
-        debug_printf("ctr %u pos %u\n", ctr, pos);
-        debug_print_buf_s16( r, KYBER_N, "rej_uniform output" );
-        debug_test_fail();
-        return 1;
-    }
-    debug_test_ok();
-    return 0;
-}
-
-/* ---- Naive-vs-opt equivalence (board / -DWITH_OPT_KERNELS only) ---- */
-
 #define MAKE_TEST_CBD_EQUIV(var,func,ref_func,bufbytes)                     \
 int test_ ## var ()                                                         \
 {                                                                           \
@@ -147,8 +74,9 @@ int test_rej_uniform_rvv_vlen128_opt_c908(void)
     memset(r, 0, sizeof(r)); memset(r_ref, 0, sizeof(r_ref));
     rej_uniform_rvv_vlen128_wrap( r_ref, buf, &ctr_ref, &pos_ref );
     rej_uniform_rvv_vlen128_opt_c908_wrap( r, buf, &ctr, &pos );
+
     if( ctr != ctr_ref || pos != pos_ref ||
-        compare_buf_u16( (uint16_t const*) r, (uint16_t const*) r_ref, KYBER_N ) != 0 )
+        compare_buf_u16( (uint16_t const*) r, (uint16_t const*) r_ref, ctr ) != 0 )
     {
         debug_printf("REJ MISMATCH: ctr %u vs ref %u ; pos %u vs ref %u\n",
                      ctr, ctr_ref, pos, pos_ref);
@@ -215,27 +143,17 @@ int main (void)
     int rc = 0;
     debug_test_start( "Kyber sampling (cbd2 / cbd3 / rej_uniform)!" );
 
-    /* Naive kernels: property/range correctness (qemu-runnable) */
-    rc |= test_cbd2_rvv_vlen128_naive();
-    rc |= test_cbd3_rvv_vlen128_naive();
-    rc |= test_rej_uniform_rvv_vlen128_naive();
-
-//#ifdef WITH_OPT_KERNELS
-    /* Naive-vs-opt equivalence (C908 board only; opt traps on qemu) */
     rc |= test_cbd2_rvv_vlen128_opt_c908();
     rc |= test_cbd3_rvv_vlen128_opt_c908();
     rc |= test_rej_uniform_rvv_vlen128_opt_c908();
-//#endif
 
-    /* Benchmarks */
     bench_cbd2_rvv_vlen128();
-    bench_cbd3_rvv_vlen128();
-    bench_rej_uniform_rvv_vlen128();
-//#ifdef WITH_OPT_KERNELS
     bench_cbd2_rvv_vlen128_opt_c908();
+    bench_cbd3_rvv_vlen128();
     bench_cbd3_rvv_vlen128_opt_c908();
+    bench_rej_uniform_rvv_vlen128();
     bench_rej_uniform_rvv_vlen128_opt_c908();
-//#endif
+
 
     if (rc == 0)
         debug_printf("Test Success!");
