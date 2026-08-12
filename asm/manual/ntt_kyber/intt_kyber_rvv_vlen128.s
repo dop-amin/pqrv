@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/ntt_kyber/intt_kyber_rvv_vlen128.s

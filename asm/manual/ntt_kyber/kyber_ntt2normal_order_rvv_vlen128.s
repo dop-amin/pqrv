@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/ntt_kyber/kyber_ntt2normal_order_rvv_vlen128.s

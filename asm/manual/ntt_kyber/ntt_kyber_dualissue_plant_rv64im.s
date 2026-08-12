@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/ntt_kyber/ntt_kyber_dualissue_plant_rv64im.s

@@ -1,0 +1,1 @@
+../../../slothy/examples/opt/riscv/ntt_kyber/intt_kyber_singleissue_plant_rv64im_opt_c908.s
