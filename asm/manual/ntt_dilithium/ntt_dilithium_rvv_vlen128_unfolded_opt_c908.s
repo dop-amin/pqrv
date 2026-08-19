@@ -1,1 +1,0 @@
-../../../slothy/examples/opt/riscv/ntt_dilithium/ntt_dilithium_rvv_vlen128_unfolded_opt_c908.s

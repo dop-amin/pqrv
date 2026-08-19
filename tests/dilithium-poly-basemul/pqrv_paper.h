@@ -135,4 +135,12 @@ void poly_basemul_acc_rvv_vlen128_opt_c908_wrap(int32_t *r, const int32_t *a, co
     poly_basemul_acc_rvv_vlen128_opt_c908(r, a, b);
 }
 
+
+/* poly_reduce (RVV, VLEN=128) */
+extern void poly_reduce_rvv_vlen128(int32_t *r);
+extern void poly_reduce_rvv_vlen128_opt_c908(int32_t *r);
+
+void poly_reduce_rvv_vlen128_wrap(int32_t *a) { poly_reduce_rvv_vlen128(a); }
+void poly_reduce_rvv_vlen128_opt_c908_wrap(int32_t *a) { poly_reduce_rvv_vlen128_opt_c908(a); }
+
 #endif // PQRV_PAPER_H

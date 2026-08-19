@@ -1,1 +1,1 @@
-../../../../slothy/examples/naive/riscv/ntt_dilithium/include/ntt_dilithium_1234_5678_twiddles_barret_mul.s
+../../../slothy/examples/naive/riscv/ntt_dilithium/include/ntt_dilithium_1234_5678_twiddles_barret_mul.s

@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/dilithium_basemul/dilithium_poly_reduce_rvv_vlen128.s
