@@ -13,7 +13,7 @@ NTT_DILITHIUM_SOURCES += main.c
 # Assembly sources required for this test
 NTT_DILITHIUM_ASM_DIR = ../../asm/manual/ntt_dilithium
 NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/ntt_dilithium_8l_singleissue_plant_rv64im.s
-NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/ntt_8l_singleissue_plant_rv64im_opt_c908.s
+NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/ntt_dilithium_8l_singleissue_plant_rv64im_opt_c908.s
 NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/ntt_dilithium_8l_dualissue_plant_rv64im.s
 NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/ntt_dilithium_8l_dualissue_plant_rv64im_opt_c908.s
 NTT_DILITHIUM_ASMS += $(NTT_DILITHIUM_ASM_DIR)/intt_dilithium_8l_plant_rv64im.s
