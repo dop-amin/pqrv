@@ -1,0 +1,1141 @@
+   1              	# 0 "ntt_dilithium_rvv_vlen128_barret_mul.s"
+   2              	# 0 "<built-in>"
+   3              	# 0 "<command-line>"
+   4              	# 1 "/nix/store/dcvg6lshngpfr8lyn4dzgj2hkp6l6m1v-riscv64-unknown-linux-gnu-gcc-13.3.0/riscv64-unkno
+   1              	/* Copyright (C) 1991-2024 Free Software Foundation, Inc.
+   0              	
+   1              	///
+   2              	/// Copyright (c) 2025 Justus Bergermann
+   3              	/// SPDX-License-Identifier: MIT
+   4              	///
+   5              	/// Permission is hereby granted, free of charge, to any person obtaining a copy
+   6              	/// of this software and associated documentation files (the "Software"), to deal
+   7              	/// in the Software without restriction, including without limitation the rights
+   8              	/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   9              	/// copies of the Software, and to permit persons to whom the Software is
+  10              	/// furnished to do so, subject to the following conditions:
+  11              	///
+  12              	/// The above copyright notice and this permission notice shall be included in all
+  13              	/// copies or substantial portions of the Software.
+  14              	///
+  15              	/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  16              	/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  17              	/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  18              	/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  19              	/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  20              	/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  21              	/// SOFTWARE.
+  22              	///
+  23              	
+  24              	    #define in       x10  // == a0, first function arg
+  25              	    #define count    x3
+  26              	    #define modulus  x4
+  27              	    #define root_ptr x5
+  28              	    #define xtmp     x6
+  29              	
+  30              	    #define data0  v0
+  31              	    #define data1  v1
+  32              	    #define data2  v2
+  33              	    #define data3  v3
+  34              	    #define data4  v4
+  35              	    #define data5  v5
+  36              	    #define data6  v6
+  37              	    #define data7  v7
+  38              	    #define data8  v8
+  39              	    #define data9  v9
+  40              	    #define data10 v10
+  41              	    #define data11 v11
+  42              	    #define data12 v12
+  43              	    #define data13 v13
+  44              	    #define data14 v14
+  45              	    #define data15 v15
+  46              	
+  47              	    // load first 5 roots only on demand due to limited number of registers
+  48              	    #define barretc_1  x7     // root1 = \psi^bitinverse(1), root2 = \psi^bitinverse(2) ...
+  49              	    #define barretc_2  x8     // barretc_1 = floor((root1 << k)\modulus) ...
+  50              	    #define barretc_3  x9
+  51              	    #define barretc_4  x1
+  52              	    #define barretc_5  x11
+  53              	    #define root6      x12
+  54              	    #define barretc_6  x13
+  55              	    #define root7      x14
+  56              	    #define barretc_7  x15
+  57              	    #define root8      x16
+  58              	    #define barretc_8  x17
+  59              	    #define root9      x18
+  60              	    #define barretc_9  x19
+  61              	    #define root10     x20
+  62              	    #define barretc_10 x21
+  63              	    #define root11     x22
+  64              	    #define barretc_11 x23
+  65              	    #define root12     x24
+  66              	    #define barretc_12 x25
+  67              	    #define root13     x26
+  68              	    #define barretc_13 x27
+  69              	    #define root14     x28
+  70              	    #define barretc_14 x29
+  71              	    #define root15     x30
+  72              	    #define barretc_15 x31
+  73              	
+  74              	    #define vtmp0    v16  // used by barret_mul
+  75              	    #define vtmp1    v17  // used by ct_butterfly
+  76              	    #define vtmp2    v18  // free to use
+  77              	    #define vmodulus v19  // vectorized modulus
+  78              	
+  79              	.macro barret_mul dst, a, b, barret_const
+  80              	    vmul.vx \dst, \a, \b                            // z = a*b = coefficient (vect) * root (scalar)
+  81              	    vmulhu.vx vtmp0, \a, \barret_const              // t = (a * barret_const) >> k
+  82              	    vnmsac.vx \dst, modulus, vtmp0                  // z = z - n * t
+  83              	.endm
+  84              	
+  85              	.macro ct_butterfly a, b, root, barret_const
+  86              	    barret_mul vtmp1, \b, \root, \barret_const         // vtmp1 = root * b mod modulus
+  87              	    vsub.vv \b, \a, vtmp1                           // b = b - vtmp1
+  88              	    vadd.vv \a, \a, vtmp1                           // a = a + vtmp1
+  89              	.endm
+  90              	
+  91              	.macro barret_mul_v vdst, va, vb, vbarret_const
+  92              	    vmul.vv \vdst, \va, \vb                         // z = a*b = coefficient (vect) * root (scalar)
+  93              	    vmulhu.vv vtmp0, \va, \vbarret_const            // t = (a * barret_const) >> k
+  94              	    vnmsac.vx \vdst, modulus, vtmp0                // z = z - n * t
+  95              	.endm
+  96              	
+  97              	.macro ct_butterfly_v va, vb, vroot, vbarret_const
+  98              	    barret_mul_v vtmp1, \vb, \vroot, \vbarret_const    // vtmp1 = vroot * vb mod modulus
+  99              	    vsub.vv \vb, \va, vtmp1                         // b = b - vtmp1
+ 100              	    vadd.vv \va, \va, vtmp1                         // a = a + vtmp1
+ 101              	.endm
+ 102              	
+ 103              	.macro transpose4 data, ptr
+ 104              	    vsseg4e32.v \data, (\ptr)
+ 105              	    vl4re32.v \data, (\ptr)  // loads data into data0, data1, data2, data3
+ 106              	    // alternative:
+ 107              	    // vle32.v data0, ptr
+ 108              	    // vle32.v data1, ptr+1 etc.
+ 109              	.endm
+ 110              	
+ 111              	.macro load_roots_1234  root_ptr, barretc_1, barretc_2, barretc_3, barretc_4, barretc_5,        \
+ 112              	                        root6, barretc_6, root7, barretc_7, root8, barretc_8, root9, barretc_9, \
+ 113              	                        root10, barretc_10, root11, barretc_11, root12, barretc_12, root13,     \
+ 114              	                        barretc_13, root14, barretc_14, root15, barretc_15
+ 115              	    lw \barretc_1,  (0*8+4)(\root_ptr)
+ 116              	    lw \barretc_2,  (1*8+4)(\root_ptr)
+ 117              	    lw \barretc_3,  (2*8+4)(\root_ptr)
+ 118              	    lw \barretc_4,  (3*8+4)(\root_ptr)
+ 119              	    lw \barretc_5,  (4*8+4)(\root_ptr)
+ 120              	    lw \root6,      (5*8)(\root_ptr)
+ 121              	    lw \barretc_6,  (5*8+4)(\root_ptr)
+ 122              	    lw \root7,      (6*8)(\root_ptr)
+ 123              	    lw \barretc_7,  (6*8+4)(\root_ptr)
+ 124              	    lw \root8,      (7*8)(\root_ptr)
+ 125              	    lw \barretc_8,  (7*8+4)(\root_ptr)
+ 126              	    lw \root9,      (8*8)(\root_ptr)
+ 127              	    lw \barretc_9,  (8*8+4)(\root_ptr)
+ 128              	    lw \root10,     (9*8)(\root_ptr)
+ 129              	    lw \barretc_10, (9*8+4)(\root_ptr)
+ 130              	    lw \root11,     (10*8)(\root_ptr)
+ 131              	    lw \barretc_11, (10*8+4)(\root_ptr)
+ 132              	    lw \root12,     (11*8)(\root_ptr)
+ 133              	    lw \barretc_12, (11*8+4)(\root_ptr)
+ 134              	    lw \root13,     (12*8)(\root_ptr)
+ 135              	    lw \barretc_13, (12*8+4)(\root_ptr)
+ 136              	    lw \root14,     (13*8)(\root_ptr)
+ 137              	    lw \barretc_14, (13*8+4)(\root_ptr)
+ 138              	    lw \root15,     (14*8)(\root_ptr)
+ 139              	    lw \barretc_15, (14*8+4)(\root_ptr)
+ 140              	.endm
+ 141              	
+ 142              	
+ 143              	.macro load_roots_5678  xroot1, xbarretc_1, xroot2, xbarretc_2, xroot3, xbarretc_3, \
+ 144              	                        vroot1, vbarretc_1, vroot2, vbarretc_2,  vroot3, vbarretc_3,\
+ 145              	                        root_ptr
+ 146              	    lw \xroot1,     (0*8)(\root_ptr)
+ 147              	    lw \xbarretc_1, (0*8+4)(\root_ptr)
+ 148              	    lw \xroot2,     (1*8)(\root_ptr)
+ 149              	    lw \xbarretc_2, (1*8+4)(\root_ptr)
+ 150              	    lw \xroot3,     (2*8)(\root_ptr)
+ 151              	    lw \xbarretc_3,  (2*8+4)(\root_ptr)
+ 152              	    addi \root_ptr, \root_ptr, 3*8  // increment root_ptr manually here, bc vle32 does not allow of
+ 153              	    vle32.v \vroot1, (\root_ptr)
+ 154              	    addi \root_ptr, \root_ptr, 16
+ 155              	    vle32.v \vbarretc_1, (\root_ptr)
+ 156              	    addi \root_ptr, \root_ptr, 16
+ 157              	    vle32.v \vroot2, (\root_ptr)
+ 158              	    addi \root_ptr, \root_ptr, 16
+ 159              	    vle32.v \vbarretc_2, (\root_ptr)
+ 160              	    addi \root_ptr, \root_ptr, 16
+ 161              	    vle32.v \vroot3, (\root_ptr)
+ 162              	    addi \root_ptr, \root_ptr, 16
+ 163              	    vle32.v \vbarretc_3, (\root_ptr)
+ 164              	    addi \root_ptr, \root_ptr, 16
+ 165              	.endm
+ 166              	
+ 167              	.macro load16 in, stride
+ 168              	    .irp r, data0,data1,data2,data3,data4,data5,data6,data7,\
+ 169              	            data8,data9,data10,data11,data12,data13,data14
+ 170              	        vle32.v \r, (\in)
+ 171              	        addi \in, \in, \stride
+ 172              	    .endr
+ 173              	    vle32.v data15, (\in)
+ 174              	.endm
+ 175              	
+ 176              	.macro store16 in, stride
+ 177              	    .irp r, data0,data1,data2,data3,data4,data5,data6,data7,\
+ 178              	            data8,data9,data10,data11,data12,data13,data14
+ 179              	        vse32.v \r, (\in)
+ 180              	        addi \in, \in, \stride
+ 181              	    .endr
+ 182              	    vse32.v data15, (\in)
+ 183              	.endm
+ 184              	
+ 185              	.macro push_stack
+ 186              	    addi sp, sp, -8*15
+ 187              	    sd s0,  0*8(sp)
+ 188              	    sd s1,  1*8(sp)
+ 189              	    sd s2,  2*8(sp)
+ 190              	    sd s3,  3*8(sp)
+ 191              	    sd s4,  4*8(sp)
+ 192              	    sd s5,  5*8(sp)
+ 193              	    sd s6,  6*8(sp)
+ 194              	    sd s7,  7*8(sp)
+ 195              	    sd s8,  8*8(sp)
+ 196              	    sd s9,  9*8(sp)
+ 197              	    sd s10, 10*8(sp)
+ 198              	    sd s11, 11*8(sp)
+ 199              	    sd gp,  12*8(sp)
+ 200              	    sd tp,  13*8(sp)
+ 201              	    sd ra,  14*8(sp)
+ 202              	.endm
+ 203              	
+ 204              	.macro pop_stack
+ 205              	    ld s0,  0*8(sp)
+ 206              	    ld s1,  1*8(sp)
+ 207              	    ld s2,  2*8(sp)
+ 208              	    ld s3,  3*8(sp)
+ 209              	    ld s4,  4*8(sp)
+ 210              	    ld s5,  5*8(sp)
+ 211              	    ld s6,  6*8(sp)
+ 212              	    ld s7,  7*8(sp)
+ 213              	    ld s8,  8*8(sp)
+ 214              	    ld s9,  9*8(sp)
+ 215              	    ld s10, 10*8(sp)
+ 216              	    ld s11, 11*8(sp)
+ 217              	    ld gp,  12*8(sp)
+ 218              	    ld tp,  13*8(sp)
+ 219              	    ld ra,  14*8(sp)
+ 220              	    addi sp, sp, 8*15
+ 221              	.endm
+ 222              	
+ 223              	.data
+ 224              	
+ 225              	.p2align 4
+ 226              	roots:
+ 227              	#include "ntt_dilithium_1234_5678_twiddles_barret_mul.s"
+   1              	
+   2              	///
+   3              	/// Copyright (c) 2022 Arm Limited
+   4              	/// Copyright (c) 2022 Hanno Becker
+   5              	/// Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
+   6              	/// SPDX-License-Identifier: MIT
+   7              	///
+   8              	/// Permission is hereby granted, free of charge, to any person obtaining a copy
+   9              	/// of this software and associated documentation files (the "Software"), to deal
+  10              	/// in the Software without restriction, including without limitation the rights
+  11              	/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  12              	/// copies of the Software, and to permit persons to whom the Software is
+  13              	/// furnished to do so, subject to the following conditions:
+  14              	///
+  15              	/// The above copyright notice and this permission notice shall be included in all
+  16              	/// copies or substantial portions of the Software.
+  17              	///
+  18              	/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  19              	/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  20              	/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  21              	/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  22              	/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  23              	/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  24              	/// SOFTWARE.
+  25              	///
+  26              	
+  27              	roots_l0123:
+  28 0000 025E4900 	.word 4808194
+  29 0004 09BBE092 	.word 2464201481
+  30 0008 67753900 	.word 3765607
+  31 000c FE8E0773 	.word 1929875198
+  32 0010 69653900 	.word 3761513
+  33 0014 FD8AE772 	.word 1927777021
+  34 0018 2B064F00 	.word 5178923
+  35 001c BCE1339E 	.word 2654200252
+  36 0020 73DF5300 	.word 5496691
+  37 0024 E8DEE8A7 	.word 2817056488
+  38 0028 33E04F00 	.word 5234739
+  39 002c D85EE89F 	.word 2682805976
+  40 0030 6B064F00 	.word 5178987
+  41 0034 DC61349E 	.word 2654233052
+  42 0038 AEB17600 	.word 7778734
+  43 003c D5C19EED 	.word 3986604501
+  44 0040 D50D3600 	.word 3542485
+  45 0044 D5B6366C 	.word 1815525077
+  46 0048 B0ED2800 	.word 2682288
+  47 004c 53DBEF51 	.word 1374673747
+  48 0050 E47F2000 	.word 2129892
+  49 0054 810B1041 	.word 1091570561
+  50 0058 83723900 	.word 3764867
+  51 005c 8BC50173 	.word 1929495947
+  52 0060 4A897000 	.word 7375178
+  53 0064 F7E44AE1 	.word 3779781879
+  54 0068 92810800 	.word 557458
+  55 006c B7650711 	.word 285697463
+  56 0070 C83D6D00 	.word 7159240
+  57 0074 D93AB2DA 	.word 3669113561
+  58 0078 00000000 	.word 0
+  59 007c 00000000 	.word 0
+  60              	roots_l4567:
+  61 0080 94724C00 	.word 5010068
+  62 0084 A8690B99 	.word 2567661992
+  63 0088 2AF73600 	.word 3602218
+  64 008c 99D5096E 	.word 1846138265
+  65 0090 1E913000 	.word 3182878
+  66 0094 E0893A61 	.word 1631226336
+  67 0098 F1E32E00 	.word 3073009
+  68 009c B97E1300 	.word 1277625
+  69 00a0 30A95700 	.word 5744944
+  70 00a4 EFC63A00 	.word 3852015
+  71 00a8 1B59DF5D 	.word 1574918427
+  72 00ac 7F330727 	.word 654783359
+  73 00b0 313E7EAF 	.word 2944286257
+  74 00b4 E747AB75 	.word 1974159335
+  75 00b8 D9060000 	.word 1753
+  76 00bc 3C4B5700 	.word 5720892
+  77 00c0 38982800 	.word 2660408
+  78 00c4 F5F87E00 	.word 8321269
+  79 00c8 6DB50D00 	.word 898413
+  80 00cc 2C27C2AE 	.word 2931959596
+  81 00d0 8EC04451 	.word 1363460238
+  82 00d4 617431FE 	.word 4264653921
+  83 00d8 C5576200 	.word 6444997
+  84 00dc EFA86900 	.word 6924527
+  85 00e0 FEB56400 	.word 6600190
+  86 00e4 784E2A00 	.word 2772600
+  87 00e8 A6C0E0C4 	.word 3303063718
+  88 00ec 08BE86D3 	.word 3548823048
+  89 00f0 05629EC9 	.word 3382600197
+  90 00f4 DE1BB254 	.word 1420958686
+  91 00f8 B4E04100 	.word 4317364
+  92 00fc 905FE283 	.word 2212650896
+  93 0100 3FD12900 	.word 2740543
+  94 0104 336BB753 	.word 1404529459
+  95 0108 73264900 	.word 4793971
+  96 010c 3B817192 	.word 2456912187
+  97 0110 4CD53F00 	.word 4183372
+  98 0114 EAB24E00 	.word 5157610
+  99 0118 E13E5000 	.word 5258977
+ 100 011c 75B17B00 	.word 8106357
+ 101 0120 A389CA7F 	.word 2143979939
+ 102 0124 12368D9D 	.word 2643277330
+ 103 0128 39EAA5A0 	.word 2695227961
+ 104 012c 45D0A0F7 	.word 4154511429
+ 105 0130 230A1200 	.word 1182243
+ 106 0134 FFB70900 	.word 636927
+ 107 0138 F87F4300 	.word 4423672
+ 108 013c 4EC04D00 	.word 5095502
+ 109 0140 0B4D1D24 	.word 605900043
+ 110 0144 10DB7413 	.word 326425360
+ 111 0148 60B72187 	.word 2267133792
+ 112 014c AA84A79B 	.word 2611446954
+ 113 0150 A8540100 	.word 87208
+ 114 0154 875E4300 	.word 4415111
+ 115 0158 B4D55C00 	.word 6084020
+ 116 015c AF284700 	.word 4663471
+ 117 0160 79FAA902 	.word 44694137
+ 118 0164 A3C4DE86 	.word 2262746275
+ 119 0168 04DDD9B9 	.word 3118062852
+ 120 016c 22FA748E 	.word 2390030882
+ 121 0170 D2A32800 	.word 2663378
+ 122 0174 5CFA5B51 	.word 1364982364
+ 123 0178 5F685000 	.word 5269599
+ 124 017c FDFAF8A0 	.word 2700671741
+ 125 0180 A2102000 	.word 2101410
+ 126 0184 D44F3140 	.word 1076973524
+ 127 0188 B4482600 	.word 2508980
+ 128 018c 56F21E00 	.word 2028118
+ 129 0190 A2901D00 	.word 1937570
+ 130 0194 D4A64500 	.word 4564692
+ 131 0198 8B90A44C 	.word 1285853323
+ 132 019c 8E28F43D 	.word 1039411342
+ 133 01a0 8E0F303B 	.word 993005454
+ 134 01a4 0A83708B 	.word 2339406602
+ 135 01a8 5D737F00 	.word 8352605
+ 136 01ac D5660F00 	.word 1009365
+ 137 01b0 98AB6100 	.word 6400920
+ 138 01b4 317F4300 	.word 4423473
+ 139 01b8 A28126FF 	.word 4280713634
+ 140 01bc 1A5FD51E 	.word 517299994
+ 141 01c0 7D1088C3 	.word 3280474237
+ 142 01c4 FC282087 	.word 2267031804
+ 143 01c8 0D8D0C00 	.word 822541
+ 144 01cc 806D5A00 	.word 5926272
+ 145 01d0 965D1800 	.word 1596822
+ 146 01d4 98824600 	.word 4620952
+ 147 01d8 E6612019 	.word 421552614
+ 148 01dc A64008B5 	.word 3037216934
+ 149 01e0 765DC730 	.word 818371958
+ 150 01e4 0479288D 	.word 2368239876
+ 151 01e8 8A526600 	.word 6705802
+ 152 01ec 7848D8CC 	.word 3436726392
+ 153 01f0 F7873800 	.word 3704823
+ 154 01f4 2C382C71 	.word 1898723372
+ 155 01f8 C3B21100 	.word 1159875
+ 156 01fc 51616E23 	.word 594436433
+ 157 0200 9BE52A00 	.word 2811291
+ 158 0204 9C585200 	.word 5396636
+ 159 0208 F5F16E00 	.word 7270901
+ 160 020c 88723F00 	.word 4158088
+ 161 0210 80ADE055 	.word 1440787840
+ 162 0214 526DDAA4 	.word 2765778258
+ 163 0218 206F1BDE 	.word 3726339872
+ 164 021c 36D0047F 	.word 2131021878
+ 165 0220 60296600 	.word 6695264
+ 166 0224 06DE2800 	.word 2678278
+ 167 0228 E3B04900 	.word 4829411
+ 168 022c B30D7C00 	.word 8129971
+ 169 0230 DFDF85CC 	.word 3431325663
+ 170 0234 7C7FD051 	.word 1372618620
+ 171 0238 83A68693 	.word 2475075203
+ 172 023c 6E7A59F8 	.word 4166613614
+ 173 0240 79D54B00 	.word 4969849
+ 174 0244 8D5D4600 	.word 4611469
+ 175 0248 34B40900 	.word 635956
+ 176 024c B0685A00 	.word 5925040
+ 177 0250 0AE5D097 	.word 2547049738
+ 178 0254 7A50DE8C 	.word 2363379834
+ 179 0258 2A436D13 	.word 325927722
+ 180 025c 3E9EFEB4 	.word 3036585534
+ 181 0260 A7184A00 	.word 4855975
+ 182 0264 70625694 	.word 2488689264
+ 183 0268 A4030600 	.word 394148
+ 184 026c 7B4A0A0C 	.word 202001019
+ 185 0270 ED2B0E00 	.word 928749
+ 186 0274 84F15E1C 	.word 475984260
+ 187 0278 02511700 	.word 1528066
+ 188 027c 595D0700 	.word 482649
+ 189 0280 BA871100 	.word 1148858
+ 190 0284 A9AC5200 	.word 5418153
+ 191 0288 0EAFAD2E 	.word 783134478
+ 192 028c 7B61BE0E 	.word 247357819
+ 193 0290 C8391823 	.word 588790216
+ 194 0294 61B182A5 	.word 2776805729
+ 195 0298 A99B4000 	.word 4234153
+ 196 029c 2A762100 	.word 2192938
+ 197 02a0 396E2400 	.word 2387513
+ 198 02a4 59C77B00 	.word 8111961
+ 199 02a8 E7A65781 	.word 2170005223
+ 200 02ac BF12FD42 	.word 1123881663
+ 201 02b0 19ADEE48 	.word 1223601433
+ 202 02b4 39A3CCF7 	.word 4157383481
+ 203 02b8 D5D36400 	.word 6607829
+ 204 02bc 91856500 	.word 6653329
+ 205 02c0 9BC34800 	.word 4768667
+ 206 02c4 59584F00 	.word 5199961
+ 207 02c8 F41EDAC9 	.word 3386515188
+ 208 02cc E5EF3DCB 	.word 3409833957
+ 209 02d0 C59FAB91 	.word 2443943877
+ 210 02d4 DC66D89E 	.word 2664982236
+ 211 02d8 34407900 	.word 7946292
+ 212 02dc 6015BDF2 	.word 4072478048
+ 213 02e0 2CB71000 	.word 1095468
+ 214 02e4 6AB57621 	.word 561427818
+ 215 02e8 355F4A00 	.word 4874037
+ 216 02ec BFA1E394 	.word 2497946047
+ 217 02f0 9E3E7700 	.word 7814814
+ 218 02f4 D8960200 	.word 169688
+ 219 02f8 EC922500 	.word 2462444
+ 220 02fc 12FF4C00 	.word 5046034
+ 221 0300 5DE8B8EE 	.word 4005095517
+ 222 0304 B5FB2E05 	.word 86965173
+ 223 0308 93A5384B 	.word 1262003603
+ 224 030c F7AB249A 	.word 2586094583
+ 225 0310 B22D3900 	.word 3747250
+ 226 0314 67EB1200 	.word 1239911
+ 227 0318 1CC33000 	.word 3195676
+ 228 031c 2E231300 	.word 1254190
+ 229 0320 1B017872 	.word 1920467227
+ 230 0324 C645E025 	.word 635454918
+ 231 0328 E49E9E61 	.word 1637785316
+ 232 032c AFEF4F26 	.word 642772911
+ 233 0330 23092300 	.word 2296099
+ 234 0334 F24D4500 	.word 4541938
+ 235 0338 24542800 	.word 2642980
+ 236 033c 80AF7F00 	.word 8368000
+ 237 0340 67CE2346 	.word 1176751719
+ 238 0344 8F92BE8A 	.word 2327745167
+ 239 0348 7C76BC50 	.word 1354528380
+ 240 034c BAE59EFF 	.word 4288603578
+ 241 0350 EE520A00 	.word 676590
+ 242 0354 9806AB14 	.word 346752664
+ 243 0358 159D1F00 	.word 2071829
+ 244 035c 00FC493F 	.word 1061813248
+ 245 0360 D48C4200 	.word 4361428
+ 246 0364 B3F53A85 	.word 2235233715
+ 247 0368 E84C4000 	.word 4213992
+ 248 036c 82A54A00 	.word 4892034
+ 249 0370 E6541E00 	.word 1987814
+ 250 0374 C1164F00 	.word 5183169
+ 251 0378 7EFDB980 	.word 2159672702
+ 252 037c ED5E7095 	.word 2507169517
+ 253 0380 C5F9B83C 	.word 1018755525
+ 254 0384 0916559E 	.word 2656376329
+ 255 0388 CBBF2D00 	.word 2998219
+ 256 038c 2C837E00 	.word 8291116
+ 257 0390 75336B00 	.word 7025525
+ 258 0394 CCE16B00 	.word 7070156
+ 259 0398 E87A965B 	.word 1536588520
+ 260 039c 6FA745FD 	.word 4249200495
+ 261 03a0 778F9CD6 	.word 3600584567
+ 262 03a4 B594F9D7 	.word 3623457973
+ 263 03a8 0B2A0200 	.word 141835
+ 264 03ac 7A582600 	.word 2513018
+ 265 03b0 765B0900 	.word 613238
+ 266 03b4 1E065E00 	.word 6161950
+ 267 03b8 422B5504 	.word 72690498
+ 268 03bc 7024C44C 	.word 1287922800
+ 269 03c0 C19ABB12 	.word 314284737
+ 270 03c4 5A493BBC 	.word 3158002010
+ 271 03c8 817D6B00 	.word 7044481
+ 272 03cc 85CC30D7 	.word 3610299525
+ 273 03d0 F4773100 	.word 3241972
+ 274 03d4 64A90863 	.word 1661512036
+ 275 03d8 12E62000 	.word 2156050
+ 276 03dc A39ADC41 	.word 1104976547
+ 277 03e0 797E1A00 	.word 1736313
+ 278 03e4 8F970300 	.word 235407
+ 279 03e8 17484E00 	.word 5130263
+ 280 03ec 59B83100 	.word 3258457
+ 281 03f0 23340A35 	.word 889861155
+ 282 03f4 2CEA3007 	.word 120646188
+ 283 03f8 9D5AB79C 	.word 2629261981
+ 284 03fc 9E938963 	.word 1669960606
+ 285 0400 0DE07800 	.word 7921677
+ 286 0404 04A63D00 	.word 4040196
+ 287 0408 681D1F00 	.word 2039144
+ 288 040c B8617300 	.word 7561656
+ 289 0410 4297FCF1 	.word 4059862850
+ 290 0414 C2E16A7B 	.word 2070602178
+ 291 0418 1C624A3E 	.word 1045062172
+ 292 041c 7D2DFDE6 	.word 3875351933
+ 293 0420 378C6200 	.word 6458423
+ 294 0424 3CE54A00 	.word 4908348
+ 295 0428 BB306300 	.word 6500539
+ 296 042c 6CA05E00 	.word 6201452
+ 297 0430 E5BE49C5 	.word 3309944549
+ 298 0434 D1F2EF95 	.word 2515530449
+ 299 0438 391993C6 	.word 3331529017
+ 300 043c 923270BD 	.word 3178246802
+ 301 0440 1D9F4E00 	.word 5152541
+ 302 0444 2A92659D 	.word 2640679466
+ 303 0448 1D1C3400 	.word 3415069
+ 304 044c C34D5268 	.word 1750224323
+ 305 0450 73D81A00 	.word 1759347
+ 306 0454 2A55BE35 	.word 901666090
+ 307 0458 CC845800 	.word 5801164
+ 308 045c 27481B00 	.word 1787943
+ 309 0460 D0635B00 	.word 5989328
+ 310 0464 7A785D00 	.word 6125690
+ 311 0468 17E435B1 	.word 2973099031
+ 312 046c 10F59D36 	.word 916321552
+ 313 0470 E95BF5B6 	.word 3069533161
+ 314 0474 78BA1FBB 	.word 3139418744
+ 315 0478 C71A6700 	.word 6757063
+ 316 047c FFA45B00 	.word 6006015
+ 317 0480 01F20800 	.word 586241
+ 318 0484 6D0E0800 	.word 527981
+ 319 0488 AD2669CE 	.word 3462997677
+ 320 048c 88DA77B7 	.word 3078085256
+ 321 0490 FB7BE811 	.word 300448763
+ 322 0494 18E22010 	.word 270590488
+ 323 0498 C61F2000 	.word 2105286
+ 324 049c 72D76000 	.word 6346610
+ 325 04a0 24E06D00 	.word 7200804
+ 326 04a4 8E035600 	.word 5637006
+ 327 04a8 679F4F40 	.word 1078959975
+ 328 04ac 535ADFC1 	.word 3252640339
+ 329 04b0 1944F7DB 	.word 3690415129
+ 330 04b4 312732AC 	.word 2888967985
+ 331 04b8 77281A00 	.word 1714295
+ 332 04bc 19055E34 	.word 878576921
+ 333 04c0 81667300 	.word 7562881
+ 334 04c4 E2C106E7 	.word 3875979746
+ 335 04c8 3F554900 	.word 4805951
+ 336 04cc A730CF92 	.word 2463051943
+ 337 04d0 5E223500 	.word 3482206
+ 338 04d4 7E0C4000 	.word 4197502
+ 339 04d8 D1096C00 	.word 7080401
+ 340 04dc 32D55B00 	.word 6018354
+ 341 04e0 00535F6A 	.word 1784632064
+ 342 04e4 42093980 	.word 2151221570
+ 343 04e8 BCB249D8 	.word 3628708540
+ 344 04ec A658D8B7 	.word 3084408998
+ 345 04f0 88566900 	.word 6903432
+ 346 04f4 BD032600 	.word 2491325
+ 347 04f8 17C00700 	.word 507927
+ 348 04fc BDD07400 	.word 7655613
+ 349 0500 CCC6E1D2 	.word 3538011852
+ 350 0504 08801A4C 	.word 1276805128
+ 351 0508 E50E840F 	.word 260312805
+ 352 050c 28EFDBE9 	.word 3923504936
+ 353 0510 3E6D1E00 	.word 1994046
+ 354 0514 FA9D6A00 	.word 6987258
+ 355 0518 D4BF6D00 	.word 7192532
+ 356 051c E3E16300 	.word 6545891
+ 357 0520 F4B5E93C 	.word 1021949428
+ 358 0524 A94E71D5 	.word 3580972713
+ 359 0528 EE93B6DB 	.word 3686175726
+ 360 052c E1C1F5C7 	.word 3354771937
+ 361 0530 DF712500 	.word 2453983
+ 362 0534 097BF64A 	.word 1257667337
+ 363 0538 F6523900 	.word 3756790
+ 364 053c C19BC272 	.word 1925356481
+ 365 0540 4A566200 	.word 6444618
+ 366 0544 E9C9DDC4 	.word 3302869481
+ 367 0548 D3C46B00 	.word 7062739
+ 368 054c CB8E2500 	.word 2461387
+ 369 0550 4C532E00 	.word 3035980
+ 370 0554 6C7A0900 	.word 621164
+ 371 0558 3694BFD7 	.word 3619656758
+ 372 055c 8261304B 	.word 1261461890
+ 373 0560 B8C6BD5C 	.word 1555941048
+ 374 0564 4096F912 	.word 318346816
+ 375 0568 73955100 	.word 5346675
+ 376 056c BA672800 	.word 2647994
+ 377 0570 8C015800 	.word 5767564
+ 378 0574 09700B00 	.word 749577
+ 379 0578 A8B953A3 	.word 2740173224
+ 380 057c 49ACE350 	.word 1357098057
+ 381 0580 68222FB0 	.word 2955879016
+ 382 0584 45CBE516 	.word 384158533
+ 383 0588 0DB67A00 	.word 8041997
+ 384 058c D4EC2D00 	.word 3009748
+ 385 0590 F54C3F00 	.word 4148469
+ 386 0594 237E4200 	.word 4357667
+ 387 0598 7582A9F5 	.word 4121526901
+ 388 059c 71A3F05B 	.word 1542497137
+ 389 05a0 6897B97E 	.word 2126092136
+ 390 05a4 598C1D85 	.word 2233306201
+ 391 05a8 EE491600 	.word 1460718
+ 392 05ac 68039F2C 	.word 748618600
+ 393 05b0 05AD6500 	.word 6663429
+ 394 05b4 A4EB8CCB 	.word 3415010212
+ 395 05b8 1C9A4300 	.word 4430364
+ 396 05bc 740C5687 	.word 2270563444
+ 397 05c0 20883B00 	.word 3901472
+ 398 05c4 5C286D00 	.word 7153756
+ 399 05c8 F8A42C00 	.word 2925816
+ 400 05cc AA7C3300 	.word 3374250
+ 401 05d0 940A2E77 	.word 1999506068
+ 402 05d4 215887DA 	.word 3666303009
+ 403 05d8 5F476059 	.word 1499481951
+ 404 05dc F8171367 	.word 1729304568
+ 405 05e0 37BD3C00 	.word 3980599
+ 406 05e4 57396700 	.word 6764887
+ 407 05e8 26691900 	.word 1665318
+ 408 05ec 4EC11100 	.word 1163598
+ 409 05f0 42D39879 	.word 2040058690
+ 410 05f4 F855A6CE 	.word 3467007480
+ 411 05f8 5B03DF32 	.word 853476187
+ 412 05fc 997E8B23 	.word 596344473
+ 413 0600 33332700 	.word 2569011
+ 414 0604 5D4B1A00 	.word 1723229
+ 415 0608 06F21E00 	.word 2028038
+ 416 060c C8764C00 	.word 5011144
+ 417 0610 E4037A4E 	.word 1316619236
+ 418 0614 8FE2A334 	.word 883155599
+ 419 0618 6688F33D 	.word 1039370342
+ 420 061c C3D31399 	.word 2568213443
+ 421 0620 BD117600 	.word 7737789
+ 422 0624 CB8F5EEC 	.word 3965620171
+ 423 0628 5FAA5300 	.word 5483103
+ 424 062c 589C7EA7 	.word 2810092632
+ 425 0630 22B63000 	.word 3192354
+ 426 0634 66A48461 	.word 1636082790
+ 427 0638 A0B21400 	.word 1356448
+ 428 063c 36855500 	.word 5604662
+ 429 0640 86F12800 	.word 2683270
+ 430 0644 5D795500 	.word 5601629
+ 431 0648 949B6F29 	.word 695180180
+ 432 064c F83735AB 	.word 2872391672
+ 433 0650 3E89F751 	.word 1375177022
+ 434 0654 0A801DAB 	.word 2870837258
+ 435 0658 2FF43C00 	.word 3994671
+ 436 065c 6CF66A00 	.word 7009900
+ 437 0660 D6523300 	.word 3363542
+ 438 0664 60520800 	.word 545376
+ 439 0668 C4DE067A 	.word 2047270596
+ 440 066c EB5E22D6 	.word 3592576747
+ 441 0670 095BBF66 	.word 1723816713
+ 442 0674 19EAA810 	.word 279505433
+ 443 0678 9AB17F00 	.word 8368538
+ 444 067c 69162E00 	.word 3020393
+ 445 0680 60470300 	.word 214880
+ 446 0684 781E7400 	.word 7609976
+ 447 0688 C71AA3FF 	.word 4288879303
+ 448 068c 40E2435C 	.word 1547952704
+ 449 0690 0C649006 	.word 110126092
+ 450 0694 F20B77E8 	.word 3900115954
+ 451 0698 B72B4900 	.word 4795319
+ 452 069c DE0B7C92 	.word 2457603038
+ 453 06a0 387F0800 	.word 556856
+ 454 06a4 8AB00211 	.word 285388938
+ 455 06a8 6D0E3B00 	.word 3870317
+ 456 06ac AD673A76 	.word 1983539117
+ 457 06b0 70F64A00 	.word 4912752
+ 458 06b4 864A2300 	.word 2312838
+ 459 06b8 26E87500 	.word 7727142
+ 460 06bc 66DE7800 	.word 7921254
+ 461 06c0 6D631296 	.word 2517787501
+ 462 06c4 20B5A646 	.word 1185330464
+ 463 06c8 FB4C0BEC 	.word 3960163579
+ 464 06cc 6E48F9F1 	.word 4059646062
+ 465 06d0 16632F00 	.word 3105558
+ 466 06d4 F1C00700 	.word 508145
+ 467 06d8 F01F0D00 	.word 860144
+ 468 06dc D4230200 	.word 140244
+ 469 06e0 BBE2DD5E 	.word 1591599803
+ 470 06e4 52C3850F 	.word 260424530
+ 471 06e8 6871461A 	.word 440824168
+ 472 06ec 26BA4804 	.word 71875110
+ 473 06f0 110A6F00 	.word 7277073
+ 474 06f4 0B6D7700 	.word 7826699
+ 475 06f8 24583400 	.word 3430436
+ 476 06fc 59C56800 	.word 6866265
+ 477 0700 30B34BDE 	.word 3729503024
+ 478 0704 98D915EF 	.word 4011186584
+ 479 0708 CD79CA68 	.word 1758099917
+ 480 070c 2520BFD1 	.word 3518963749
+ 481 0710 97F62A00 	.word 2815639
+ 482 0714 FFAD0256 	.word 1443016191
+ 483 0718 DA832C00 	.word 2917338
+ 484 071c CCFA1D59 	.word 1495136972
+ 485 0720 6E491C00 	.word 1853806
+ 486 0724 D003A138 	.word 950076368
+ 487 0728 8C520500 	.word 348812
+ 488 072c 59DF7A00 	.word 8052569
+ 489 0730 176E0F00 	.word 1011223
+ 490 0734 DAF35B00 	.word 6026202
+ 491 0738 DBC1A70A 	.word 178766299
+ 492 073c 202FFCF5 	.word 4126945056
+ 493 0740 BCE6E31E 	.word 518252220
+ 494 0744 FEB715B8 	.word 3088431102
+ 495 0748 85885E00 	.word 6195333
+ 496 074c 65FC2300 	.word 2358373
+ 497 0750 EDE05100 	.word 5365997
+ 498 0754 E6A52C00 	.word 2926054
+ 499 0758 9C5840BD 	.word 3175110812
+ 500 075c 23CC0A48 	.word 1208667171
+ 501 0760 6DD3EAA3 	.word 2750075757
+ 502 0764 D6236259 	.word 1499603926
+ 503 0768 32AA2F00 	.word 3123762
+ 504 076c 42695E00 	.word 6187330
+ 505 0770 B3AD6500 	.word 6663603
+ 506 0774 FEE17900 	.word 7987710
+ 507 0778 513E6C5F 	.word 1600929361
+ 508 077c F7C201BD 	.word 3171009271
+ 509 0780 FB478ECB 	.word 3415099387
+ 510 0784 57FA00F4 	.word 4093704791
+ 511 0788 D5D82200 	.word 2283733
+ 512 078c 3B1AC345 	.word 1170414139
+ 513 0790 2B0E3300 	.word 3345963
+ 514 0794 ACE23566 	.word 1714807468
+ 515 0798 705B1C00 	.word 1858416
+ 516 079c D310C538 	.word 952438995
+ 517 07a0 7E9B4500 	.word 4561790
+ 518 07a4 348B6200 	.word 6458164
+ 519 07a8 CBBE5D00 	.word 6143691
+ 520 07ac 7B9E1A00 	.word 1744507
+ 521 07b0 5ED1598B 	.word 2337919326
+ 522 07b4 64B847C5 	.word 3309811812
+ 523 07b8 A97FACBB 	.word 3148644265
+ 524 07bc 27484A35 	.word 894060583
+ 525 07c0 64407B00 	.word 8077412
+ 526 07c4 AC3A4300 	.word 4405932
+ 527 07c8 14FE1C00 	.word 1900052
+ 528 07cc 0E171000 	.word 1054478
+ 529 07d0 B075BEF6 	.word 4139677104
+ 530 07d4 B2FC9686 	.word 2258042034
+ 531 07d8 36AA0A3A 	.word 973777462
+ 532 07dc 4A293620 	.word 540420426
+ 533 07e0 DDE13500 	.word 3531229
+ 534 07e4 DE4A4600 	.word 4606686
+ 535 07e8 CEF17300 	.word 7598542
+ 536 07ec D7B67400 	.word 7648983
+ 537 07f0 D4B0DE6B 	.word 1809756372
+ 538 07f4 21E9B88C 	.word 2360928545
+ 539 07f8 98A11DE8 	.word 3894256024
+ 540 07fc 3216A8E9 	.word 3920107058...
+ 228              	.text
+ 229              	    .global ntt_dilithium_1234_5678
+ 230              	    .global _ntt_dilithium_1234_5678
+ 231 0000 01001300 	.p2align 4
+ 231      00001300 
+ 231      00001300 
+ 231      0000
+ 232              	
+ 233              	.globl ntt_rvv_vlen128_barret_mul
+ 234              	ntt_rvv_vlen128_barret_mul:
+ 235              	_ntt_rvv_vlen128_barret_mul:
+ 236 000e 130181F8 	    push_stack // save scalar regs here
+ 236      22E026E4 
+ 236      4AE84EEC 
+ 236      52F056F4 
+ 236      5AF85EFC 
+ 237 0030 577002C1 	    vsetivli zero, 4, e32, m1   // configure vector unit, 4*32 bit elements per vector @ VLEN=128
+ 238              	
+ 239 0034 37E27F00 	    li modulus, 8380417         // load dilithium modulus
+ 239      0522
+ 240 003a D749025E 	    vmv.v.x vmodulus, modulus   // copy modulus into vector register
+ 241              	
+ 242              	    .equ L_STRIDE, 64           // Load Stride = distance between coefficients pairs of four
+ 243              	    .equ S_STRIDE, 16           // Shift Stride = distance of coefficients between two iterations
+ 244              	
+ 245 003e 97020000 	    la root_ptr, roots          // load address of roots in memory into root_ptr
+ 245      83B20200 
+ 246              	
+ 247 0046 83A34200 	    load_roots_1234 root_ptr, barretc_1, barretc_2, barretc_3, barretc_4, barretc_5, \
+ 247      03A4C200 
+ 247      83A44201 
+ 247      83A0C201 
+ 247      83A54202 
+ 248              	    root6, barretc_6, root7, barretc_7, root8, barretc_8, root9, barretc_9, root10, barretc_10, \
+ 249              	    root11, barretc_11, root12, barretc_12, root13, barretc_13, root14, barretc_14, root15, barretc
+ 250              	
+ 251 00aa 9141     	    li count, 4
+ 252              	
+ 253 00ac 0100     	    .p2align 2
+ 254              	layer1234_start:
+ 255              	    // Load 64 coefficients. For VLEN = 128 each register holds 4* 4 byte = 32 bit coefficients. He
+ 256              	    // Base register must be incremented by L_STRIDE = 64 byte to load the correct coefficient pair
+ 257              	
+ 258 00ae 07600502 	    load16 in, L_STRIDE
+ 258      13050504 
+ 258      87600502 
+ 258      13050504 
+ 258      07610502 
+ 259 012a 130505C4 	    addi in, in, -15*L_STRIDE   // decrement pointer to original value
+ 260              	
+ 261 012e 03A30200 	    lw xtmp, 0*8(root_ptr)  // xtmp = root1
+ 262              	
+ 263              	    // Merge 4 layers (interleaved)
+ 264              	    // level 1 - Stride = 128*4 byte -> BF(a0,a128), BF(a16, a144) ...
+ 265 0132 D7688396 	    ct_butterfly data0, data8, xtmp, barretc_1
+ 265      57E88392 
+ 265      D76802BF 
+ 265      5784080A 
+ 265      57800802 
+ 266 0146 D7689396 	    ct_butterfly data1, data9, xtmp, barretc_1
+ 266      57E89392 
+ 266      D76802BF 
+ 266      D784180A 
+ 266      D7801802 
+ 267 015a D768A396 	    ct_butterfly data2, data10, xtmp, barretc_1
+ 267      57E8A392 
+ 267      D76802BF 
+ 267      5785280A 
+ 267      57812802 
+ 268 016e D768B396 	    ct_butterfly data3, data11, xtmp, barretc_1
+ 268      57E8B392 
+ 268      D76802BF 
+ 268      D785380A 
+ 268      D7813802 
+ 269 0182 D768C396 	    ct_butterfly data4, data12, xtmp, barretc_1
+ 269      57E8C392 
+ 269      D76802BF 
+ 269      5786480A 
+ 269      57824802 
+ 270 0196 D768D396 	    ct_butterfly data5, data13, xtmp, barretc_1
+ 270      57E8D392 
+ 270      D76802BF 
+ 270      D786580A 
+ 270      D7825802 
+ 271 01aa D768E396 	    ct_butterfly data6, data14, xtmp, barretc_1
+ 271      57E8E392 
+ 271      D76802BF 
+ 271      5787680A 
+ 271      57836802 
+ 272 01be D768F396 	    ct_butterfly data7, data15, xtmp, barretc_1
+ 272      57E8F392 
+ 272      D76802BF 
+ 272      D787780A 
+ 272      D7837802 
+ 273              	
+ 274 01d2 03A38200 	    lw xtmp, 1*8(root_ptr)  // xtmp = root2
+ 275              	
+ 276              	    // level 2 - Stride = 64*4 byte -> BF(a0, a64), BF(16, 80) ...
+ 277 01d6 D7684396 	    ct_butterfly data0, data4, xtmp, barretc_2
+ 277      57684492 
+ 277      D76802BF 
+ 277      5782080A 
+ 277      57800802 
+ 278 01ea D7685396 	    ct_butterfly data1, data5, xtmp, barretc_2
+ 278      57685492 
+ 278      D76802BF 
+ 278      D782180A 
+ 278      D7801802 
+ 279 01fe D7686396 	    ct_butterfly data2, data6, xtmp, barretc_2
+ 279      57686492 
+ 279      D76802BF 
+ 279      5783280A 
+ 279      57812802 
+ 280 0212 D7687396 	    ct_butterfly data3, data7, xtmp, barretc_2
+ 280      57687492 
+ 280      D76802BF 
+ 280      D783380A 
+ 280      D7813802 
+ 281              	
+ 282 0226 03A30201 	    lw xtmp, 2*8(root_ptr)  // xtmp = root3
+ 283              	
+ 284 022a D768C396 	    ct_butterfly data8, data12, xtmp, barretc_3
+ 284      57E8C492 
+ 284      D76802BF 
+ 284      5786880A 
+ 284      57848802 
+ 285 023e D768D396 	    ct_butterfly data9, data13, xtmp, barretc_3
+ 285      57E8D492 
+ 285      D76802BF 
+ 285      D786980A 
+ 285      D7849802 
+ 286 0252 D768E396 	    ct_butterfly data10, data14, xtmp, barretc_3
+ 286      57E8E492 
+ 286      D76802BF 
+ 286      5787A80A 
+ 286      5785A802 
+ 287 0266 D768F396 	    ct_butterfly data11, data15, xtmp, barretc_3
+ 287      57E8F492 
+ 287      D76802BF 
+ 287      D787B80A 
+ 287      D785B802 
+ 288              	
+ 289 027a 03A38201 	    lw xtmp, 3*8(root_ptr)  // xtmp = root4
+ 290              	
+ 291              	    // level 3 - Stride = 32*4 byte -> BF(a0, a32), BF(a16, a48) ...
+ 292 027e D7682396 	    ct_butterfly data0, data2, xtmp, barretc_4
+ 292      57E82092 
+ 292      D76802BF 
+ 292      5781080A 
+ 292      57800802 
+ 293 0292 D7683396 	    ct_butterfly data1, data3, xtmp, barretc_4
+ 293      57E83092 
+ 293      D76802BF 
+ 293      D781180A 
+ 293      D7801802 
+ 294              	
+ 295 02a6 03A30202 	    lw xtmp, 4*8(root_ptr)  // xtmp = root5
+ 296              	
+ 297 02aa D7686396 	    ct_butterfly data4, data6, xtmp, barretc_5
+ 297      57E86592 
+ 297      D76802BF 
+ 297      5783480A 
+ 297      57824802 
+ 298 02be D7687396 	    ct_butterfly data5, data7, xtmp, barretc_5
+ 298      57E87592 
+ 298      D76802BF 
+ 298      D783580A 
+ 298      D7825802 
+ 299 02d2 D768A696 	    ct_butterfly data8, data10, root6, barretc_6
+ 299      57E8A692 
+ 299      D76802BF 
+ 299      5785880A 
+ 299      57848802 
+ 300 02e6 D768B696 	    ct_butterfly data9, data11, root6, barretc_6
+ 300      57E8B692 
+ 300      D76802BF 
+ 300      D785980A 
+ 300      D7849802 
+ 301 02fa D768E696 	    ct_butterfly data12, data14, root6, barretc_7
+ 301      57E8E792 
+ 301      D76802BF 
+ 301      5787C80A 
+ 301      5786C802 
+ 302 030e D768F796 	    ct_butterfly data13, data15, root7, barretc_7
+ 302      57E8F792 
+ 302      D76802BF 
+ 302      D787D80A 
+ 302      D786D802 
+ 303              	
+ 304              	    // level 4 - Stride = 16*4 byte -> BF(a0, a16), BF(a32, a48) ...
+ 305 0322 D7681896 	    ct_butterfly data0, data1, root8, barretc_8
+ 305      57E81892 
+ 305      D76802BF 
+ 305      D780080A 
+ 305      57800802 
+ 306 0336 D7683996 	    ct_butterfly data2, data3, root9, barretc_9
+ 306      57E83992 
+ 306      D76802BF 
+ 306      D781280A 
+ 306      57812802 
+ 307 034a D7685A96 	    ct_butterfly data4, data5, root10, barretc_10
+ 307      57E85A92 
+ 307      D76802BF 
+ 307      D782480A 
+ 307      57824802 
+ 308 035e D7687B96 	    ct_butterfly data6, data7, root11, barretc_11
+ 308      57E87B92 
+ 308      D76802BF 
+ 308      D783680A 
+ 308      57836802 
+ 309 0372 D7689C96 	    ct_butterfly data8, data9, root12, barretc_12
+ 309      57E89C92 
+ 309      D76802BF 
+ 309      D784880A 
+ 309      57848802 
+ 310 0386 D768BD96 	    ct_butterfly data10, data11, root13, barretc_13
+ 310      57E8BD92 
+ 310      D76802BF 
+ 310      D785A80A 
+ 310      5785A802 
+ 311 039a D768DE96 	    ct_butterfly data12, data13, root14, barretc_14
+ 311      57E8DE92 
+ 311      D76802BF 
+ 311      D786C80A 
+ 311      5786C802 
+ 312 03ae D768FF96 	    ct_butterfly data14, data15, root15, barretc_15
+ 312      57E8FF92 
+ 312      D76802BF 
+ 312      D787E80A 
+ 312      5787E802 
+ 313              	
+ 314              	
+ 315 03c2 27600502 	    store16 in, L_STRIDE        // store results
+ 315      13050504 
+ 315      A7600502 
+ 315      13050504 
+ 315      27610502 
+ 316 043e 130505C4 	    addi in, in, -15*L_STRIDE   // decrement pointer to original value
+ 317              	
+ 318 0442 4105     	    addi in, in, S_STRIDE       // load next coeffient pairs, all shifted by 16 bytes
+ 319              	layer1234_end:
+ 320 0444 FD11     	    addi count, count, -1
+ 321 0446 E39401C6 	    bnez count, layer1234_start
+ 322              	
+ 323              	    #undef barretc_1
+ 324              	    #undef barretc_2
+ 325              	    #undef barretc_3
+ 326              	    #undef barretc_4
+ 327              	    #undef barretc_5
+ 328              	    #undef root6
+ 329              	
+ 330              	    #define xroot1      x7
+ 331              	    #define xbarretc_1  x8
+ 332              	    #define xroot2      x9
+ 333              	    #define xbarretc_2  x1
+ 334              	    #define xroot3      x11
+ 335              	    #define xbarretc_3  x12
+ 336              	
+ 337              	    #define vroot1      v19
+ 338              	    #define vbarretc_1  v20
+ 339              	    #define vroot2      v21
+ 340              	    #define vbarretc_2   v22
+ 341              	    #define vroot3      v23
+ 342              	    #define vbarretc_3  v24
+ 343 044a 130505FC 	    addi in, in, -4*S_STRIDE    // reset in pointer to original value, has been updated 4 x S_STRID
+ 344              	                                // other implementation saved original in to stack, maybe consider 
+ 345 044e C141     	    li count, 16
+ 346 0450 93828207 	    addi root_ptr, root_ptr, 15*8 // point to twiddles for layer5678, starting with root16
+ 347              	
+ 348              	    .equ L_STRIDE, 16
+ 349              	    .equ S_STRIDE, 64  // check again
+ 350              	
+ 351 0454 0100     	    .p2align 2
+ 352              	layer5678_start:
+ 353 0456 07600502 	    vle32.v data0, (in)
+ 354 045a 4105     	    addi in, in, L_STRIDE
+ 355 045c 87600502 	    vle32.v data1, (in)
+ 356 0460 4105     	    addi in, in, L_STRIDE
+ 357 0462 07610502 	    vle32.v data2, (in)
+ 358 0466 4105     	    addi in, in, L_STRIDE
+ 359 0468 87610502 	    vle32.v data3, (in)
+ 360              	
+ 361 046c 130505FD 	    addi in, in, -3*L_STRIDE  // decrement pointer to original value
+ 362              	
+ 363 0470 83A30200 	    load_roots_5678 xroot1, xbarretc_1, xroot2, xbarretc_2, xroot3, xbarretc_3,\
+ 363      03A44200 
+ 363      83A48200 
+ 363      83A0C200 
+ 363      83A50201 
+ 364              	                         vroot1, vbarretc_1, vroot2, vbarretc_2, vroot3, vbarretc_3,\
+ 365              	                         root_ptr
+ 366              	
+ 367              	    // level 5+6
+ 368 04ae D7E82396 	    ct_butterfly data0, data2, xroot1, xbarretc_1  // Stride = 8*4 byte -> BF(a0, a8), BF(a4, a12) 
+ 368      57682492 
+ 368      D76802BF 
+ 368      5781080A 
+ 368      57800802 
+ 369 04c2 D7E83396 	    ct_butterfly data1, data3, xroot1, xbarretc_1
+ 369      57683492 
+ 369      D76802BF 
+ 369      D781180A 
+ 369      D7801802 
+ 370 04d6 D7E81496 	    ct_butterfly data0, data1, xroot2, xbarretc_2  // Stride = 4*4 byte -> BF(a0, a4), BF(a8, a12) 
+ 370      57E81092 
+ 370      D76802BF 
+ 370      D780080A 
+ 370      57800802 
+ 371 04ea D7E83596 	    ct_butterfly data2, data3, xroot3, xbarretc_3
+ 371      57683692 
+ 371      D76802BF 
+ 371      D781280A 
+ 371      57812802 
+ 372              	
+ 373 04fe 3971     	    addi sp, sp, -64  // allocate 64 byte of memory for 4 vector registers
+ 374 0500 27600162 	    transpose4 data0, sp  // necessary bc coefficients required for ct_butterfly would be in same r
+ 374      07608162 
+ 375 0508 2161     	    addi sp, sp, 64  // free memory
+ 376              	
+ 377              	    // level 7+8
+ 378 050a D7A82996 	    ct_butterfly_v data0, data2, vroot1, vbarretc_1  // Stride = 2*4 byte -> BF(a0, a2), BF(a4, a6)
+ 378      57282A92 
+ 378      D76802BF 
+ 378      5781080A 
+ 378      57800802 
+ 379 051e D7A83996 	    ct_butterfly_v data1, data3, vroot1, vbarretc_1
+ 379      57283A92 
+ 379      D76802BF 
+ 379      D781180A 
+ 379      D7801802 
+ 380 0532 D7A81A96 	    ct_butterfly_v data0, data1, vroot2, vbarretc_2  // Stride = 1*4 byte -> BF(a0, a1), BF(a2, a3)
+ 380      57281B92 
+ 380      D76802BF 
+ 380      D780080A 
+ 380      57800802 
+ 381 0546 D7A83B96 	    ct_butterfly_v data2, data3, vroot3, vbarretc_3
+ 381      57283C92 
+ 381      D76802BF 
+ 381      D781280A 
+ 381      57812802 
+ 382              	
+ 383              	    // store results, transpose back before. Corresponds to https://fprox.substack.com/i/139455473/
+ 384 055a 27600562 	    vsseg4e32.v data0, (in)  // Store packed vector of 4*4-byte segments from data0, data1, data2, 
+ 385              	
+ 386              	    // alternative store, might be faster. Corresponds to https://fprox.substack.com/i/139455473/x-
+ 387              	    // Benchmarks: https://pastebin.com/gQB76kgy
+ 388              	    //li vtmp2, L_STRIDE
+ 389              	    //vsse32.v data0, (in), vtmp2
+ 390              	    //addi in, in, L_STRIDE
+ 391              	    //vsse32.v data1, (in), vtmp2
+ 392              	    //addi in, in, L_STRIDE
+ 393              	    //vsse32.v data2, (in), vtmp2
+ 394              	    //addi in, in, L_STRIDE
+ 395              	    //vsse32.v data3, (in), vtmp2
+ 396              	    // addi in, in, -3*L_STRIDE  // decrement pointer to original value
+ 397              	
+ 398 055e 13050504 	    addi in, in, S_STRIDE  // load next coeffient pairs, all shifted by 64 bytes
+ 399              	layer5678_end:
+ 400 0562 FD11     	    addi count, count, -1
+ 401 0564 E39901EE 	    bnez count, layer5678_start
+ 402              	
+ 403 0568 0264A264 	    pop_stack
+ 403      4269E269 
+ 403      027AA27A 
+ 403      427BE27B 
+ 403      066CA66C 
+ 404 058a 82800000 	    ret
+ 404      0000

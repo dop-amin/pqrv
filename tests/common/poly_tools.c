@@ -182,22 +182,29 @@ void mod_add_buf_s32( int32_t *src_a, int32_t *src_b, int32_t *dst,
         dst[i] = mod_add_s32( src_a[i], src_b[i], modulus );
 }
 
+// ensures src[i] < mod/2
 void mod_reduce_buf_s32( int32_t *src, unsigned size, int32_t mod )
 {
     for( unsigned i=0; i < size; i++ )
     {
-        src[i] = src[i] % mod;
+        src[i] %= mod;
         if( src[i] < 0 )
             src[i] += mod;
+        if( src[i] > mod/2 )
+            src[i] = mod - src[i];
     }
 }
 
+// ensures |src[i]| < mod/2
 void mod_reduce_buf_s32_signed( int32_t *src, unsigned size, int32_t mod )
 {
-    mod_reduce_buf_s32( src, size, mod );
     for( unsigned i=0; i < size; i++ )
     {
-        if( src[i] > ( mod / 2 ) )
+        src[i] %= mod;
+        if( src[i] < 0 )
+            src[i] += mod;
+
+        if( src[i] > mod/2 )
             src[i] -= mod;
     }
 }
