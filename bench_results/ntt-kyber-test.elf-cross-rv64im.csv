@@ -1,0 +1,10 @@
+========= Kyber NTT Test and Benchmarks =========
+function, cycles, instructions, IPC, speedup
+ntt_kyber_rv64im, 15382, 6923, 0.45, - 
+ntt_kyber_rv64im_opt_c908, 5452, 6825, 1.25, 2.82 
+ntt_kyber_dual_rv64im, 6773, 6936, 1.02, - 
+ntt_kyber_dual_rv64im_opt_c908, 6100, 6929, 1.14, 1.11 
+intt_kyber_rv64im, 13779, 7451, 0.54, - 
+intt_kyber_rv64im_opt_c908, 8641, 7399, 0.86, 1.59 
+intt_kyber_dual_rv64im, 7170, 7468, 1.04, - 
+intt_kyber_dual_rv64im_opt_c908, 6348, 7458, 1.17, 1.13 

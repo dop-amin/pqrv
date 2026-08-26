@@ -1,1 +1,1 @@
-/home/amin.abdulrahman/git/public/pqrv/slothy/examples/naive/riscv/kyber_basemul/kyber_poly_basemul_acc_rv64im_dual.s
+../../../slothy/examples/naive/riscv/kyber_basemul/kyber_poly_basemul_acc_rv64im_dual.s

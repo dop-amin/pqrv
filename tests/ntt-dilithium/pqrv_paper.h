@@ -551,6 +551,7 @@ void intt_dilithium_8l_plant_rv64im_dual_wrap(int32_t *r)
     intt_dilithium_8l_plant_rv64im_dual(r, zetas_intt_plant_rv64im);
 }
 
+#ifdef VECTOR128
 void ntt_rvv_vlen128_barret_mul_wrap(int32_t *r)
 {
     ntt_rvv_vlen128_barret_mul(r, zetas);
@@ -560,6 +561,7 @@ void ntt_rvv_vlen128_barret_mul_opt_c908_wrap(int32_t *r)
 {
     ntt_rvv_vlen128_barret_mul_opt_c908(r, zetas);
 }
+#endif // VECTOR128
 
 // opt
 void ntt_8l_rv64im_opt_wrap(int32_t *r)
@@ -581,6 +583,7 @@ void intt_dilithium_8l_plant_rv64im_dual_opt_c908_wrap(int32_t *r)
     intt_dilithium_8l_plant_rv64im_dual_opt_c908(r, zetas_intt_plant_rv64im);
 }
 
+#ifdef VECTOR128
 void ntt_rvv_vlen128_wrap(int32_t *r)
 {
     ntt_rvv_vlen128(r, zetas_ntt_rvv);
@@ -610,5 +613,6 @@ void normal2ntt_order_rvv_vlen128_opt_c908_wrap(int32_t *r)
 {
     normal2ntt_order_rvv_vlen128_opt_c908(r, zetas_ntt_rvv);
 }
+#endif // VECTOR128
 
 #endif

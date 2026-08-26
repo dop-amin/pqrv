@@ -1,1 +1,1 @@
-/home/amin.abdulrahman/git/public/pqrv/slothy/examples/opt/riscv/kyber_basemul/kyber_poly_basemul_cache_init_rv64im_opt_c908.s
+../../../slothy/examples/opt/riscv/kyber_basemul/kyber_poly_basemul_cache_init_rv64im_opt_c908.s

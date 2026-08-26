@@ -231,6 +231,7 @@ void poly_basemul_acc_cache_init_end_rv64im_dual_opt_c908_wrap(int16_t *r, const
 
 // ===== RVV WRAPPER FUNCTIONS =====
 
+#ifdef VECTOR128
 // RVV wrappers - 4 parameters (int16_t r, int16_t a, int16_t b, int16_t table)
 void poly_basemul_rvv_vlen128_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table) {
     poly_basemul_rvv_vlen128(r, a, b, table);
@@ -284,5 +285,6 @@ void poly_basemul_cache_init_rvv_vlen128_opt_c908_wrap(int16_t *r, const int16_t
 void poly_basemul_acc_cache_init_rvv_vlen128_opt_c908_wrap(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table, int16_t *b_cache) {
     poly_basemul_acc_cache_init_rvv_vlen128_opt_c908(r, a, b, table, b_cache);
 }
+#endif // VECTOR128
 
 #endif // PQRV_PAPER_H

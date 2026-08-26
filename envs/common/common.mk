@@ -76,9 +76,36 @@ clean:
 	rm -f *.elf
 
 # Running
+# Platform name, derived from the env directory (e.g. envs/cross-rvv -> cross-rvv),
+# so results from different platforms no longer overwrite each other.
+PLATFORM := $(notdir $(CURDIR))
+
+# Fail fast instead of hanging on an unreachable board; never prompt interactively.
+SSH_OPTS = -o BatchMode=yes -o ConnectTimeout=30 -o ControlMaster=auto -o ControlPath=/tmp/pqrv-cm-%r@%h:%p -o ControlPersist=120
+SSH_RETRIES     ?= 3
+SSH_RETRY_DELAY ?= 3
+
 .PHONY: run-remote
 run-remote: $(TARGET)
-	scp -l 8192 -i $(SSH_ID) -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST):$(SSH_PATH)
-	ssh -i $(SSH_ID) -F $(SSH_CONF) $(SSH_DEST) '$(SSH_PATH)/$(TARGET)'
+	mkdir -p ../../bench_results
+	@n=0; \
+	while :; do \
+	  n=$$((n+1)); \
+	  if scp -O $(SSH_OPTS) -i $(SSH_ID) -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST):$(SSH_PATH); then break; fi; \
+	  if [ $$n -ge $(SSH_RETRIES) ]; then echo "[FAIL] $(PLATFORM)-$(TARGET): scp failed $$n times" >&2; exit 1; fi; \
+	  echo "[retry scp $$n/$(SSH_RETRIES)] $(TARGET)-$(PLATFORM) in $(SSH_RETRY_DELAY)s" >&2; \
+	  sleep $(SSH_RETRY_DELAY); \
+	done
+	@out=../../bench_results/$(TARGET)-$(PLATFORM).csv; tmp=$$out.tmp; n=0; \
+	while :; do \
+	  n=$$((n+1)); \
+	  if ssh $(SSH_OPTS) -i $(SSH_ID) -F $(SSH_CONF) $(SSH_DEST) '$(SSH_PATH)/$(TARGET)' > $$tmp && [ -s $$tmp ]; then \
+	    mv $$tmp $$out; exit 0; \
+	  fi; \
+	  rm -f $$tmp; \
+	  if [ $$n -ge $(SSH_RETRIES) ]; then echo "[FAIL] $(TARGET)-$(PLATFORM): ssh failed $$n times" >&2; exit 1; fi; \
+	  echo "[retry $$n/$(SSH_RETRIES)] $(TARGET)-$(PLATFORM) in $(SSH_RETRY_DELAY)s" >&2; \
+	  sleep $(SSH_RETRY_DELAY); \
+	done
 	#scp -i $(SSH_ID) -F $(SSH_CONF) ./$(TARGET) $(SSH_DEST2):$(SSH_PATH2)
 	#ssh -i $(SSH_ID) -F $(SSH_CONF) $(SSH_DEST2) '$(SSH_PATH2)/$(TARGET)'

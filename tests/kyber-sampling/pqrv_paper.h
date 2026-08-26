@@ -61,6 +61,7 @@ extern void rej_uniform_rvv_vlen128_opt_c908(int16_t *r, const uint8_t *buf, con
                                              uint32_t *ctr_p, uint32_t *pos_p);
 
 /* ===== Wrappers binding the shared constant table ===== */
+#ifdef VECTOR128
 void cbd2_rvv_vlen128_wrap(int16_t *r, const uint8_t *buf) { cbd2_rvv_vlen128(r, buf, kyber_sampling_consts); }
 void cbd2_rvv_vlen128_opt_c908_wrap(int16_t *r, const uint8_t *buf) { cbd2_rvv_vlen128_opt_c908(r, buf, kyber_sampling_consts); }
 void cbd3_rvv_vlen128_wrap(int16_t *r, const uint8_t *buf) { cbd3_rvv_vlen128(r, buf, kyber_sampling_consts); }
@@ -70,5 +71,6 @@ void rej_uniform_rvv_vlen128_wrap(int16_t *r, const uint8_t *buf, uint32_t *ctr_
 { rej_uniform_rvv_vlen128(r, buf, kyber_sampling_consts, ctr_p, pos_p); }
 void rej_uniform_rvv_vlen128_opt_c908_wrap(int16_t *r, const uint8_t *buf, uint32_t *ctr_p, uint32_t *pos_p)
 { rej_uniform_rvv_vlen128_opt_c908(r, buf, kyber_sampling_consts, ctr_p, pos_p); }
+#endif // VECTOR128
 
 #endif // PQRV_PAPER_H

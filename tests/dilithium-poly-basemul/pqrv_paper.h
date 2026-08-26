@@ -115,6 +115,7 @@ void poly_basemul_8l_acc_end_rv64im_opt_c908_dual_wrap(int32_t *r, const int32_t
 
 // ===== RVV WRAPPER FUNCTIONS =====
 
+#ifdef VECTOR128
 // RVV wrappers - 3 parameters (int32_t r, int32_t a, int32_t b)
 void poly_basemul_rvv_vlen128_wrap(int32_t *r, const int32_t *a, const int32_t *b) {
     poly_basemul_rvv_vlen128(r, a, b);
@@ -134,13 +135,27 @@ void poly_basemul_rvv_vlen128_opt_c908_wrap(int32_t *r, const int32_t *a, const 
 void poly_basemul_acc_rvv_vlen128_opt_c908_wrap(int32_t *r, const int32_t *a, const int32_t *b) {
     poly_basemul_acc_rvv_vlen128_opt_c908(r, a, b);
 }
+#endif // VECTOR128
 
+
+/* poly_reduce (RV64IM) */
+extern void poly_reduce_rv64im(int32_t *r);
+extern void poly_reduce_rv64im_dual(int32_t *r);
+extern void poly_reduce_rv64im_opt_c908(int32_t *r);
+extern void poly_reduce_rv64im_dual_opt_c908(int32_t *r);
+
+void poly_reduce_rv64im_wrap(int32_t *a)               { poly_reduce_rv64im(a); }
+void poly_reduce_rv64im_dual_wrap(int32_t *a)          { poly_reduce_rv64im_dual(a); }
+void poly_reduce_rv64im_opt_c908_wrap(int32_t *a)      { poly_reduce_rv64im_opt_c908(a); }
+void poly_reduce_rv64im_dual_opt_c908_wrap(int32_t *a) { poly_reduce_rv64im_dual_opt_c908(a); }
 
 /* poly_reduce (RVV, VLEN=128) */
 extern void poly_reduce_rvv_vlen128(int32_t *r);
 extern void poly_reduce_rvv_vlen128_opt_c908(int32_t *r);
 
+#ifdef VECTOR128
 void poly_reduce_rvv_vlen128_wrap(int32_t *a) { poly_reduce_rvv_vlen128(a); }
 void poly_reduce_rvv_vlen128_opt_c908_wrap(int32_t *a) { poly_reduce_rvv_vlen128_opt_c908(a); }
+#endif // VECTOR128
 
 #endif // PQRV_PAPER_H

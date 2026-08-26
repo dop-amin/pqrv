@@ -4,8 +4,8 @@ TESTS += dilithium-poly-basemul
 # All further variables must be prefixed with the capitalized test name
 
 # Platforms this test should run on (matching the directory name in envs/)
-DILITHIUM_POLY_BASEMUL_PLATFORMS += cross-rvv
 DILITHIUM_POLY_BASEMUL_PLATFORMS += cross-rv64im
+DILITHIUM_POLY_BASEMUL_PLATFORMS += cross-rvv
 
 # C sources required for this test
 DILITHIUM_POLY_BASEMUL_SOURCES += main.c

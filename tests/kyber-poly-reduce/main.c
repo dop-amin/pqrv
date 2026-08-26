@@ -47,7 +47,6 @@ uint64_t cycles[TEST_COUNT];
 #define MAKE_TEST_INPLACE_S16(var,func,ref_func,modulus)                    \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t in[KYBER_N]        __attribute__((aligned(16)));                \
     int16_t r[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t r_ref[KYBER_N]     __attribute__((aligned(16)));                \
@@ -68,7 +67,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -76,7 +74,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_INPLACE_S16(var, func)                                   \
     int bench_##var()                                                       \
     {                                                                       \
-        debug_printf("bench kyber_poly_reduce %-50s", #func "\0");          \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                    \
         fill_random_u16( (uint16_t*) a, KYBER_N );                          \
         mod_reduce_buf_s16( a, KYBER_N, KYBER_Q );                          \
@@ -95,7 +92,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events();                                             \
         calc_average(ITER_PER_TEST, TEST_COUNT);                            \
         cleanup_perf_events();                                              \
-        print_counter();                                                    \
+        print_counter(#func);                                                    \
         return (0);                                                         \
     }
 
@@ -142,7 +139,8 @@ MAKE_BENCH_INPLACE_S16(poly_tomont_rvv_vlen128_opt_c908, poly_tomont_rvv_vlen128
 int main (void)
 {
     int rc = 0;
-    debug_test_start( "Kyber poly reduce / domain conversion!" );
+    printf("========= Kyber Poly Reduce Test and Benchmarks =========\n");
+    printf("function, cycles, instructions, IPC, speedup\n");
     rc |= test_poly_plantard_rdc_rv64im_opt_c908();
     rc |= test_poly_toplant_rv64im_opt_c908();
 
@@ -154,15 +152,14 @@ int main (void)
     rc |= test_poly_tomont_rvv_vlen128_opt_c908();
 #endif
 
-    debug_printf("Starting benchmarks ...");
     bench_poly_plantard_rdc_rv64im();
-    bench_poly_plantard_rdc_rv64im_dual();
     bench_poly_plantard_rdc_rv64im_opt_c908();
+    bench_poly_plantard_rdc_rv64im_dual();
+    bench_poly_plantard_rdc_rv64im_dual_opt_c908();
 
     bench_poly_toplant_rv64im();
-    bench_poly_toplant_rv64im_dual();
     bench_poly_toplant_rv64im_opt_c908();
-    bench_poly_plantard_rdc_rv64im_dual_opt_c908();
+    bench_poly_toplant_rv64im_dual();
     bench_poly_toplant_rv64im_dual_opt_c908();
 
 
@@ -174,9 +171,5 @@ int main (void)
     bench_poly_tomont_rvv_vlen128_opt_c908();
 #endif
 
-    if (rc == 0)
-        debug_printf("Test Success!");
-    else
-        debug_printf("SOME TESTS FAILED (see FAIL markers above)");
     return rc;
 }

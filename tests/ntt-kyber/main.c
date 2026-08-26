@@ -41,7 +41,6 @@ uint64_t cycles[TEST_COUNT];
 #define MAKE_TEST_NTT(var,func,ref_func,modulus)                            \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t src[NTT_SIZE]      __attribute__((aligned(16)));                \
     int16_t src_copy[NTT_SIZE] __attribute__((aligned(16)));                \
                                                                             \
@@ -61,7 +60,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -70,7 +68,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH(var, func)                                       \
     int bench_##var()                                               \
     {                                                               \
-        debug_printf("bench ntt_kyber %-50s", #func "\0");          \
         int16_t src[KYBER_N] __attribute__((aligned(16)));          \
                                                                     \
         fill_random_u16( (uint16_t*) src, KYBER_N );                 \
@@ -88,7 +85,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events();                                     \
         calc_average(ITER_PER_TEST, TEST_COUNT);                    \
         cleanup_perf_events();                                      \
-        print_counter();                                            \
+        print_counter(#func);                                            \
         return (0);                                                 \
     }
 
@@ -157,7 +154,8 @@ int main (void)
 {
     int rc = 0;
 
-    debug_test_start( "NTT Kyber!" );
+    printf("========= Kyber NTT Test and Benchmarks =========\n");
+    printf("function, cycles, instructions, IPC, speedup\n");
 
     /* RV64IM equivalence tests */
     rc |= test_ntt_kyber_rv64im_opt_c908();
@@ -174,7 +172,6 @@ int main (void)
     rc |= test_kyber_normal2ntt_order_rvv_vlen128_opt_c908();
 #endif
 
-    debug_printf("Starting benchmarks...\n");
 
     /* RV64IM scalar single NTT benchmarks */
     bench_ntt_kyber_rv64im();
@@ -199,14 +196,10 @@ int main (void)
     bench_intt_kyber_rvv_vlen128();
     bench_intt_kyber_rvv_vlen128_opt_c908();
     bench_kyber_normal2ntt_order_rvv_vlen128();
+    bench_kyber_normal2ntt_order_rvv_vlen128_opt_c908();
     bench_kyber_ntt2normal_order_rvv_vlen128();
     bench_kyber_ntt2normal_order_rvv_vlen128_opt_c908();
-    bench_kyber_normal2ntt_order_rvv_vlen128_opt_c908();
 #endif
 
-    if (rc == 0)
-        debug_printf("Test Success!");
-    else
-        debug_printf("SOME TESTS FAILED (see FAIL markers above)");
     return rc;
 }

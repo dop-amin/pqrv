@@ -1,0 +1,10 @@
+========= Kyber Poly Reduce Test and Benchmarks =========
+function, cycles, instructions, IPC, speedup
+poly_plantard_rdc_rv64im, 3373, 1680, 0.50, - 
+poly_plantard_rdc_rv64im_opt_c908, 1426, 1661, 1.16, 2.37 
+poly_plantard_rdc_rv64im_dual, 1597, 1642, 1.03, - 
+poly_plantard_rdc_rv64im_dual_opt_c908, 1077, 1636, 1.52, 1.48 
+poly_toplant_rv64im, 3375, 1683, 0.50, - 
+poly_toplant_rv64im_opt_c908, 1263, 1661, 1.32, 2.67 
+poly_toplant_rv64im_dual, 1600, 1644, 1.03, - 
+poly_toplant_rv64im_dual_opt_c908, 1343, 1641, 1.22, 1.19 

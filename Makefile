@@ -62,3 +62,18 @@ ${run-remotes}: run-remote-%:
 
 .PHONY: run-remote
 run-remote: ${run-remotes}
+
+BENCH_EXCLUDE = helloworld profiling barret-mul easy-bench test
+
+bench-run-remotes := $(filter-out $(foreach t,$(BENCH_EXCLUDE),%_$(t)),$(run-remotes))
+
+.PHONY: run-remote-bench
+run-remote-bench: ${bench-run-remotes}
+
+.PHONY: list-remote-bench
+list-remote-bench:
+	@$(foreach g,$(bench-run-remotes),echo "  $(g)";)
+
+.PHONY: clean-bench-results
+clean-bench-results:
+	rm -rf bench_results

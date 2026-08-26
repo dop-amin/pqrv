@@ -46,7 +46,6 @@ uint64_t cycles[TEST_COUNT];
 #define MAKE_TEST_CBD_EQUIV(var,func,ref_func,bufbytes)                     \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test (equiv) for " #func " ");                            \
     uint8_t buf[bufbytes]  __attribute__((aligned(16)));                    \
     int16_t r[KYBER_N]     __attribute__((aligned(16)));                    \
     int16_t r_ref[KYBER_N] __attribute__((aligned(16)));                    \
@@ -57,14 +56,13 @@ int test_ ## var ()                                                         \
     if( compare_buf_u16( (uint16_t const*) r, (uint16_t const*) r_ref,      \
                          KYBER_N ) != 0 )                                   \
     { debug_test_fail(); return( 1 ); }                                     \
-    debug_test_ok();                                                        \
     return( 0 );                                                            \
 }
 
 
+#ifdef VECTOR128
 int test_rej_uniform_rvv_vlen128_opt_c908(void)
 {
-    debug_printf("Test (equiv) for rej_uniform_rvv_vlen128_opt_c908_wrap ");
     uint8_t buf[REJ_BUFLEN] __attribute__((aligned(16)));
     int16_t r[KYBER_N] __attribute__((aligned(16))), r_ref[KYBER_N] __attribute__((aligned(16)));
     uint32_t ctr = 0, pos = 0, ctr_ref = 0, pos_ref = 0;
@@ -89,14 +87,13 @@ int test_rej_uniform_rvv_vlen128_opt_c908(void)
         }
         debug_test_fail(); return 1;
     }
-    debug_test_ok();
     return 0;
 }
+#endif // VECTOR128
 
 #define MAKE_BENCH_CBD(var, func, bufbytes)                                 \
     int bench_##var()                                                       \
     {                                                                       \
-        debug_printf("bench kyber_sampling %-45s", #func "\0");             \
         uint8_t buf[bufbytes] __attribute__((aligned(16)));                 \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                    \
         fill_random_u16( (uint16_t*) buf, (bufbytes) / 2 );                 \
@@ -105,13 +102,12 @@ int test_rej_uniform_rvv_vlen128_opt_c908(void)
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                     \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) (func)(r, buf); \
         stop_and_read_events(); calc_average(ITER_PER_TEST, TEST_COUNT);    \
-        cleanup_perf_events(); print_counter(); return (0);                 \
+        cleanup_perf_events(); print_counter(#func); return (0);                 \
     }
 
 #define MAKE_BENCH_REJ(var, func)                                           \
     int bench_##var()                                                       \
     {                                                                       \
-        debug_printf("bench kyber_sampling %-45s", #func "\0");             \
         uint8_t buf[REJ_BUFLEN] __attribute__((aligned(16)));               \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                    \
         uint32_t ctr = 0, pos = 0;                                          \
@@ -121,9 +117,10 @@ int test_rej_uniform_rvv_vlen128_opt_c908(void)
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                     \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) (func)(r, buf, &ctr, &pos); \
         stop_and_read_events(); calc_average(ITER_PER_TEST, TEST_COUNT);    \
-        cleanup_perf_events(); print_counter(); return (0);                 \
+        cleanup_perf_events(); print_counter(#func); return (0);                 \
     }
 
+#ifdef VECTOR128
 MAKE_TEST_CBD_EQUIV(cbd2_rvv_vlen128_opt_c908, cbd2_rvv_vlen128_opt_c908_wrap, cbd2_rvv_vlen128_wrap, CBD2_BUFLEN)
 MAKE_TEST_CBD_EQUIV(cbd3_rvv_vlen128_opt_c908, cbd3_rvv_vlen128_opt_c908_wrap, cbd3_rvv_vlen128_wrap, CBD3_BUFLEN)
 
@@ -134,27 +131,26 @@ MAKE_BENCH_REJ(rej_uniform_rvv_vlen128, rej_uniform_rvv_vlen128_wrap)
 MAKE_BENCH_CBD(cbd2_rvv_vlen128_opt_c908, cbd2_rvv_vlen128_opt_c908_wrap, CBD2_BUFLEN)
 MAKE_BENCH_CBD(cbd3_rvv_vlen128_opt_c908, cbd3_rvv_vlen128_opt_c908_wrap, CBD3_BUFLEN)
 MAKE_BENCH_REJ(rej_uniform_rvv_vlen128_opt_c908, rej_uniform_rvv_vlen128_opt_c908_wrap)
+#endif // VECTOR128
 
 int main (void)
 {
     int rc = 0;
-    debug_test_start( "Kyber sampling (cbd2 / cbd3 / rej_uniform)!" );
+    printf("========= Kyber Sampling Test and Benchmarks =========\n");
+    printf("function, cycles, instructions, IPC, speedup\n");
 
+    #ifdef VECTOR128
     rc |= test_cbd2_rvv_vlen128_opt_c908();
     rc |= test_cbd3_rvv_vlen128_opt_c908();
     rc |= test_rej_uniform_rvv_vlen128_opt_c908();
 
-    debug_printf("Starting benchmarks ...");
     bench_cbd2_rvv_vlen128();
     bench_cbd2_rvv_vlen128_opt_c908();
     bench_cbd3_rvv_vlen128();
     bench_cbd3_rvv_vlen128_opt_c908();
     bench_rej_uniform_rvv_vlen128();
     bench_rej_uniform_rvv_vlen128_opt_c908();
+    #endif // VECTOR128
 
-    if (rc == 0)
-        debug_printf("Test Success!");
-    else
-        debug_printf("SOME TESTS FAILED (see FAIL markers above)");
     return rc;
 }

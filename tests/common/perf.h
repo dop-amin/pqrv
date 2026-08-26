@@ -35,6 +35,6 @@ extern void calc_average(int ITER_PER_TEST, int TEST_COUNT);
 
 extern int get_total_cycles();
 
-extern void print_counter();
+extern void print_counter(const char* func_name);
 
 #endif //PERF_H

@@ -83,7 +83,6 @@ void test_vector() {
 #define MAKE_BENCH(var, func)                                           \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench  %-50s", #func "\0");                   \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)();\
         }                                                               \
@@ -98,7 +97,7 @@ void test_vector() {
         }                                                           \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
-        print_counter(); \
+        print_counter(#func); \
         cleanup_perf_events(); \
         return (0);                                                 \
     }
@@ -109,7 +108,8 @@ MAKE_BENCH(mont_mul, mont_mul_vect_bench)
 int main (void)
 {
     /* Test preamble */
-    //debug_test_start( "Testing Barret Multiplication!\n" );
+    printf("========= Barret Multiplication Benchmarks =========\n");
+    printf("function, cycles, instructions, IPC, speedup\n");
     bench_barret_mul();
     bench_mont_mul();
     //test_scalar();

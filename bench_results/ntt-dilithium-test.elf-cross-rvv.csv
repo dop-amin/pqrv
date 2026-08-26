@@ -1,0 +1,18 @@
+========= Dilithium NTT Test and Benchmarks =========
+function, cycles, instructions, IPC, speedup
+ntt_8l_rv64im, 17779, 7843, 0.44, - 
+ntt_8l_rv64im_opt, 6027, 7726, 1.28, 2.95 
+ntt_8l_dual_rv64im, 8467, 7848, 0.93, - 
+ntt_8l_dual_rv64im_opt, 6628, 7830, 1.18, 1.28 
+intt_dilithium_8l_plant_rv64im, 15370, 8362, 0.54, - 
+intt_dilithium_8l_plant_rv64im_opt_c908, 7324, 8282, 1.13, 2.10 
+intt_dilithium_8l_plant_rv64im_dual, 8698, 8378, 0.96, - 
+intt_dilithium_8l_plant_rv64im_dual_opt_c908, 6796, 8361, 1.23, 1.28 
+ntt_rvv_vlen128, 3450, 2499, 0.72, - 
+ntt_rvv_vlen128_opt_c908, 3383, 2499, 0.74, 1.02 
+ntt_rvv_vlen128_barret_mul, 4329, 2245, 0.52, - 
+ntt_rvv_vlen128_barret_mul_opt_c908, 2795, 2228, 0.80, 1.55 
+ntt2normal_order_rvv_vlen128, 1098, 366, 0.33, - 
+ntt2normal_order_rvv_vlen128_opt_c908, 1089, 365, 0.34, 1.01 
+normal2ntt_order_rvv_vlen128, 1099, 367, 0.33, - 
+normal2ntt_order_rvv_vlen128_opt_c908, 1099, 366, 0.33, 1.00 

@@ -50,7 +50,6 @@ uint64_t cycles[TEST_COUNT];
 #define MAKE_TEST_POLY_BASEMUL_3P_INT32(var,func,ref_func,modulus)                   \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int32_t a[NTT_SIZE]        __attribute__((aligned(16)));                \
     int32_t b[NTT_SIZE]        __attribute__((aligned(16)));                \
     int32_t r[NTT_SIZE]        __attribute__((aligned(16)));                \
@@ -80,7 +79,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -89,7 +87,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_POLY_BASEMUL_3P_INT64(var,func,ref_func,modulus)                  \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int32_t a[NTT_SIZE]        __attribute__((aligned(16)));                \
     int32_t b[NTT_SIZE]        __attribute__((aligned(16)));                \
     int64_t r[NTT_SIZE]        __attribute__((aligned(16)));                \
@@ -118,7 +115,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -127,7 +123,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_POLY_BASEMUL_4P_INT32(var,func,ref_func,modulus)                  \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int32_t a[NTT_SIZE]        __attribute__((aligned(16)));                \
     int32_t b[NTT_SIZE]        __attribute__((aligned(16)));                \
     int32_t r[NTT_SIZE]        __attribute__((aligned(16)));                \
@@ -161,7 +156,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -170,7 +164,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_INPLACE_S32(var,func,ref_func,modulus)                    \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int32_t in[NTT_SIZE]       __attribute__((aligned(16)));                \
     int32_t r[NTT_SIZE]        __attribute__((aligned(16)));                \
     int32_t r_ref[NTT_SIZE]    __attribute__((aligned(16)));                \
@@ -191,7 +184,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -199,7 +191,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_INPLACE_S32(var, func)                                   \
     int bench_##var()                                                       \
     {                                                                       \
-        debug_printf("bench dilithium_poly_basemul %-50s", #func "\0");     \
         int32_t a[NTT_SIZE] __attribute__((aligned(16)));                   \
         fill_random_u32( (uint32_t*) a, NTT_SIZE );                         \
         mod_reduce_buf_s32( a, NTT_SIZE, DILITHIUM_Q );                     \
@@ -218,14 +209,13 @@ int test_ ## var ()                                                         \
         stop_and_read_events();                                             \
         calc_average(ITER_PER_TEST, TEST_COUNT);                            \
         cleanup_perf_events();                                              \
-        print_counter();                                                    \
+        print_counter(#func);                                                    \
         return (0);                                                         \
     }
 
 #define MAKE_BENCH_3P_INT32(var, func)                                     \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench poly_basemul %-50s", #func "\0");          \
         int32_t a[DILITHIUM_N] __attribute__((aligned(16)));            \
         int32_t b[DILITHIUM_N] __attribute__((aligned(16)));            \
         int32_t r[DILITHIUM_N] __attribute__((aligned(16)));            \
@@ -245,14 +235,13 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
 #define MAKE_BENCH_3P_INT64(var, func)                                     \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench poly_basemul %-50s", #func "\0");          \
         int32_t a[DILITHIUM_N] __attribute__((aligned(16)));            \
         int32_t b[DILITHIUM_N] __attribute__((aligned(16)));            \
         int64_t r[DILITHIUM_N] __attribute__((aligned(16)));            \
@@ -272,14 +261,13 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
 #define MAKE_BENCH_4P_INT32(var, func)                                     \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench poly_basemul %-50s", #func "\0");          \
         int32_t a[DILITHIUM_N] __attribute__((aligned(16)));            \
         int32_t b[DILITHIUM_N] __attribute__((aligned(16)));            \
         int32_t r[DILITHIUM_N] __attribute__((aligned(16)));            \
@@ -300,7 +288,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -324,10 +312,11 @@ MAKE_TEST_POLY_BASEMUL_3P_INT64(poly_basemul_8l_init_rv64im_opt_c908,        pol
 MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_8l_rv64im_opt_c908,             poly_basemul_8l_rv64im_opt_c908_wrap,         poly_basemul_8l_rv64im_wrap,       DILITHIUM_Q)
 
 MAKE_TEST_POLY_BASEMUL_3P_INT64(poly_basemul_8l_acc_rv64im_opt_c908_dual,    poly_basemul_8l_acc_rv64im_opt_c908_dual_wrap,    poly_basemul_8l_acc_rv64im_wrap,   DILITHIUM_Q)
-// MAKE_TEST_POLY_BASEMUL_4P_INT32(poly_basemul_8l_acc_end_rv64im_opt_c908_dual,poly_basemul_8l_acc_end_rv64im_opt_c908_dual_wrap,poly_basemul_8l_acc_end_rv64im_wrap, DILITHIUM_Q)
+MAKE_TEST_POLY_BASEMUL_4P_INT32(poly_basemul_8l_acc_end_rv64im_opt_c908_dual,poly_basemul_8l_acc_end_rv64im_opt_c908_dual_wrap,poly_basemul_8l_acc_end_rv64im_wrap, DILITHIUM_Q)
 MAKE_TEST_POLY_BASEMUL_3P_INT64(poly_basemul_8l_init_rv64im_opt_c908_dual,   poly_basemul_8l_init_rv64im_opt_c908_dual_wrap,   poly_basemul_8l_init_rv64im_wrap,  DILITHIUM_Q)
 MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_8l_rv64im_opt_c908_dual,        poly_basemul_8l_rv64im_opt_c908_dual_wrap,        poly_basemul_8l_rv64im_wrap,       DILITHIUM_Q)
 
+#ifdef VECTOR128
 // RVV functions (sanity check - compare against themselves)
 MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_rvv_vlen128,                     poly_basemul_rvv_vlen128_wrap,                    poly_basemul_rvv_vlen128_wrap,       DILITHIUM_Q)
 MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_acc_rvv_vlen128,                 poly_basemul_acc_rvv_vlen128_wrap,                poly_basemul_acc_rvv_vlen128_wrap,       DILITHIUM_Q)
@@ -335,9 +324,16 @@ MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_acc_rvv_vlen128,                 po
 // RVV optimized functions (compare against basic RVV versions)
 MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_rvv_vlen128_opt_c908,            poly_basemul_rvv_vlen128_opt_c908_wrap,           poly_basemul_rvv_vlen128_wrap,     DILITHIUM_Q)
 MAKE_TEST_POLY_BASEMUL_3P_INT32(poly_basemul_acc_rvv_vlen128_opt_c908,        poly_basemul_acc_rvv_vlen128_opt_c908_wrap,       poly_basemul_acc_rvv_vlen128_wrap, DILITHIUM_Q)
+#endif // VECTOR128
 
+// poly_reduce (RV64IM) - optimized tested against the non-optimized version
+MAKE_TEST_INPLACE_S32(poly_reduce_rv64im_opt_c908,      poly_reduce_rv64im_opt_c908_wrap,      poly_reduce_rv64im_wrap,      DILITHIUM_Q)
+MAKE_TEST_INPLACE_S32(poly_reduce_rv64im_dual_opt_c908, poly_reduce_rv64im_dual_opt_c908_wrap, poly_reduce_rv64im_dual_wrap, DILITHIUM_Q)
+
+#ifdef VECTOR128
 // poly_reduce (RVV) - optimized tested against the non-optimized version
 MAKE_TEST_INPLACE_S32(poly_reduce_rvv_vlen128_opt_c908, poly_reduce_rvv_vlen128_opt_c908_wrap, poly_reduce_rvv_vlen128_wrap, DILITHIUM_Q)
+#endif // VECTOR128
 
 // === BENCHMARKS ===
 MAKE_BENCH_3P_INT64(poly_basemul_8l_acc_rv64im,              poly_basemul_8l_acc_rv64im_wrap)
@@ -357,19 +353,28 @@ MAKE_BENCH_3P_INT64(poly_basemul_8l_init_rv64im_opt_c908,    poly_basemul_8l_ini
 MAKE_BENCH_3P_INT32(poly_basemul_8l_rv64im_opt_c908,         poly_basemul_8l_rv64im_opt_c908_wrap)
 
 MAKE_BENCH_3P_INT64(poly_basemul_8l_acc_rv64im_opt_c908_dual,         poly_basemul_8l_acc_rv64im_opt_c908_dual_wrap)
-// MAKE_BENCH_4P_INT32(poly_basemul_8l_acc_end_rv64im_opt_c908_dual,     poly_basemul_8l_acc_end_rv64im_opt_c908_dual_wrap)
+MAKE_BENCH_4P_INT32(poly_basemul_8l_acc_end_rv64im_opt_c908_dual,     poly_basemul_8l_acc_end_rv64im_opt_c908_dual_wrap)
 MAKE_BENCH_3P_INT64(poly_basemul_8l_init_rv64im_opt_c908_dual,        poly_basemul_8l_init_rv64im_opt_c908_dual_wrap)
 MAKE_BENCH_3P_INT32(poly_basemul_8l_rv64im_opt_c908_dual,             poly_basemul_8l_rv64im_opt_c908_dual_wrap)
 
+// poly_reduce (RV64IM)
+MAKE_BENCH_INPLACE_S32(poly_reduce_rv64im,               poly_reduce_rv64im_wrap)
+MAKE_BENCH_INPLACE_S32(poly_reduce_rv64im_dual,          poly_reduce_rv64im_dual_wrap)
+MAKE_BENCH_INPLACE_S32(poly_reduce_rv64im_opt_c908,      poly_reduce_rv64im_opt_c908_wrap)
+MAKE_BENCH_INPLACE_S32(poly_reduce_rv64im_dual_opt_c908, poly_reduce_rv64im_dual_opt_c908_wrap)
+
+#ifdef VECTOR128
 // poly_reduce (RVV)
 MAKE_BENCH_INPLACE_S32(poly_reduce_rvv_vlen128,          poly_reduce_rvv_vlen128_wrap)
 MAKE_BENCH_INPLACE_S32(poly_reduce_rvv_vlen128_opt_c908, poly_reduce_rvv_vlen128_opt_c908_wrap)
+#endif // VECTOR128
 
 
 // === MAIN FUNCTION ===
 int main (void)
 {
-    debug_test_start( "Poly basemul!" );
+    printf("========= Dilithium Poly Basemul Test and Benchmarks =========\n");
+    printf("function, cycles, instructions, IPC, speedup\n");
 
     if (test_poly_basemul_8l_acc_rv64im()           != 0) return 1;
     if (test_poly_basemul_8l_acc_end_rv64im()       != 0) return 1;
@@ -387,10 +392,11 @@ int main (void)
     if (test_poly_basemul_8l_rv64im_opt_c908()          != 0) return 1;
 
     if (test_poly_basemul_8l_acc_rv64im_opt_c908_dual()     != 0) return 1;
-    // if (test_poly_basemul_8l_acc_end_rv64im_opt_c908_dual() != 0) return 1;
+    if (test_poly_basemul_8l_acc_end_rv64im_opt_c908_dual() != 0) return 1;
     if (test_poly_basemul_8l_init_rv64im_opt_c908_dual()    != 0) return 1;
     if (test_poly_basemul_8l_rv64im_opt_c908_dual()         != 0) return 1;
 
+    #ifdef VECTOR128
     // RVV function tests
     if (test_poly_basemul_rvv_vlen128()                     != 0) return 1;
     if (test_poly_basemul_acc_rvv_vlen128()                 != 0) return 1;
@@ -398,32 +404,41 @@ int main (void)
     // RVV optimized function tests
     if (test_poly_basemul_rvv_vlen128_opt_c908()            != 0) return 1;
     if (test_poly_basemul_acc_rvv_vlen128_opt_c908()        != 0) return 1;
+    #endif // VECTOR128
+    if (test_poly_reduce_rv64im_opt_c908()                  != 0) return 1;
+    if (test_poly_reduce_rv64im_dual_opt_c908()             != 0) return 1;
+    #ifdef VECTOR128
     if (test_poly_reduce_rvv_vlen128_opt_c908()             != 0) return 1;
+    #endif // VECTOR128
 
+    /* each naive is immediately followed by its optimized variant so
+     * print_counter() can report the speedup */
     bench_poly_basemul_8l_acc_rv64im();
-    bench_poly_basemul_8l_acc_end_rv64im();
-    bench_poly_basemul_8l_init_rv64im();
-    bench_poly_basemul_8l_rv64im();
-
-    bench_poly_basemul_8l_acc_rv64im_dual();
-    bench_poly_basemul_8l_acc_end_rv64im_dual();
-    bench_poly_basemul_8l_init_rv64im_dual();
-    bench_poly_basemul_8l_rv64im_dual();
-
     bench_poly_basemul_8l_acc_rv64im_opt_c908();
+    bench_poly_basemul_8l_acc_end_rv64im();
     bench_poly_basemul_8l_acc_end_rv64im_opt_c908();
+    bench_poly_basemul_8l_init_rv64im();
     bench_poly_basemul_8l_init_rv64im_opt_c908();
+    bench_poly_basemul_8l_rv64im();
     bench_poly_basemul_8l_rv64im_opt_c908();
 
+    bench_poly_basemul_8l_acc_rv64im_dual();
     bench_poly_basemul_8l_acc_rv64im_opt_c908_dual();
-    // bench_poly_basemul_8l_acc_end_rv64im_opt_c908_dual();
+    bench_poly_basemul_8l_acc_end_rv64im_dual();
+    bench_poly_basemul_8l_acc_end_rv64im_opt_c908_dual();
+    bench_poly_basemul_8l_init_rv64im_dual();
     bench_poly_basemul_8l_init_rv64im_opt_c908_dual();
+    bench_poly_basemul_8l_rv64im_dual();
     bench_poly_basemul_8l_rv64im_opt_c908_dual();
 
+    bench_poly_reduce_rv64im();
+    bench_poly_reduce_rv64im_opt_c908();
+    bench_poly_reduce_rv64im_dual();
+    bench_poly_reduce_rv64im_dual_opt_c908();
+    #ifdef VECTOR128
     bench_poly_reduce_rvv_vlen128();
     bench_poly_reduce_rvv_vlen128_opt_c908();
-
-    debug_printf("Test Success!"); 
+    #endif // VECTOR128
 
     return 0;
 }

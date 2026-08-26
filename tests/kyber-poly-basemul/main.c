@@ -47,7 +47,6 @@ uint64_t cycles[TEST_COUNT];
 #define MAKE_TEST_KYBER_BASEMUL_4P_I32_I64(var,func,ref_func,modulus)                   \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int64_t zeta[KYBER_N/2]    __attribute__((aligned(16)));                \
@@ -80,7 +79,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -89,7 +87,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_4P_I32_I32(var,func,ref_func,modulus)                   \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int32_t zeta[KYBER_N/2]    __attribute__((aligned(16)));                \
@@ -122,7 +119,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -131,7 +127,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_5P_I16_I64_I32(var,func,ref_func,modulus)               \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int64_t zeta[KYBER_N/2]    __attribute__((aligned(16)));                \
@@ -167,7 +162,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -176,7 +170,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_5P_I16_I32_I32(var,func,ref_func,modulus)               \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int32_t zeta[KYBER_N/2]    __attribute__((aligned(16)));                \
@@ -212,7 +205,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -221,7 +213,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_5P_I32_CACHE_I64(var,func,ref_func,modulus)             \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int64_t zeta[KYBER_N/2]    __attribute__((aligned(16)));                \
@@ -258,7 +249,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -267,7 +257,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_5P_I32_CACHE_I32(var,func,ref_func,modulus)             \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int32_t zeta[KYBER_N/2]    __attribute__((aligned(16)));                \
@@ -304,7 +293,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -313,7 +301,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_5P_I16_CACHE_I64(var,func,ref_func,modulus)             \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int64_t zeta[KYBER_N/2]    __attribute__((aligned(16)));                \
@@ -350,7 +337,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -359,7 +345,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_5P_I16_CACHE_I32(var,func,ref_func,modulus)             \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int32_t zeta[KYBER_N/2]    __attribute__((aligned(16)));                \
@@ -396,7 +381,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -405,7 +389,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_5P_I16_CACHE_ACC(var,func,ref_func,modulus)             \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t cache[KYBER_N]     __attribute__((aligned(16)));                \
@@ -441,7 +424,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -450,7 +432,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_6P_I16_CACHE_I64_ACC(var,func,ref_func,modulus)         \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int64_t zeta[KYBER_N/2]    __attribute__((aligned(16)));                \
@@ -490,7 +471,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -499,7 +479,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_6P_I16_CACHE_I32_ACC(var,func,ref_func,modulus)         \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int32_t zeta[KYBER_N/2]    __attribute__((aligned(16)));                \
@@ -539,7 +518,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -548,7 +526,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_4P_CACHED(var,func,ref_func,modulus)                    \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t cache[KYBER_N]     __attribute__((aligned(16)));                \
@@ -581,7 +558,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -590,7 +566,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_4P_RVV_I16_TABLE(var,func,ref_func,modulus)             \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t table[KYBER_N]     __attribute__((aligned(16)));                \
@@ -623,7 +598,6 @@ int test_ ## var ()                                                         \
         debug_test_fail();                                                  \
         return( 1 );                                                        \
     }                                                                       \
-    debug_test_ok();                                                        \
                                                                             \
     return( 0 );                                                            \
 }
@@ -632,7 +606,6 @@ int test_ ## var ()                                                         \
 #define MAKE_TEST_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(var,func,ref_func,modulus)       \
 int test_ ## var ()                                                         \
 {                                                                           \
-    debug_printf("Test for " #func " ");                                    \
     __attribute__((aligned(16))) int16_t a[KYBER_N];                       \
     __attribute__((aligned(16))) int16_t b[KYBER_N];                       \
     __attribute__((aligned(16))) int16_t table[KYBER_N];                   \
@@ -672,7 +645,6 @@ int test_ ## var ()                                                         \
         return 1;                                                           \
     }                                                                       \
                                                                             \
-    debug_test_ok();                                                        \
     return 0;                                                               \
 }
 
@@ -684,7 +656,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_4P_I32_I64(var, func)                     \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int64_t zeta[KYBER_N/2] __attribute__((aligned(16)));           \
@@ -705,7 +676,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -713,7 +684,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_4P_I32_I32(var, func)                     \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int32_t zeta[KYBER_N/2] __attribute__((aligned(16)));           \
@@ -734,7 +704,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -742,7 +712,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_5P_I16_I64_I32(var, func)                 \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int64_t zeta[KYBER_N/2] __attribute__((aligned(16)));           \
@@ -764,7 +733,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -772,7 +741,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_5P_I16_I32_I32(var, func)                 \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int32_t zeta[KYBER_N/2] __attribute__((aligned(16)));           \
@@ -794,7 +762,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -802,7 +770,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_5P_I32_CACHE_I64(var, func)               \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int64_t zeta[KYBER_N/2] __attribute__((aligned(16)));           \
@@ -824,7 +791,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -832,7 +799,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_5P_I32_CACHE_I32(var, func)               \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int32_t zeta[KYBER_N/2] __attribute__((aligned(16)));           \
@@ -854,7 +820,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -862,7 +828,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_4P_CACHED(var, func)                      \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int16_t cache[KYBER_N] __attribute__((aligned(16)));            \
@@ -883,7 +848,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -891,7 +856,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_5P_I16_CACHE_ACC(var, func)               \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int16_t cache[KYBER_N] __attribute__((aligned(16)));            \
@@ -913,7 +877,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -921,7 +885,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_6P_I16_CACHE_I64_ACC(var, func)           \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int64_t zeta[KYBER_N/2] __attribute__((aligned(16)));           \
@@ -944,7 +907,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -952,7 +915,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_6P_I16_CACHE_I32_ACC(var, func)           \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int32_t zeta[KYBER_N/2] __attribute__((aligned(16)));           \
@@ -975,7 +937,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -983,7 +945,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_4P_RVV_I16_TABLE(var, func)               \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int16_t table[KYBER_N] __attribute__((aligned(16)));            \
@@ -1004,7 +965,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -1012,7 +973,6 @@ int test_ ## var ()                                                         \
 #define MAKE_BENCH_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(var, func)         \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench kyber_basemul %-50s", #func "\0");         \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
         int16_t table[KYBER_N] __attribute__((aligned(16)));            \
@@ -1034,7 +994,7 @@ int test_ ## var ()                                                         \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
-        print_counter(); \
+        print_counter(#func); \
         return (0);                                                     \
     }
 
@@ -1067,6 +1027,7 @@ MAKE_TEST_KYBER_BASEMUL_5P_I32_CACHE_I32(poly_basemul_acc_cache_init_rv64im_dual
 MAKE_TEST_KYBER_BASEMUL_6P_I16_CACHE_I64_ACC(poly_basemul_acc_cache_init_end_rv64im, poly_basemul_acc_cache_init_end_rv64im_wrap, poly_basemul_acc_cache_init_end_rv64im_wrap, KYBER_Q)
 MAKE_TEST_KYBER_BASEMUL_6P_I16_CACHE_I32_ACC(poly_basemul_acc_cache_init_end_rv64im_dual, poly_basemul_acc_cache_init_end_rv64im_dual_wrap, poly_basemul_acc_cache_init_end_rv64im_dual_wrap, KYBER_Q)
 
+#ifdef VECTOR128
 // RVV functions
 MAKE_TEST_KYBER_BASEMUL_4P_RVV_I16_TABLE(poly_basemul_rvv_vlen128, poly_basemul_rvv_vlen128_wrap, poly_basemul_rvv_vlen128_wrap, KYBER_Q)
 MAKE_TEST_KYBER_BASEMUL_4P_RVV_I16_TABLE(poly_basemul_acc_rvv_vlen128, poly_basemul_acc_rvv_vlen128_wrap, poly_basemul_acc_rvv_vlen128_wrap, KYBER_Q)
@@ -1074,6 +1035,7 @@ MAKE_TEST_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_cached_rvv_vlen128, 
 MAKE_TEST_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_acc_cached_rvv_vlen128, poly_basemul_acc_cached_rvv_vlen128_wrap, poly_basemul_acc_cached_rvv_vlen128_wrap, KYBER_Q)
 MAKE_TEST_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_cache_init_rvv_vlen128, poly_basemul_cache_init_rvv_vlen128_wrap, poly_basemul_cache_init_rvv_vlen128_wrap, KYBER_Q)
 MAKE_TEST_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_acc_cache_init_rvv_vlen128, poly_basemul_acc_cache_init_rvv_vlen128_wrap, poly_basemul_acc_cache_init_rvv_vlen128_wrap, KYBER_Q)
+#endif // VECTOR128
 
 // === OPTIMIZED FUNCTION TESTS ===
 // Compare optimized functions against their basic counterparts
@@ -1106,6 +1068,7 @@ MAKE_TEST_KYBER_BASEMUL_5P_I32_CACHE_I32(poly_basemul_acc_cache_init_rv64im_dual
 MAKE_TEST_KYBER_BASEMUL_6P_I16_CACHE_I64_ACC(poly_basemul_acc_cache_init_end_rv64im_opt_c908, poly_basemul_acc_cache_init_end_rv64im_opt_c908_wrap, poly_basemul_acc_cache_init_end_rv64im_wrap, KYBER_Q)
 MAKE_TEST_KYBER_BASEMUL_6P_I16_CACHE_I32_ACC(poly_basemul_acc_cache_init_end_rv64im_dual_opt_c908, poly_basemul_acc_cache_init_end_rv64im_dual_opt_c908_wrap, poly_basemul_acc_cache_init_end_rv64im_dual_wrap, KYBER_Q)
 
+#ifdef VECTOR128
 // RVV optimized functions (temporarily commented out due to assembly syntax issues)
 MAKE_TEST_KYBER_BASEMUL_4P_RVV_I16_TABLE(poly_basemul_rvv_vlen128_opt_c908, poly_basemul_rvv_vlen128_opt_c908_wrap, poly_basemul_rvv_vlen128_wrap, KYBER_Q)
 MAKE_TEST_KYBER_BASEMUL_4P_RVV_I16_TABLE(poly_basemul_acc_rvv_vlen128_opt_c908, poly_basemul_acc_rvv_vlen128_opt_c908_wrap, poly_basemul_acc_rvv_vlen128_wrap, KYBER_Q)
@@ -1113,6 +1076,7 @@ MAKE_TEST_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_cached_rvv_vlen128_o
 MAKE_TEST_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_acc_cached_rvv_vlen128_opt_c908, poly_basemul_acc_cached_rvv_vlen128_opt_c908_wrap, poly_basemul_acc_cached_rvv_vlen128_wrap, KYBER_Q)
 MAKE_TEST_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_cache_init_rvv_vlen128_opt_c908, poly_basemul_cache_init_rvv_vlen128_opt_c908_wrap, poly_basemul_cache_init_rvv_vlen128_wrap, KYBER_Q)
 MAKE_TEST_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_acc_cache_init_rvv_vlen128_opt_c908, poly_basemul_acc_cache_init_rvv_vlen128_opt_c908_wrap, poly_basemul_acc_cache_init_rvv_vlen128_wrap, KYBER_Q)
+#endif // VECTOR128
 
 // === BENCHMARKS ===
 // Basic function benchmarks
@@ -1143,6 +1107,7 @@ MAKE_BENCH_KYBER_BASEMUL_5P_I32_CACHE_I32(poly_basemul_acc_cache_init_rv64im_dua
 MAKE_BENCH_KYBER_BASEMUL_6P_I16_CACHE_I64_ACC(poly_basemul_acc_cache_init_end_rv64im, poly_basemul_acc_cache_init_end_rv64im_wrap)
 MAKE_BENCH_KYBER_BASEMUL_6P_I16_CACHE_I32_ACC(poly_basemul_acc_cache_init_end_rv64im_dual, poly_basemul_acc_cache_init_end_rv64im_dual_wrap)
 
+#ifdef VECTOR128
 // RVV function benchmarks (temporarily commented out due to assembly syntax issues)
 MAKE_BENCH_KYBER_BASEMUL_4P_RVV_I16_TABLE(poly_basemul_rvv_vlen128, poly_basemul_rvv_vlen128_wrap)
 MAKE_BENCH_KYBER_BASEMUL_4P_RVV_I16_TABLE(poly_basemul_acc_rvv_vlen128, poly_basemul_acc_rvv_vlen128_wrap)
@@ -1150,6 +1115,7 @@ MAKE_BENCH_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_cached_rvv_vlen128,
 MAKE_BENCH_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_acc_cached_rvv_vlen128, poly_basemul_acc_cached_rvv_vlen128_wrap)
 MAKE_BENCH_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_cache_init_rvv_vlen128, poly_basemul_cache_init_rvv_vlen128_wrap)
 MAKE_BENCH_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_acc_cache_init_rvv_vlen128, poly_basemul_acc_cache_init_rvv_vlen128_wrap)
+#endif // VECTOR128
 
 // Optimized function benchmarks
 MAKE_BENCH_KYBER_BASEMUL_4P_I32_I64(poly_basemul_acc_rv64im_opt_c908,     poly_basemul_acc_rv64im_opt_c908_wrap)
@@ -1173,6 +1139,7 @@ MAKE_BENCH_KYBER_BASEMUL_5P_I32_CACHE_I32(poly_basemul_acc_cache_init_rv64im_dua
 MAKE_BENCH_KYBER_BASEMUL_6P_I16_CACHE_I64_ACC(poly_basemul_acc_cache_init_end_rv64im_opt_c908, poly_basemul_acc_cache_init_end_rv64im_opt_c908_wrap)
 MAKE_BENCH_KYBER_BASEMUL_6P_I16_CACHE_I32_ACC(poly_basemul_acc_cache_init_end_rv64im_dual_opt_c908, poly_basemul_acc_cache_init_end_rv64im_dual_opt_c908_wrap)
 
+#ifdef VECTOR128
 // RVV optimized function benchmarks (temporarily commented out due to assembly syntax issues)
 MAKE_BENCH_KYBER_BASEMUL_4P_RVV_I16_TABLE(poly_basemul_rvv_vlen128_opt_c908, poly_basemul_rvv_vlen128_opt_c908_wrap)
 MAKE_BENCH_KYBER_BASEMUL_4P_RVV_I16_TABLE(poly_basemul_acc_rvv_vlen128_opt_c908, poly_basemul_acc_rvv_vlen128_opt_c908_wrap)
@@ -1180,11 +1147,13 @@ MAKE_BENCH_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_cached_rvv_vlen128_
 MAKE_BENCH_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_acc_cached_rvv_vlen128_opt_c908, poly_basemul_acc_cached_rvv_vlen128_opt_c908_wrap)
 MAKE_BENCH_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_cache_init_rvv_vlen128_opt_c908, poly_basemul_cache_init_rvv_vlen128_opt_c908_wrap)
 MAKE_BENCH_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_acc_cache_init_rvv_vlen128_opt_c908, poly_basemul_acc_cache_init_rvv_vlen128_opt_c908_wrap)
+#endif // VECTOR128
 
 // === MAIN FUNCTION ===
 int main (void)
 {
-    debug_test_start( "Kyber Poly basemul!" );
+    printf("========= Kyber Poly Basemul Tests and Benchmarks =========\n");
+    printf("function, cycles, instructions, IPC, speedup\n");
 
     // Basic function tests (sanity checks)
     if (test_poly_basemul_acc_rv64im()           != 0) return 1;
@@ -1208,6 +1177,7 @@ int main (void)
     if (test_poly_basemul_acc_cache_init_end_rv64im() != 0) return 1;
     if (test_poly_basemul_acc_cache_init_end_rv64im_dual() != 0) return 1;
 
+    #ifdef VECTOR128
     // RVV function test (temporarily commented out due to assembly syntax issues)
     if (test_poly_basemul_rvv_vlen128() != 0) return 1;
     if (test_poly_basemul_acc_rvv_vlen128() != 0) return 1;
@@ -1215,6 +1185,7 @@ int main (void)
     if (test_poly_basemul_acc_cached_rvv_vlen128() != 0) return 1;
     if (test_poly_basemul_cache_init_rvv_vlen128() != 0) return 1;
     if (test_poly_basemul_acc_cache_init_rvv_vlen128() != 0) return 1;
+    #endif // VECTOR128
 
     // Optimized function tests (compare against basic versions)
     if (test_poly_basemul_acc_rv64im_opt_c908()  != 0) return 1;
@@ -1238,82 +1209,76 @@ int main (void)
     if (test_poly_basemul_acc_cache_init_end_rv64im_opt_c908() != 0) return 1;
     if (test_poly_basemul_acc_cache_init_end_rv64im_dual_opt_c908() != 0) return 1;
 
+    #ifdef VECTOR128
     if (test_poly_basemul_rvv_vlen128_opt_c908() != 0) return 1;
     if (test_poly_basemul_acc_rvv_vlen128_opt_c908() != 0) return 1;
     if (test_poly_basemul_cached_rvv_vlen128_opt_c908() != 0) return 1;
     if (test_poly_basemul_acc_cached_rvv_vlen128_opt_c908() != 0) return 1;
     if (test_poly_basemul_cache_init_rvv_vlen128_opt_c908() != 0) return 1;
     if (test_poly_basemul_acc_cache_init_rvv_vlen128_opt_c908() != 0) return 1;
+    #endif // VECTOR128
 
     // === BENCHMARKS ===
-    debug_printf("Starting benchmarks...");
 
+    /* each naive is immediately followed by its optimized variant so
+     * print_counter() can report the speedup */
     // Basic function benchmarks
     bench_poly_basemul_acc_rv64im();
+    bench_poly_basemul_acc_rv64im_opt_c908();
     bench_poly_basemul_acc_rv64im_dual();
+    bench_poly_basemul_acc_rv64im_dual_opt_c908();
 
     // End function benchmarks
     bench_poly_basemul_acc_end_rv64im();
+    bench_poly_basemul_acc_end_rv64im_opt_c908();
     bench_poly_basemul_acc_end_rv64im_dual();
+    bench_poly_basemul_acc_end_rv64im_dual_opt_c908();
 
     // Cache function benchmarks
     bench_poly_basemul_cache_init_rv64im();
+    bench_poly_basemul_cache_init_rv64im_opt_c908();
     bench_poly_basemul_cache_init_rv64im_dual();
+    bench_poly_basemul_cache_init_rv64im_dual_opt_c908();
 
     // Cached function benchmarks
     bench_poly_basemul_acc_cached_rv64im();
+    bench_poly_basemul_acc_cached_rv64im_opt_c908();
     bench_poly_basemul_acc_cached_rv64im_dual();
+    bench_poly_basemul_acc_cached_rv64im_dual_opt_c908();
 
     // Cache end function benchmarks
     bench_poly_basemul_acc_cache_end_rv64im();
+    bench_poly_basemul_acc_cache_end_rv64im_opt_c908();
     bench_poly_basemul_acc_cache_end_rv64im_dual();
+    bench_poly_basemul_acc_cache_end_rv64im_dual_opt_c908();
 
     // Cache init function benchmarks
     bench_poly_basemul_acc_cache_init_rv64im();
+    bench_poly_basemul_acc_cache_init_rv64im_opt_c908();
     bench_poly_basemul_acc_cache_init_rv64im_dual();
+    bench_poly_basemul_acc_cache_init_rv64im_dual_opt_c908();
 
     // Cache init end function benchmarks
     bench_poly_basemul_acc_cache_init_end_rv64im();
-    bench_poly_basemul_acc_cache_init_end_rv64im_dual();
-
-    // RVV function benchmarks
-    bench_poly_basemul_rvv_vlen128();
-    bench_poly_basemul_acc_rvv_vlen128();
-    bench_poly_basemul_cached_rvv_vlen128();
-    bench_poly_basemul_acc_cached_rvv_vlen128();
-    bench_poly_basemul_cache_init_rvv_vlen128();
-    bench_poly_basemul_acc_cache_init_rvv_vlen128();
-
-    // Optimized function benchmarks
-    bench_poly_basemul_acc_rv64im_opt_c908();
-    bench_poly_basemul_acc_rv64im_dual_opt_c908();
-
-    bench_poly_basemul_acc_end_rv64im_opt_c908();
-    bench_poly_basemul_acc_end_rv64im_dual_opt_c908();
-
-    bench_poly_basemul_cache_init_rv64im_opt_c908();
-    bench_poly_basemul_cache_init_rv64im_dual_opt_c908();
-
-    bench_poly_basemul_acc_cached_rv64im_opt_c908();
-    bench_poly_basemul_acc_cached_rv64im_dual_opt_c908();
-
-    bench_poly_basemul_acc_cache_end_rv64im_opt_c908();
-    bench_poly_basemul_acc_cache_end_rv64im_dual_opt_c908();
-
-    bench_poly_basemul_acc_cache_init_rv64im_opt_c908();
-    bench_poly_basemul_acc_cache_init_rv64im_dual_opt_c908();
-
     bench_poly_basemul_acc_cache_init_end_rv64im_opt_c908();
+    bench_poly_basemul_acc_cache_init_end_rv64im_dual();
     bench_poly_basemul_acc_cache_init_end_rv64im_dual_opt_c908();
 
+    #ifdef VECTOR128
+    // RVV function benchmarks
+    bench_poly_basemul_rvv_vlen128();
     bench_poly_basemul_rvv_vlen128_opt_c908();
+    bench_poly_basemul_acc_rvv_vlen128();
     bench_poly_basemul_acc_rvv_vlen128_opt_c908();
+    bench_poly_basemul_cached_rvv_vlen128();
     bench_poly_basemul_cached_rvv_vlen128_opt_c908();
+    bench_poly_basemul_acc_cached_rvv_vlen128();
     bench_poly_basemul_acc_cached_rvv_vlen128_opt_c908();
+    bench_poly_basemul_cache_init_rvv_vlen128();
     bench_poly_basemul_cache_init_rvv_vlen128_opt_c908();
+    bench_poly_basemul_acc_cache_init_rvv_vlen128();
     bench_poly_basemul_acc_cache_init_rvv_vlen128_opt_c908();
-
-    debug_printf("Test Success!"); 
+    #endif // VECTOR128
 
     return 0;
 }

@@ -45,7 +45,6 @@ uint64_t cycles[TEST_COUNT];
 #define MAKE_BENCH(var, func)                                           \
     int bench_##var()                                                   \
     {                                                                   \
-        debug_printf("bench test %-50s", #func "\0");                   \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)();\
         }                                                               \
@@ -60,7 +59,7 @@ uint64_t cycles[TEST_COUNT];
         }                                                           \
         stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
-        print_counter(); \
+        print_counter(#func); \
         cleanup_perf_events(); \
         return (0);                                                 \
     }
@@ -71,7 +70,8 @@ MAKE_BENCH(test, test_opt_c908)
 int main (void)
 {
     /* Test preamble */
-    debug_test_start( "Test!" );
+    printf("========= Test Benchmarks =========\n");
+    printf("function, cycles, instructions, IPC, speedup\n");
     //bench_overhead();
     bench_test();
 
