@@ -65,29 +65,27 @@ int test_ ## var ()                                                         \
 }
 
 
-#define MAKE_BENCH(var, func)                                       \
-    int bench_##var()                                               \
-    {                                                               \
-        int16_t src[KYBER_N] __attribute__((aligned(16)));          \
-                                                                    \
-        fill_random_u16( (uint16_t*) src, KYBER_N );                 \
-        mod_reduce_buf_s16( src, KYBER_N, KYBER_Q );                 \
-                                                                    \
-        for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++)      \
-            (func)(src);                                            \
-        init_perf_events();                                         \
-        start_counting_events();                                    \
-        for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
-        {                                                           \
-            for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++)   \
-                (func)(src);                                        \
-        }                                                           \
-        stop_and_read_events();                                     \
-        calc_average(ITER_PER_TEST, TEST_COUNT);                    \
-        cleanup_perf_events();                                      \
-        print_counter(#func);                                            \
-        return (0);                                                 \
-    }
+  #define MAKE_BENCH(var, func)                                       \
+      int bench_ntt_##var()                                           \
+      {                                                               \
+          int32_t src[DILITHIUM_N] __attribute__((aligned(16)));      \
+                                                                      \
+          for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++)      \
+              (func)(src);                                            \
+          init_perf_events();                                         \
+          start_counting_events();                                    \
+          for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
+          {                                                           \
+              for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++)   \
+                  (func)(src);                                        \
+          }                                                           \
+          stop_and_read_events();                                     \
+          calc_average(ITER_PER_TEST, TEST_COUNT);                    \
+          cleanup_perf_events();                                      \
+          print_counter(#func);                                       \
+          return (0);                                                 \
+      }
+
 
 /* === Equivalence tests: naive vs. its own _opt_c908 kernel === */
 

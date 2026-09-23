@@ -34,7 +34,7 @@
 #include "params.h"
 
 #define WARMUP_ITERATIONS  1000
-#define ITER_PER_TEST      1000
+#define ITER_PER_TEST      100
 #define TEST_COUNT         100
 
 uint64_t t0, t1;
@@ -103,17 +103,17 @@ MAKE_TEST_NTT(normal2ntt_order_rvv_vlen128_opt_c908, normal2ntt_order_rvv_vlen12
     int bench_ntt_##var()                                           \
     {                                                               \
         int32_t src[DILITHIUM_N] __attribute__((aligned(16)));      \
-                                                                    \
+        init_perf_events();                                         \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT);           \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++)      \
             (func)(src);                                            \
-        init_perf_events();                                         \
-        start_counting_events();                                    \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
         {                                                           \
+            start_counting_events();                                \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++)   \
                 (func)(src);                                        \
+            stop_and_read_events();                                 \
         }                                                           \
-        stop_and_read_events();                                     \
         calc_average(ITER_PER_TEST, TEST_COUNT);                    \
         cleanup_perf_events();                                      \
         print_counter(#func);                                       \
@@ -150,7 +150,8 @@ int main (void)
     ntt(a);
     /* Test preamble */
     printf("========= Dilithium NTT Test and Benchmarks =========\n");
-    printf("function, cycles, instructions, IPC, speedup\n");
+    printf("function, cycles, instructions, IPC, speedup, clean\n");
+
     // NTT Tests
     if( test_ntt_8l_rv64im() != 0 ){return( 1 );}
     if( test_ntt_8l_dual_rv64im() != 0 ){return( 1 );}

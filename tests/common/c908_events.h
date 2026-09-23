@@ -1,7 +1,15 @@
 #ifndef C908_EVENTS_H
 #define C908_EVENTS_H
 
-#define NUM_EVENTS 16  // maximum 16 events at once possible
+#include <stdint.h>
+
+/* Only the first two entries of events_list (the architectural instruction and
+ * cycle counters) feed the report, and they map to dedicated RISC-V counters
+ * that never multiplex. With more events open than the PMU has counters the
+ * kernel rotates them and read() returns an unscaled partial count, so raising
+ * this needs PERF_FORMAT_TOTAL_TIME_ENABLED/RUNNING and scaling first.
+ * Maximum 16 events at once. */
+#define NUM_EVENTS 2
 
 // list of available events (not complete, see table 14.6 XuanTie-C908 manual)
 enum events {
@@ -24,6 +32,10 @@ enum events {
   BRANCH_INSTR = 0x36,
   CYCLES_TOTAL = 0x00,  // perf built-in instruction
   INSTR_TOTAL = 0x00,  // perf built-in instruction
+  /* U_MODE_CYCLES (0x2D above) is what perf.c actually uses for the cycle
+   * column: exclude_kernel does nothing on the C908, but this event filters
+   * privilege mode in hardware. Needs the widened
+   * riscv,raw-event-to-mhpmcounters in k230.dtsi. */
   UNALIGN_LOAD_INSTR = 0x3d,
   UNALIGN_STORE_INSTR = 0x3e,
   LR_INSTR = 0x3f,
@@ -33,23 +45,33 @@ enum events {
   MULT_INNER_FORWARD = 0x34,
 };
 
-// List of events to count
+/* List of events to count. The two architectural counters come FIRST so that
+ * index 0 is always instructions and index 1 always cycles, whatever
+ * NUM_EVENTS is set to; entries from index 2 on are raw C908 events and are
+ * only opened if NUM_EVENTS reaches them. */
 enum events events_list[] = {
+  INSTR_TOTAL, CYCLES_TOTAL,
   MULT_INNER_FORWARD, ALU_INSTR, ISSUE_INSTR,
   LOAD_INSTR, FUSED_INSTR, MULT_INSTR, DIV_INSTR, BRANCH_INSTR,
-  UNALIGN_LOAD_INSTR, UNALIGN_STORE_INSTR, LR_INSTR, SC_INSTR, AMO_INSTR, BARRIER_INSTR, INSTR_TOTAL, CYCLES_TOTAL
+  UNALIGN_LOAD_INSTR, UNALIGN_STORE_INSTR, LR_INSTR, SC_INSTR, AMO_INSTR, BARRIER_INSTR
 };
 
 // Define a struct to hold event data and its counter
 struct event_counter {
   enum events event;   // Event type
   const char *name;    // Event name
-  int offset;          // Baseline correction
-  int count;           // Counter for occurrences
+  uint64_t offset;     // Calibration total, removed by calc_average()
+  /* Holds the raw sum over ITER_PER_TEST * TEST_COUNT iterations before
+   * calc_average() divides it down, so it must be 64-bit: at 100000
+   * iterations an int overflows above ~21470 cycles per call. */
+  uint64_t count;      // Counter for occurrences
 };
 
 // Initialize an array of event_counter structs
 struct event_counter events_counter_list[] = {
+  /* index 0 and 1 must stay the architectural counters -- see events_list */
+  {INSTR_TOTAL, "INSTR_TOTAL", 40, 0},
+  {CYCLES_TOTAL, "CYCLES_TOTAL", 26, 0},
   //{STORE_INSTR, "STORE_INSTR", 3, 0},
   {MULT_INNER_FORWARD, "MULT_INNER_FORWARD", 0, 0},
   {ALU_INSTR, "ALU_INSTR", 0, 0},
@@ -66,8 +88,6 @@ struct event_counter events_counter_list[] = {
   {SC_INSTR, "SC_INSTR", 0, 0},
   {AMO_INSTR, "AMO_INSTR", 0, 0},
   {BARRIER_INSTR, "BARRIER_INSTR", 0, 0},
-  {INSTR_TOTAL, "INSTR_TOTAL", 40, 0},
-  {CYCLES_TOTAL, "CYCLES_TOTAL", 26, 0},
   /*{ISSUE_INSTR, "ISSUE_INSTR", 0},
   {VECTOR_SIMD_INSTR, "VECTOR_SIMD_INSTR", 0},
   {STALLED_CYCLES_FRONTEND, "STALLED_CYCLES_FRONTEND", 0},

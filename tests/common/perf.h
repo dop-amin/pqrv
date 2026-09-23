@@ -31,9 +31,11 @@ extern struct event_counter* stop_and_read_events();
 
 extern void cleanup_perf_events();
 
+extern void perf_calibrate_offset(int ITER_PER_TEST, int TEST_COUNT);
+
 extern void calc_average(int ITER_PER_TEST, int TEST_COUNT);
 
-extern int get_total_cycles();
+extern uint64_t get_total_cycles();
 
 extern void print_counter(const char* func_name);
 

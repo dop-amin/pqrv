@@ -4,7 +4,7 @@ CC = riscv64-unknown-linux-gnu-gcc
 REMOTE_USER = justus.bergerman
 _USER = juber
 SSH_DEST = root@k230-0
-SSH_PATH = /home
+SSH_PATH = /root
 SSH_DEST2 = $(REMOTE_USER)@bpi-f3-0
 SSH_PATH2 = /home/$(REMOTE_USER)/uarch_benchmarks
 
