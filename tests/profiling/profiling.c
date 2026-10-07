@@ -11,22 +11,23 @@ unsigned int measure(ubench_t func)
     uint32_t data2[2048] __attribute__((aligned(16)));
     uint32_t data3[2048] __attribute__((aligned(16)));
     uint32_t data4[2048] __attribute__((aligned(16)));
+    init_perf_events();
+    perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT);
     for( unsigned cnt=0; cnt < WARMUP_ITERATIONS; cnt++ )
         func ( data0 + 1024, data1 + 1024,
                data2 + 1024, data3 + 1024,
                data4 + 1024 );
-    init_perf_events();
 
     for( unsigned cnt=0; cnt < TEST_COUNT; cnt++ )
     {
+        start_counting_events();
         for( unsigned cntp=0; cntp < ITER_PER_TEST; cntp++ )
         {
-            start_counting_events();
             func( data0 + 1024, data1 + 1024,
                   data2 + 1024, data3 + 1024,
                   data4 + 1024 );
-            stop_and_read_events();
         }
+        stop_and_read_events();
     }
 
     calc_average(ITER_PER_TEST, UBENCH_PATTERN_REPEATS);

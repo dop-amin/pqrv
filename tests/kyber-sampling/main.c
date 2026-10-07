@@ -40,7 +40,6 @@
 #define CBD3_BUFLEN        (3 * KYBER_N / 4)   /* 192 */
 #define REJ_BUFLEN         504
 
-uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
 #define MAKE_TEST_CBD_EQUIV(var,func,ref_func,bufbytes)                     \
@@ -97,11 +96,16 @@ int test_rej_uniform_rvv_vlen128_opt_c908(void)
         uint8_t buf[bufbytes] __attribute__((aligned(16)));                 \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                    \
         fill_random_u16( (uint16_t*) buf, (bufbytes) / 2 );                 \
+        init_perf_events();                                                 \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT);                   \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) (func)(r, buf); \
-        init_perf_events(); start_counting_events();                        \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                     \
+        {                                                                   \
+            start_counting_events();                                        \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) (func)(r, buf); \
-        stop_and_read_events(); calc_average(ITER_PER_TEST, TEST_COUNT);    \
+            stop_and_read_events();                                         \
+        }                                                                   \
+        calc_average(ITER_PER_TEST, TEST_COUNT);                            \
         cleanup_perf_events(); print_counter(#func); return (0);                 \
     }
 
@@ -112,11 +116,16 @@ int test_rej_uniform_rvv_vlen128_opt_c908(void)
         int16_t r[KYBER_N] __attribute__((aligned(16)));                    \
         uint32_t ctr = 0, pos = 0;                                          \
         fill_random_u16( (uint16_t*) buf, REJ_BUFLEN / 2 );                 \
+        init_perf_events();                                                 \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT);                   \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) (func)(r, buf, &ctr, &pos); \
-        init_perf_events(); start_counting_events();                        \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                     \
+        {                                                                   \
+            start_counting_events();                                        \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) (func)(r, buf, &ctr, &pos); \
-        stop_and_read_events(); calc_average(ITER_PER_TEST, TEST_COUNT);    \
+            stop_and_read_events();                                         \
+        }                                                                   \
+        calc_average(ITER_PER_TEST, TEST_COUNT);                            \
         cleanup_perf_events(); print_counter(#func); return (0);                 \
     }
 
@@ -137,7 +146,7 @@ int main (void)
 {
     int rc = 0;
     printf("========= Kyber Sampling Test and Benchmarks =========\n");
-    printf("function, cycles, instructions, IPC, speedup\n");
+    printf("function, cycles, instructions, IPC, speedup, clean\n");
 
     #ifdef VECTOR128
     rc |= test_cbd2_rvv_vlen128_opt_c908();

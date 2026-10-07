@@ -35,7 +35,6 @@
 #define ITER_PER_TEST      1000
 #define TEST_COUNT         100
 
-uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
 /*
@@ -195,18 +194,19 @@ int test_ ## var ()                                                         \
         fill_random_u32( (uint32_t*) a, NTT_SIZE );                         \
         mod_reduce_buf_s32( a, NTT_SIZE, DILITHIUM_Q );                     \
                                                                             \
+        init_perf_events();                                                 \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT);                   \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {            \
             (func)(a);                                                      \
         }                                                                   \
-        init_perf_events();                                                 \
-        start_counting_events();                                            \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                     \
         {                                                                   \
+            start_counting_events();                                        \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {         \
                 (func)(a);                                                  \
             }                                                               \
+            stop_and_read_events();                                         \
         }                                                                   \
-        stop_and_read_events();                                             \
         calc_average(ITER_PER_TEST, TEST_COUNT);                            \
         cleanup_perf_events();                                              \
         print_counter(#func);                                                    \
@@ -220,19 +220,20 @@ int test_ ## var ()                                                         \
         int32_t b[DILITHIUM_N] __attribute__((aligned(16)));            \
         int32_t r[DILITHIUM_N] __attribute__((aligned(16)));            \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b);                                        \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -246,19 +247,20 @@ int test_ ## var ()                                                         \
         int32_t b[DILITHIUM_N] __attribute__((aligned(16)));            \
         int64_t r[DILITHIUM_N] __attribute__((aligned(16)));            \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b);                                        \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -273,19 +275,20 @@ int test_ ## var ()                                                         \
         int32_t r[DILITHIUM_N] __attribute__((aligned(16)));            \
         int64_t r_double[DILITHIUM_N] __attribute__((aligned(16)));     \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, r_double);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, r_double);                              \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -374,7 +377,7 @@ MAKE_BENCH_INPLACE_S32(poly_reduce_rvv_vlen128_opt_c908, poly_reduce_rvv_vlen128
 int main (void)
 {
     printf("========= Dilithium Poly Basemul Test and Benchmarks =========\n");
-    printf("function, cycles, instructions, IPC, speedup\n");
+    printf("function, cycles, instructions, IPC, speedup, clean\n");
 
     if (test_poly_basemul_8l_acc_rv64im()           != 0) return 1;
     if (test_poly_basemul_8l_acc_end_rv64im()       != 0) return 1;

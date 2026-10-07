@@ -35,7 +35,6 @@
 #define ITER_PER_TEST      1000
 #define TEST_COUNT         100
 
-uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
 #define MAKE_TEST_NTT(var,func,ref_func,modulus)                            \
@@ -66,20 +65,21 @@ int test_ ## var ()                                                         \
 
 
   #define MAKE_BENCH(var, func)                                       \
-      int bench_ntt_##var()                                           \
+      int bench_##var()                                               \
       {                                                               \
-          int32_t src[DILITHIUM_N] __attribute__((aligned(16)));      \
+          int16_t src[NTT_SIZE] __attribute__((aligned(16)));           \
                                                                       \
+          init_perf_events();                                         \
+          perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT);           \
           for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++)      \
               (func)(src);                                            \
-          init_perf_events();                                         \
-          start_counting_events();                                    \
           for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
           {                                                           \
+              start_counting_events();                                \
               for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++)   \
                   (func)(src);                                        \
+              stop_and_read_events();                                 \
           }                                                           \
-          stop_and_read_events();                                     \
           calc_average(ITER_PER_TEST, TEST_COUNT);                    \
           cleanup_perf_events();                                      \
           print_counter(#func);                                       \
@@ -153,7 +153,7 @@ int main (void)
     int rc = 0;
 
     printf("========= Kyber NTT Test and Benchmarks =========\n");
-    printf("function, cycles, instructions, IPC, speedup\n");
+    printf("function, cycles, instructions, IPC, speedup, clean\n");
 
     /* RV64IM equivalence tests */
     rc |= test_ntt_kyber_rv64im_opt_c908();

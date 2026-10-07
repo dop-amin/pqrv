@@ -27,6 +27,7 @@ runs            := $(addprefix run-, $(platformtests))
 runsplatform    := $(addprefix runall-, $(platforms))
 cleans          := $(addprefix clean-, $(platformtests))
 run-remotes     := $(addprefix run-remote-, $(platformtests))
+scps            := $(addprefix scp-, $(platformtests))
 
 .PHONY: all
 all: ${builds}
@@ -60,12 +61,17 @@ run-remote: ${run-remotes}
 ${run-remotes}: run-remote-%:
 	make -C envs/$(platform) run-remote CFLAGS_EXTRA='$(call testcflags,$(test))' SOURCES='$(call testsources,$(test),../../)' ASMS='$(call testasms,$(test),../../)' TARGET=$(call elfname,$(test)) TESTDIR=$(call testdir,$(test),../../)
 
-.PHONY: run-remote
-run-remote: ${run-remotes}
+.PHONY: ${scps}
+${scps}: scp-%:
+	make -C envs/$(platform) scp CFLAGS_EXTRA='$(call testcflags,$(test))' SOURCES='$(call testsources,$(test),../../)' ASMS='$(call testasms,$(test),../../)' TARGET=$(call elfname,$(test)) TESTDIR=$(call testdir,$(test),../../)
 
 BENCH_EXCLUDE = helloworld profiling barret-mul easy-bench test
 
 bench-run-remotes := $(filter-out $(foreach t,$(BENCH_EXCLUDE),%_$(t)),$(run-remotes))
+bench-scps        := $(filter-out $(foreach t,$(BENCH_EXCLUDE),%_$(t)),$(scps))
+
+.PHONY: scp-bench
+scp-bench: ${bench-scps}
 
 .PHONY: run-remote-bench
 run-remote-bench: ${bench-run-remotes}

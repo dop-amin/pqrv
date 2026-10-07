@@ -34,7 +34,6 @@
 #define ITER_PER_TEST      1000
 #define TEST_COUNT         100
 
-uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
 /*
@@ -45,22 +44,23 @@ uint64_t cycles[TEST_COUNT];
 #define MAKE_BENCH(var, func)                                           \
     int bench_##var()                                                   \
     {                                                                   \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)();\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)             \
         { \
+            start_counting_events();                                  \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {   \
                 (func)();                                       \
             } \
               \
+            stop_and_read_events();                                   \
         }                                                           \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
-        print_counter(#func); \
         cleanup_perf_events(); \
+        print_counter(#func);  \
         return (0);                                                 \
     }
 
@@ -71,7 +71,7 @@ int main (void)
 {
     /* Test preamble */
     printf("========= Test Benchmarks =========\n");
-    printf("function, cycles, instructions, IPC, speedup\n");
+    printf("function, cycles, instructions, IPC, speedup, clean\n");
     //bench_overhead();
     bench_test();
 

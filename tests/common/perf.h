@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <fcntl.h>
+#include <sched.h>
+#include <sys/mman.h>
 #include <sys/file.h>
 #include <sys/time.h>
 #include <assert.h>
@@ -23,7 +25,7 @@
 //perf counter syscall
 extern int perf_event_open(struct perf_event_attr * hw, pid_t pid, int cpu, int grp, unsigned long flags);
 
-extern void init_perf_events();
+extern int init_perf_events();
 
 extern void start_counting_events();
 

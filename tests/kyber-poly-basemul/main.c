@@ -36,7 +36,6 @@
 #define KYBER_N            256
 #define KYBER_Q            3329
 
-uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
 /*
@@ -661,19 +660,20 @@ int test_ ## var ()                                                         \
         int64_t zeta[KYBER_N/2] __attribute__((aligned(16)));           \
         int32_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, zeta);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, zeta);                                  \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -689,19 +689,20 @@ int test_ ## var ()                                                         \
         int32_t zeta[KYBER_N/2] __attribute__((aligned(16)));           \
         int32_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, zeta);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, zeta);                                  \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -718,19 +719,20 @@ int test_ ## var ()                                                         \
         int32_t acc[KYBER_N] __attribute__((aligned(16)));              \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, zeta, acc);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, zeta, acc);                             \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -747,19 +749,20 @@ int test_ ## var ()                                                         \
         int32_t acc[KYBER_N] __attribute__((aligned(16)));              \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, zeta, acc);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, zeta, acc);                             \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -776,19 +779,20 @@ int test_ ## var ()                                                         \
         int16_t cache[KYBER_N] __attribute__((aligned(16)));            \
         int32_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, cache, zeta);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, cache, zeta);                           \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -805,19 +809,20 @@ int test_ ## var ()                                                         \
         int16_t cache[KYBER_N] __attribute__((aligned(16)));            \
         int32_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, cache, zeta);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, cache, zeta);                           \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -833,19 +838,20 @@ int test_ ## var ()                                                         \
         int16_t cache[KYBER_N] __attribute__((aligned(16)));            \
         int32_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, cache);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, cache);                                 \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -862,19 +868,20 @@ int test_ ## var ()                                                         \
         int32_t acc[KYBER_N] __attribute__((aligned(16)));              \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, cache, acc);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, cache, acc);                            \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -892,19 +899,20 @@ int test_ ## var ()                                                         \
         int32_t acc[KYBER_N] __attribute__((aligned(16)));              \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, cache, zeta, acc);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, cache, zeta, acc);                      \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -922,19 +930,20 @@ int test_ ## var ()                                                         \
         int32_t acc[KYBER_N] __attribute__((aligned(16)));              \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, cache, zeta, acc);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, cache, zeta, acc);                      \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -950,19 +959,20 @@ int test_ ## var ()                                                         \
         int16_t table[KYBER_N] __attribute__((aligned(16)));            \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, table);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, table);                                 \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -979,19 +989,20 @@ int test_ ## var ()                                                         \
         int16_t b_cache[KYBER_N] __attribute__((aligned(16)));          \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
+        init_perf_events(); \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT); \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {        \
             (func)(r, a, b, table, b_cache);\
         }                                                               \
-        init_perf_events(); \
-        start_counting_events(); \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                 \
         { \
+            start_counting_events();                                    \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {     \
                 (func)(r, a, b, table, b_cache);                        \
             } \
               \
+            stop_and_read_events();                                     \
         }                                                               \
-        stop_and_read_events(); \
         calc_average(ITER_PER_TEST, TEST_COUNT); \
         cleanup_perf_events(); \
         print_counter(#func); \
@@ -1153,7 +1164,7 @@ MAKE_BENCH_KYBER_BASEMUL_5P_RVV_I16_TABLE_CACHE(poly_basemul_acc_cache_init_rvv_
 int main (void)
 {
     printf("========= Kyber Poly Basemul Tests and Benchmarks =========\n");
-    printf("function, cycles, instructions, IPC, speedup\n");
+    printf("function, cycles, instructions, IPC, speedup, clean\n");
 
     // Basic function tests (sanity checks)
     if (test_poly_basemul_acc_rv64im()           != 0) return 1;

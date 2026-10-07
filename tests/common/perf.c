@@ -7,28 +7,43 @@
 #include <inttypes.h>
 #include <sched.h>
 
-/* longest benchmark name in the tree is ~52 chars */
 #define BENCH_NAME_MAX 80
 
 /* events_list keeps the architectural instruction and cycle counters at index
- * 0 and 1 -- the two that feed the printed report -- so these stay correct at
- * any NUM_EVENTS. Everything from index 2 on is a raw C908 event. */
+ * 0 and 1. Everything from index 2 on is a raw C908 event. */
 #define EV_INSTR  0
 #define EV_CYCLES 1
 #define EV_RAW_0  2
 
 struct perf_event_attr attr[NUM_EVENTS];
 int fd[NUM_EVENTS];  // file descriptors for perf events
+struct perf_event_mmap_page* mapping[NUM_EVENTS];
+unsigned csrs[NUM_EVENTS];
 int last_cnt = 0;
+unsigned t1[NUM_EVENTS];
+unsigned t2[NUM_EVENTS];
 
-/* Per-window state. Instructions take the MINIMUM over windows: the counter is
- * U-mode filtered so nothing systematic inflates it, and whatever residual
- * interrupt or preemption cost survives can only ever add. One clean window is
- * therefore exact. Cycles keep the sum, since they vary legitimately between
- * clean windows. */
 static int      n_windows;
 static uint64_t instr_min;
 static int      instr_min_hits;
+static char     prev_name[BENCH_NAME_MAX];
+static uint64_t prev_cycles;
+
+/* csrr takes the CSR number as an immediate, so this macro creates methods for all 32 possible counters. */
+#define CASE(n) case n: { uint64_t v; __asm__ volatile("csrr %0, " #n : "=r"(v)); return v; }
+static uint64_t read_csr_counter(unsigned csr)
+{
+    switch (csr) {
+    CASE(0xc00) CASE(0xc01) CASE(0xc02) CASE(0xc03) CASE(0xc04) CASE(0xc05)
+    CASE(0xc06) CASE(0xc07) CASE(0xc08) CASE(0xc09) CASE(0xc0a) CASE(0xc0b)
+    CASE(0xc0c) CASE(0xc0d) CASE(0xc0e) CASE(0xc0f) CASE(0xc10) CASE(0xc11)
+    CASE(0xc12) CASE(0xc13) CASE(0xc14) CASE(0xc15) CASE(0xc16) CASE(0xc17)
+    CASE(0xc18) CASE(0xc19) CASE(0xc1a) CASE(0xc1b) CASE(0xc1c) CASE(0xc1d)
+    CASE(0xc1e) CASE(0xc1f)
+    }
+    return 0;
+}
+#undef CASE
 
 static void perf_reset_windows(void) {
   n_windows = 0;
@@ -39,11 +54,13 @@ static void perf_reset_windows(void) {
   }
 }
 
+// perf system call
 int perf_event_open(struct perf_event_attr * hw, pid_t pid, int cpu, int grp, unsigned long flags) {
     return syscall(__NR_perf_event_open, hw, pid, cpu, grp, flags);
 }
 
-void init_perf_events() {
+// open perf events to enable counters and map memory from kernel space to user space
+int init_perf_events() {
   for (int i = 0; i < NUM_EVENTS; i++) {
     memset(&attr[i], 0, sizeof(attr[i]));
     attr[i].size = sizeof(struct perf_event_attr);
@@ -52,7 +69,7 @@ void init_perf_events() {
     attr[i].exclude_kernel = 1;
     attr[i].exclude_hv     = 1;
     attr[i].exclude_idle   = 1;
-    attr[i].disabled = 1;  // event is disabled by default
+    attr[i].disabled = 0;
 
     if (i == EV_INSTR) {
       // perf built in counter: Total instructions
@@ -61,6 +78,7 @@ void init_perf_events() {
     } else if (i == EV_CYCLES) {
       /* C908 raw event 0x2D: U-mode cycles only, instead of
        * PERF_COUNT_HW_CPU_CYCLES. Requires an adjusted device tree that enables all event counters.
+       * Latest kernel for the C908 supports it.
       */
       attr[i].type = PERF_TYPE_RAW;
       attr[i].config = U_MODE_CYCLES;
@@ -77,68 +95,65 @@ void init_perf_events() {
     events_counter_list[i].offset = 0;
   }
 
-  perf_reset_windows();
-}
-
-void start_counting_events() {
-  // Tell Linux to start counting events: reset and enable
+  // memory map the file descriptor from kernel to user space s.t. we can read the counters with the csr command.
+  // requires kernel.perf_user_access = 1
   for (int i = 0; i < NUM_EVENTS; i++) {
-    ioctl(fd[i], PERF_EVENT_IOC_RESET, 0);
+    mapping[i] = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ, MAP_SHARED, fd[i], 0);
+    if (mapping[i] == MAP_FAILED) { perror("mmap"); return 1; }
+    if (!mapping[i]->cap_user_rdpmc || !mapping[i]->index) {
+      perror("\nNOT usable: userspace counter access is not granted.\n"
+               "Check: sysctl kernel.perf_user_access (needs 1 for this path)\n");
+      return 2;
+    }
+    csrs[i] = 0xc00 + mapping[i]->index - 1;
   }
-  for (int i = EV_RAW_0; i < NUM_EVENTS; i++) {  // enable raw events first
-    ioctl(fd[i], PERF_EVENT_IOC_ENABLE, 0);
-  }
-  asm volatile ("nop;"); // pseudo-barrier
-  ioctl(fd[EV_CYCLES], PERF_EVENT_IOC_ENABLE, 0);  // enable instruction and cycle coutner last
-  ioctl(fd[EV_INSTR],  PERF_EVENT_IOC_ENABLE, 0);
+  perf_reset_windows();
+  return 0;
 }
 
+// store the initial counters
+void start_counting_events() {
+  for (int i = 0; i < NUM_EVENTS; i++) {
+    t1[i] = read_csr_counter(csrs[i]);
+  }
+}
+
+// get the counters after the code ran and return as a list of event_counter
 struct event_counter* stop_and_read_events() {
   asm volatile ("nop;"); // pseudo-barrier
-  ioctl(fd[EV_INSTR],  PERF_EVENT_IOC_DISABLE, 0);  // disable important counters first (no loop overhead)
-  ioctl(fd[EV_CYCLES], PERF_EVENT_IOC_DISABLE, 0);
-  for (int i = EV_RAW_0; i < NUM_EVENTS; i++) {
-    ioctl(fd[i], PERF_EVENT_IOC_DISABLE, 0);
-  }
 
   // Read the counters; each holds the delta over the window just closed.
   for (int i = 0; i < NUM_EVENTS; i++) {
-    uint64_t val = 0;
-    if (read(fd[i], &val, sizeof(val)) != (ssize_t) sizeof(val)) {
-      perror("Reading performance counter");
-      continue;
-    }
+    t2[i] = read_csr_counter(csrs[i]);
+    uint64_t d = t2[i] - t1[i];
     if (i == EV_INSTR) {
-      if (val < instr_min) {
-        instr_min = val;
+      if (d < instr_min) {
+        instr_min = d;
         instr_min_hits = 1;
-      } else if (val == instr_min) {
+      } else if (d == instr_min) {
         instr_min_hits++;
       }
     }
-    events_counter_list[i].count += val;
+    events_counter_list[i].count += d;
   }
   n_windows++;
   return events_counter_list;
 }
 
-
+// unmap memory and close all file descriptors
 void cleanup_perf_events() {
-  // Close the counter
   for (int i = 0; i < NUM_EVENTS; i++) {
+    munmap(mapping[i], sysconf(_SC_PAGESIZE));
     close(fd[i]);
   }
 }
 
-
+// empty dummy fct to measure overhead
 __attribute__((noipa)) static void perf_empty_fn(void *p) {
   (void) p;
 }
 
-/* Run the benchmark's exact loop shape over an empty body and keep the totals
- * as each counter's offset. Same window count and same calls per window, so
- * the loop bookkeeping, call/return and per-window ioctl cost cancel on
- * subtraction rather than being estimated. Call after init_perf_events(). */
+// calculate measurement overhead and set as offset for the event counters
 void perf_calibrate_offset(int ITER_PER_TEST, int TEST_COUNT) {
   uint64_t dummy = 0;
 
@@ -179,21 +194,9 @@ uint64_t get_total_cycles() {
     return events_counter_list[EV_CYCLES].count;
 }
 
-/* Speedup column: remembers the previously printed benchmark so an optimized
- * variant can be divided by its naive counterpart. Benchmark calls in main()
- * are ordered so each naive is immediately followed by its optimized version.
- * The name check below means a mispaired or unpaired row prints "-" rather than
- * a wrong ratio. */
-static char     prev_name[BENCH_NAME_MAX];
-static uint64_t prev_cycles;
 
 /* Derive the naive counterpart of an optimized benchmark name by deleting the
- * optimization token in place. "_opt_c908" must be tried before "_opt", else
- * "x_opt_c908" would wrongly become "x_c908". Handles all spellings in the tree:
- *   foo_opt_c908        -> foo
- *   foo_dual_opt_c908   -> foo_dual
- *   foo_opt_c908_dual   -> foo_dual   (token is an infix)
- *   foo_opt             -> foo
+ * optimization token in place.
  * Returns 0 if name is not an optimized variant. */
 static int bench_baseline_of(const char *name, size_t len, char *out, size_t outsz)
 {
@@ -215,6 +218,7 @@ static int bench_baseline_of(const char *name, size_t len, char *out, size_t out
   return 0;
 }
 
+// print all recorded counters
 void print_counter(const char* func_name) {
   float ipc = (float)events_counter_list[EV_INSTR].count / (float)events_counter_list[EV_CYCLES].count;
   size_t len = strlen(func_name);

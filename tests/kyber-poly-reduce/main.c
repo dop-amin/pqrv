@@ -35,7 +35,6 @@
 #define TEST_COUNT         100
 #define KYBER_Q            3329
 
-uint64_t t0, t1;
 uint64_t cycles[TEST_COUNT];
 
 /*
@@ -78,18 +77,19 @@ int test_ ## var ()                                                         \
         fill_random_u16( (uint16_t*) a, KYBER_N );                          \
         mod_reduce_buf_s16( a, KYBER_N, KYBER_Q );                          \
                                                                             \
+        init_perf_events();                                                 \
+        perf_calibrate_offset(ITER_PER_TEST, TEST_COUNT);                   \
         for (unsigned cnt = 0; cnt < WARMUP_ITERATIONS; cnt++) {            \
             (func)(a);                                                      \
         }                                                                   \
-        init_perf_events();                                                 \
-        start_counting_events();                                            \
         for (unsigned cnt = 0; cnt < TEST_COUNT; cnt++)                     \
         {                                                                   \
+            start_counting_events();                                        \
             for (unsigned cntp = 0; cntp < ITER_PER_TEST; cntp++) {         \
                 (func)(a);                                                  \
             }                                                               \
+            stop_and_read_events();                                         \
         }                                                                   \
-        stop_and_read_events();                                             \
         calc_average(ITER_PER_TEST, TEST_COUNT);                            \
         cleanup_perf_events();                                              \
         print_counter(#func);                                                    \
@@ -140,7 +140,7 @@ int main (void)
 {
     int rc = 0;
     printf("========= Kyber Poly Reduce Test and Benchmarks =========\n");
-    printf("function, cycles, instructions, IPC, speedup\n");
+    printf("function, cycles, instructions, IPC, speedup, clean\n");
     rc |= test_poly_plantard_rdc_rv64im_opt_c908();
     rc |= test_poly_toplant_rv64im_opt_c908();
 
