@@ -4,10 +4,12 @@
 #include "perf.h"
 #include "c908_events.h"
 #include "string.h"
+#include "common.h"   // median()
 #include <inttypes.h>
 #include <sched.h>
 
 #define BENCH_NAME_MAX 80
+#define MAX_WINDOWS 10000  // >= largest TEST_COUNT
 
 /* events_list keeps the architectural instruction and cycle counters at index
  * 0 and 1. Everything from index 2 on is a raw C908 event. */
@@ -24,6 +26,7 @@ unsigned t1[NUM_EVENTS];
 unsigned t2[NUM_EVENTS];
 
 static int      n_windows;
+static uint64_t windows[NUM_EVENTS][MAX_WINDOWS];  // per-event delta of each window
 static uint64_t instr_min;
 static int      instr_min_hits;
 static char     prev_name[BENCH_NAME_MAX];
@@ -54,12 +57,10 @@ static void perf_reset_windows(void) {
   }
 }
 
-// perf system call
 int perf_event_open(struct perf_event_attr * hw, pid_t pid, int cpu, int grp, unsigned long flags) {
     return syscall(__NR_perf_event_open, hw, pid, cpu, grp, flags);
 }
 
-// open perf events to enable counters and map memory from kernel space to user space
 int init_perf_events() {
   for (int i = 0; i < NUM_EVENTS; i++) {
     memset(&attr[i], 0, sizeof(attr[i]));
@@ -111,14 +112,12 @@ int init_perf_events() {
   return 0;
 }
 
-// store the initial counters
 void start_counting_events() {
   for (int i = 0; i < NUM_EVENTS; i++) {
     t1[i] = read_csr_counter(csrs[i]);
   }
 }
 
-// get the counters after the code ran and return as a list of event_counter
 struct event_counter* stop_and_read_events() {
   asm volatile ("nop;"); // pseudo-barrier
 
@@ -134,13 +133,14 @@ struct event_counter* stop_and_read_events() {
         instr_min_hits++;
       }
     }
+    assert(n_windows < MAX_WINDOWS);
+    windows[i][n_windows] = d;
     events_counter_list[i].count += d;
   }
   n_windows++;
   return events_counter_list;
 }
 
-// unmap memory and close all file descriptors
 void cleanup_perf_events() {
   for (int i = 0; i < NUM_EVENTS; i++) {
     munmap(mapping[i], sysconf(_SC_PAGESIZE));
@@ -148,12 +148,6 @@ void cleanup_perf_events() {
   }
 }
 
-// empty dummy fct to measure overhead
-__attribute__((noipa)) static void perf_empty_fn(void *p) {
-  (void) p;
-}
-
-// calculate measurement overhead and set as offset for the event counters
 void perf_calibrate_offset(int ITER_PER_TEST, int TEST_COUNT) {
   uint64_t dummy = 0;
 
@@ -167,8 +161,11 @@ void perf_calibrate_offset(int ITER_PER_TEST, int TEST_COUNT) {
   }
 
   for (int i = 0; i < NUM_EVENTS; i++) {
-    events_counter_list[i].offset =
-        (i == EV_INSTR) ? instr_min : events_counter_list[i].count;
+    if (i == EV_INSTR) {
+      events_counter_list[i].offset = instr_min;
+    } else {
+      events_counter_list[i].offset = median(windows[i], n_windows);
+    }
   }
   perf_reset_windows();
 }
@@ -178,26 +175,23 @@ void calc_average(int ITER_PER_TEST, int TEST_COUNT) {
   uint64_t w = (n_windows > 0) ? (uint64_t) n_windows : 1;
 
   for (int i = 0; i < NUM_EVENTS; i++) {
-    /* Instructions are a per-window minimum, so they divide by the calls in
-     * one window; everything else is a sum over all windows. */
-    uint64_t c   = (i == EV_INSTR) ? instr_min : events_counter_list[i].count;
-    uint64_t div = (i == EV_INSTR) ? (n / w) : n;
+    uint64_t c, div;
+    if (i == EV_INSTR) {
+      // for counting instructions, take the minimum window, divided by the calls per window
+      c   = (n_windows > 0) ? instr_min : 0;
+      div = n / w;
+    } else {
+      // for cycles and raw events, use median window, divided by the calls per window
+      c   = median(windows[i], n_windows);
+      div = n / w;
+    }
     uint64_t ovh = events_counter_list[i].offset;
 
-    if (i == EV_INSTR && n_windows == 0) { c = 0; }
     c = (c > ovh) ? c - ovh : 0;
     events_counter_list[i].count = (div > 0) ? c / div : 0;
   }
 }
 
-uint64_t get_total_cycles() {
-    return events_counter_list[EV_CYCLES].count;
-}
-
-
-/* Derive the naive counterpart of an optimized benchmark name by deleting the
- * optimization token in place.
- * Returns 0 if name is not an optimized variant. */
 static int bench_baseline_of(const char *name, size_t len, char *out, size_t outsz)
 {
   static const char *tokens[] = { "_opt_c908", "_opt" };
@@ -218,7 +212,6 @@ static int bench_baseline_of(const char *name, size_t len, char *out, size_t out
   return 0;
 }
 
-// print all recorded counters
 void print_counter(const char* func_name) {
   float ipc = (float)events_counter_list[EV_INSTR].count / (float)events_counter_list[EV_CYCLES].count;
   size_t len = strlen(func_name);
