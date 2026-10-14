@@ -54,13 +54,6 @@ extern struct event_counter* stop_and_read_events();
  */
 extern void cleanup_perf_events();
 
-/**
- * @brief Empty dummy fct to measure overhead
- * @param p Dummy value to consider overhead of passing parameters to the dummy fct
- */
-__attribute__((noipa)) static void perf_empty_fn(void *p) {
-  (void) p;
-}
 
 /**
  * @brief Calculate measurement overhead and set as offset for the event counters. Will be 
@@ -84,17 +77,6 @@ extern void perf_calibrate_offset(int ITER_PER_TEST, int TEST_COUNT);
  * @param TEST_COUNT Loop bound of outer loop of the benchmark (number of windows)
  */
 extern void calc_average(int ITER_PER_TEST, int TEST_COUNT);
-
-/**
- * @brief Derive the naive counterpart of an optimized benchmark name by deleting the
- * first optimization token ("_opt_c908" or "_opt"), e.g. "ntt_opt_c908" -> "ntt".
- * @param name  benchmark name
- * @param len   number of characters of name to consider (name need not be terminated there)
- * @param out   buffer receiving the null-terminated baseline name
- * @param outsz size of out in bytes
- * @return 1 if name is an optimized variant and out was written, 0 otherwise
- */
-extern int bench_baseline_of(const char *name, size_t len, char *out, size_t outsz);
 
 /**
  * @brief Print one CSV row for a benchmark: name, cycles, instructions, IPC, speedup and,

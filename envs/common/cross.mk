@@ -2,7 +2,7 @@
 EMU = qemu-riscv64
 CC = riscv64-unknown-linux-gnu-gcc
 REMOTE_USER = justus.bergerman
-_USER = juber
+_USER = justus.bergerman
 SSH_DEST = root@k230-0
 SSH_PATH = /root
 SSH_DEST2 = $(REMOTE_USER)@bpi-f3-0
