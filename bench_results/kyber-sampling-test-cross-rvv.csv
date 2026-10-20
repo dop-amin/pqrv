@@ -1,8 +1,8 @@
 ========= Kyber Sampling Test and Benchmarks =========
 function, cycles, instructions, IPC, speedup, clean
-cbd2_rvv_vlen128, 505, 270, 0.53, -, 66/100 
-cbd2_rvv_vlen128_opt_c908, 457, 270, 0.59, 1.11, 74/100 
-cbd3_rvv_vlen128, 1078, 615, 0.57, -, 80/100 
-cbd3_rvv_vlen128_opt_c908, 964, 614, 0.64, 1.12, 85/100 
-rej_uniform_rvv_vlen128, 893, 613, 0.69, -, 84/100 
-rej_uniform_rvv_vlen128_opt_c908, 785, 571, 0.73, 1.14, 88/100 
+cbd2_rvv_vlen128, 505, 270, 0.53, -, 996/1000 
+cbd2_rvv_vlen128_opt_c908, 458, 270, 0.59, 1.10, 997/1000 
+cbd3_rvv_vlen128, 1079, 615, 0.57, -, 993/1000 
+cbd3_rvv_vlen128_opt_c908, 965, 614, 0.64, 1.12, 992/1000 
+rej_uniform_rvv_vlen128, 895, 613, 0.68, -, 993/1000 
+rej_uniform_rvv_vlen128_opt_c908, 787, 571, 0.73, 1.14, 995/1000 

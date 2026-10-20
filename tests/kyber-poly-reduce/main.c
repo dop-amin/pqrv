@@ -31,8 +31,8 @@
 #include "perf.h"
 
 #define WARMUP_ITERATIONS  1000
-#define ITER_PER_TEST      1000
-#define TEST_COUNT         100
+#define ITER_PER_TEST      10
+#define TEST_COUNT         1000
 #define KYBER_Q            3329
 
 uint64_t cycles[TEST_COUNT];
