@@ -1,0 +1,17 @@
+## MUL instruction
+
+========= Test Benchmarks 2 x 64 bit operands =========
+function, cycles, instructions, IPC, speedup, clean
+test_opt_c908, 320, 139, 0.43, -, 99/100 
+
+Overhead: 34 cycles 
+320 - 34 = 286
+286 \ 96 Instructions =~ 3 cycles throughput per mul instruction
+
+========= Test Benchmarks 16 bit and 64 bit operand =========
+function, cycles, instructions, IPC, speedup, clean
+test_opt_c908, 224, 139, 0.62, -, 99/100 
+
+Overhead: 34 cycles 
+224 - 34 = 190
+190 \ 96 =~ 2 cycles throughput per mul instruction 

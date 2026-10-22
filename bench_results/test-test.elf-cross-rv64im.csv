@@ -1,0 +1,3 @@
+========= Test Benchmarks =========
+function, cycles, instructions, IPC, speedup, clean
+test_opt_c908, 34, 43, 1.26, -, 100/100 

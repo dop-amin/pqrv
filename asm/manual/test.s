@@ -34,34 +34,41 @@
   ld ra,  14*8(sp)
 .endm
 
+.data
+.align 3
+mul_ops:
+  //.dword 0x123456789abcdef1          // a1: full 64-bit
+  //.dword 0x0fedcba987654321          // a2: full 64-bit
+  .dword 1234                        // a1: 16-bit coefficient
+  .dword 0x3c0f12886ba8f301          // a2: 64-bit constant (qinv), as in plant_mul_const
+
+.text
 .globl test_opt_c908
 .align 2
 test_opt_c908:
     addi sp, sp, -8*15
     save_regs
+    la a0, mul_ops
+    ld a1, 0(a0)
+    ld a2, 8(a0)
     nop
     nop
     nop
     nop
-    vsetivli t2, 4, e32, m1, tu, mu
-    .rept 100
-      //add x3, x4, x5
-      vadd.vv v2, v3, v4
-      //add x6, x7, x8
-      vadd.vv v5, v6, v7
-      //add x9, x10, x11
-      vadd.vv v8, v9, v10
-      //add x12, x13, x14
-      vadd.vv v11, v12, v13
-      vadd.vv v14, v15, v16
-      vadd.vv v17, v18, v19
-      vadd.vv v20, v21, v22
-      vadd.vv v23, v24, v25
+    .rept 12
+      mul s0, a1, a2
+      mul s1, a1, a2
+      mul s2, a1, a2
+      mul s3, a1, a2
+      mul s4, a1, a2
+      mul s5, a1, a2
+      mul s6, a1, a2
+      mul s7, a1, a2
     .endr
     nop
     nop
     nop
     nop
-restore_regs
-addi sp, sp, 8*15
-ret
+    restore_regs
+    addi sp, sp, 8*15
+    ret

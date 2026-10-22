@@ -9,6 +9,7 @@ include tests/kyber-poly-reduce/kyber-poly-reduce.mk
 include tests/kyber-sampling/kyber-sampling.mk
 include tests/test/test.mk
 include tests/barret-mul/barret-mul.mk
+include tests/mul-timing/mul-timing.mk
 
 testname = $(shell echo $(1) | tr '[a-z]' '[A-Z]' | tr '-' '_' | tr '/' '_')
 testdir = $(addprefix $(2),tests/$(firstword $(subst /, ,$1))/)
@@ -65,7 +66,7 @@ ${run-remotes}: run-remote-%:
 ${scps}: scp-%:
 	make -C envs/$(platform) scp CFLAGS_EXTRA='$(call testcflags,$(test))' SOURCES='$(call testsources,$(test),../../)' ASMS='$(call testasms,$(test),../../)' TARGET=$(call elfname,$(test)) TESTDIR=$(call testdir,$(test),../../)
 
-BENCH_EXCLUDE = helloworld profiling barret-mul easy-bench test
+BENCH_EXCLUDE = helloworld profiling barret-mul easy-bench test mul-timing
 
 bench-run-remotes := $(filter-out $(foreach t,$(BENCH_EXCLUDE),%_$(t)),$(run-remotes))
 bench-scps        := $(filter-out $(foreach t,$(BENCH_EXCLUDE),%_$(t)),$(scps))
