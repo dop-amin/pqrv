@@ -92,6 +92,7 @@ MAKE_TEST_NTT(intt_dilithium_8l_plant_rv64im_dual_opt_c908, intt_dilithium_8l_pl
 // RVV Tests
 MAKE_TEST_NTT(ntt_rvv_vlen128, ntt_rvv_vlen128_wrap, ntt, DILITHIUM_Q)
 MAKE_TEST_NTT(ntt_rvv_vlen128_opt_c908, ntt_rvv_vlen128_opt_c908_wrap, ntt_rvv_vlen128_wrap, DILITHIUM_Q)  // tested against the non-optimized rvv ntt (same permuted layout)
+MAKE_TEST_NTT(intt_rvv_vlen128_opt_c908, intt_rvv_vlen128_opt_c908_wrap, intt_rvv_vlen128_wrap, DILITHIUM_Q)  // tested against the non-optimized rvv intt (same permuted layout)
 MAKE_TEST_NTT(ntt_rvv_vlen128_barret_mul, ntt_rvv_vlen128_barret_mul_wrap, ntt, DILITHIUM_Q)  // tested against non-optimized ntt
 MAKE_TEST_NTT(ntt_rvv_vlen128_barret_mul_opt_c908, ntt_rvv_vlen128_barret_mul_opt_c908_wrap, ntt_rvv_vlen128_barret_mul_wrap, DILITHIUM_Q)  // tested against the non-optimized barret mul
 MAKE_TEST_NTT(ntt2normal_order_rvv_vlen128_opt_c908, ntt2normal_order_rvv_vlen128_opt_c908_wrap, ntt2normal_order_rvv_vlen128_wrap, DILITHIUM_Q)
@@ -135,6 +136,8 @@ MAKE_BENCH(intt_8l_plant_rv64im_dual_opt_c908, intt_dilithium_8l_plant_rv64im_du
 // RVV Benchmarks
 MAKE_BENCH(rvv_vlen128, ntt_rvv_vlen128_wrap);
 MAKE_BENCH(rvv_vlen128_opt_c908, ntt_rvv_vlen128_opt_c908_wrap);
+MAKE_BENCH(intt_rvv_vlen128, intt_rvv_vlen128_wrap);
+MAKE_BENCH(intt_rvv_vlen128_opt_c908, intt_rvv_vlen128_opt_c908_wrap);
 MAKE_BENCH(rvv_vlen128_barret_mul, ntt_rvv_vlen128_barret_mul_wrap);
 MAKE_BENCH(rvv_vlen128_barret_mul_opt_c908, ntt_rvv_vlen128_barret_mul_opt_c908_wrap);
 MAKE_BENCH(ntt2normal_order_rvv_vlen128, ntt2normal_order_rvv_vlen128_wrap);
@@ -165,6 +168,7 @@ int main (void)
 
     #ifdef VECTOR128
     if( test_ntt_rvv_vlen128_opt_c908() != 0 ){return( 1 );}
+    if( test_intt_rvv_vlen128_opt_c908() != 0 ){return( 1 );}
     if( test_ntt_rvv_vlen128_barret_mul() != 0){return( 1 );}
     if( test_ntt_rvv_vlen128_barret_mul_opt_c908() != 0){return( 1 );}
     if( test_ntt2normal_order_rvv_vlen128_opt_c908() != 0 ){return( 1 );}
@@ -187,6 +191,8 @@ int main (void)
     // RVV Benchmarks
     bench_ntt_rvv_vlen128();
     bench_ntt_rvv_vlen128_opt_c908();
+    bench_ntt_intt_rvv_vlen128();
+    bench_ntt_intt_rvv_vlen128_opt_c908();
     bench_ntt_rvv_vlen128_barret_mul();
     bench_ntt_rvv_vlen128_barret_mul_opt_c908();
     bench_ntt_ntt2normal_order_rvv_vlen128();
