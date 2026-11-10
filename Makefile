@@ -74,6 +74,17 @@ bench-scps        := $(filter-out $(foreach t,$(BENCH_EXCLUDE),%_$(t)),$(scps))
 .PHONY: scp-bench
 scp-bench: ${bench-scps}
 
+# CSVs of a board-local run (tools/board/Makefile, `make` in /root on the board) -> bench_results/
+.PHONY: fetch-bench
+fetch-bench:
+	mkdir -p bench_results
+	scp -O 'k230-0:/root/*.csv' bench_results/
+
+# Markdown report of the CSVs in bench_results/ (naive vs. optimized per kernel) -> bench_results/report.md
+.PHONY: report-bench
+report-bench:
+	python3 tools/report_bench.py
+
 .PHONY: run-remote-bench
 run-remote-bench: ${bench-run-remotes}
 

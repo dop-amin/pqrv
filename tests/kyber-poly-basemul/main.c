@@ -34,6 +34,9 @@
 #define ITER_PER_TEST      10
 #define TEST_COUNT         1000
 #define KYBER_N            256
+/* The RVV kernels take PQRV's qdata table and read the basemul zetas at index 320
+ * (_ZETAS_BASEMUL, 128 entries), so their table must be longer than KYBER_N. */
+#define KYBER_RVV_TABLE_N  (320 + KYBER_N)
 #define KYBER_Q            3329
 
 uint64_t cycles[TEST_COUNT];
@@ -567,7 +570,7 @@ int test_ ## var ()                                                         \
 {                                                                           \
     int16_t a[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t b[KYBER_N]         __attribute__((aligned(16)));                \
-    int16_t table[KYBER_N]     __attribute__((aligned(16)));                \
+    int16_t table[KYBER_RVV_TABLE_N] __attribute__((aligned(16)));          \
     int16_t r[KYBER_N]         __attribute__((aligned(16)));                \
     int16_t r_ref[KYBER_N]     __attribute__((aligned(16)));                \
                                                                             \
@@ -576,8 +579,8 @@ int test_ ## var ()                                                         \
     mod_reduce_buf_s16( a, KYBER_N, modulus );                              \
     fill_random_u16( (uint16_t*) b, KYBER_N );                             \
     mod_reduce_buf_s16( b, KYBER_N, modulus );                              \
-    fill_random_u16( (uint16_t*) table, KYBER_N );                         \
-    mod_reduce_buf_s16( table, KYBER_N, modulus );                          \
+    fill_random_u16( (uint16_t*) table, KYBER_RVV_TABLE_N );               \
+    mod_reduce_buf_s16( table, KYBER_RVV_TABLE_N, modulus );                \
                                                                             \
     /* Initialize output arrays */                                          \
     memset(r, 0, sizeof(r));                                               \
@@ -607,7 +610,7 @@ int test_ ## var ()                                                         \
 {                                                                           \
     __attribute__((aligned(16))) int16_t a[KYBER_N];                       \
     __attribute__((aligned(16))) int16_t b[KYBER_N];                       \
-    __attribute__((aligned(16))) int16_t table[KYBER_N];                   \
+    __attribute__((aligned(16))) int16_t table[KYBER_RVV_TABLE_N];         \
     __attribute__((aligned(16))) int16_t b_cache[KYBER_N];                 \
     __attribute__((aligned(16))) int16_t r[KYBER_N];                       \
     __attribute__((aligned(16))) int16_t r_ref[KYBER_N];                   \
@@ -615,10 +618,10 @@ int test_ ## var ()                                                         \
                                                                             \
     fill_random_u16((uint16_t*)a, KYBER_N);                               \
     fill_random_u16((uint16_t*)b, KYBER_N);                               \
-    fill_random_u16((uint16_t*)table, KYBER_N);                           \
+    fill_random_u16((uint16_t*)table, KYBER_RVV_TABLE_N);                 \
     mod_reduce_buf_s16(a, KYBER_N, modulus);                              \
     mod_reduce_buf_s16(b, KYBER_N, modulus);                              \
-    mod_reduce_buf_s16(table, KYBER_N, modulus);                          \
+    mod_reduce_buf_s16(table, KYBER_RVV_TABLE_N, modulus);                \
                                                                             \
     memset(r, 0, sizeof(r));                                               \
     memset(r_ref, 0, sizeof(r_ref));                                       \
@@ -956,7 +959,7 @@ int test_ ## var ()                                                         \
     {                                                                   \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
-        int16_t table[KYBER_N] __attribute__((aligned(16)));            \
+        int16_t table[KYBER_RVV_TABLE_N] __attribute__((aligned(16)));  \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                \
         \
         init_perf_events(); \
@@ -985,7 +988,7 @@ int test_ ## var ()                                                         \
     {                                                                   \
         int16_t a[KYBER_N] __attribute__((aligned(16)));                \
         int16_t b[KYBER_N] __attribute__((aligned(16)));                \
-        int16_t table[KYBER_N] __attribute__((aligned(16)));            \
+        int16_t table[KYBER_RVV_TABLE_N] __attribute__((aligned(16)));  \
         int16_t b_cache[KYBER_N] __attribute__((aligned(16)));          \
         int16_t r[KYBER_N] __attribute__((aligned(16)));                \
         \

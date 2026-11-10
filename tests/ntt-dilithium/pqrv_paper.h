@@ -516,6 +516,7 @@ extern void intt_dilithium_8l_plant_rv64im_dual(int32_t *r, const int64_t *zetas
 extern void ntt_rvv_vlen128(int32_t *r, const int64_t *zetas);
 extern void intt_rvv_vlen128(int32_t *r, const int64_t *zetas);
 extern void ntt_rvv_vlen128_barret_mul(int32_t *r, const int64_t *zetas);
+extern void intt_rvv_vlen128_barret_mul(int32_t *r, const int64_t *zetas);
 extern void ntt2normal_order_rvv_vlen128(int32_t *r, const int64_t *qdata);
 extern void normal2ntt_order_rvv_vlen128(int32_t *r, const int64_t *qdata);
 
@@ -529,6 +530,7 @@ extern void intt_dilithium_8l_plant_rv64im_dual_opt_c908(int32_t *r, const int64
 extern void ntt_rvv_vlen128_opt_c908(int32_t *r, const int64_t *zetas);
 extern void intt_rvv_vlen128_opt_c908(int32_t *r, const int64_t *zetas);
 extern void ntt_rvv_vlen128_barret_mul_opt_c908(int32_t *r, const int64_t *zetas);
+extern void intt_rvv_vlen128_barret_mul_opt_c908(int32_t *r, const int64_t *zetas);
 extern void ntt2normal_order_rvv_vlen128_opt_c908(int32_t *r, const int64_t *qdata);
 extern void normal2ntt_order_rvv_vlen128_opt_c908(int32_t *r, const int64_t *qdata);
 
@@ -562,6 +564,16 @@ void ntt_rvv_vlen128_barret_mul_wrap(int32_t *r)
 void ntt_rvv_vlen128_barret_mul_opt_c908_wrap(int32_t *r)
 {
     ntt_rvv_vlen128_barret_mul_opt_c908(r, zetas);
+}
+
+void intt_rvv_vlen128_barret_mul_wrap(int32_t *r)
+{
+    intt_rvv_vlen128_barret_mul(r, zetas);
+}
+
+void intt_rvv_vlen128_barret_mul_opt_c908_wrap(int32_t *r)
+{
+    intt_rvv_vlen128_barret_mul_opt_c908(r, zetas);
 }
 #endif // VECTOR128
 

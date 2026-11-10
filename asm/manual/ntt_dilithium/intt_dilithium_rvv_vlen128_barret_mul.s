@@ -1,0 +1,1 @@
+../../../slothy/examples/naive/riscv/ntt_dilithium/intt_dilithium_rvv_vlen128_barret_mul.s
